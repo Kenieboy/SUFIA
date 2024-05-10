@@ -29,8 +29,14 @@ import SettingLayout from "./pages/setting/SettingLayout";
 import Customers from "./pages/setting/customers/Customers";
 import CustomerId from "./pages/setting/customers/customerId/CustomerId";
 
+// for api request components
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Suppliers from "./pages/setting/suppliers/Suppliers";
+
 function App() {
   const currentUser = true;
+
+  const queryClient = new QueryClient();
 
   // layout for left navigation menu
   const Layout = () => {
@@ -91,7 +97,6 @@ function App() {
               </NavLink>
               <NavLink
                 to="/settings"
-                end
                 className={({ isActive }) =>
                   isActive
                     ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
@@ -133,9 +138,11 @@ function App() {
     {
       path: "/",
       element: (
-        <ProtectedRoute>
-          <Layout />
-        </ProtectedRoute>
+        <QueryClientProvider client={queryClient}>
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        </QueryClientProvider>
       ),
       children: [
         {
@@ -175,11 +182,7 @@ function App() {
 
             {
               path: "suppliers",
-              element: (
-                <div>
-                  <h1>Suppliers</h1>
-                </div>
-              ),
+              element: <Suppliers />,
             },
             {
               path: "items",
