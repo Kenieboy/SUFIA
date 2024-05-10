@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // routing component
 import { Link, Outlet } from "react-router-dom";
 
-function SettingRoute() {
+function SettingLayout() {
   return (
     <div>
       <div className="mb-6 ">
@@ -39,4 +39,4 @@ function SettingRoute() {
   );
 }
 
-export default SettingRoute;
+export default SettingLayout;

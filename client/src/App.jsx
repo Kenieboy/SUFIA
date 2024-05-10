@@ -5,6 +5,7 @@ import {
   Link,
   Outlet,
   Navigate,
+  NavLink,
 } from "react-router-dom";
 
 // pages
@@ -24,7 +25,7 @@ import {
   Warehouse,
   PackageSearch,
 } from "lucide-react";
-import SettingRoute from "./pages/setting/SettingRoute";
+import SettingLayout from "./pages/setting/SettingLayout";
 import Customers from "./pages/setting/customers/Customers";
 import CustomerId from "./pages/setting/customers/customerId/CustomerId";
 
@@ -39,29 +40,66 @@ function App() {
         <div className="bg-[#393a3d] w-[210px] flex flex-col justify-between p-6 text-white">
           <div>
             <div>
-              <Link to="/">
+              <NavLink to="/">
                 <h1 className="text-3xl font-bold">SU FIA</h1>
-              </Link>
+              </NavLink>
             </div>
-            <div className="flex flex-col mt-4 gap-4 px-2">
-              <Link to="/procurement" className="flex items-center gap-2">
+            <div className="flex flex-col mt-4 gap-6 px-2">
+              {/* isActive =  border-solid border-2 border-green-500 rounded-2xl px-4 py-2 */}
+              <NavLink
+                to="/procurement"
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
                 <PackageSearch />
                 Procurement
-              </Link>
-              <Link to="/inventory" className="flex items-center gap-2">
+              </NavLink>
+              <NavLink
+                to="/inventory"
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
                 <Warehouse />
                 Inventory
-              </Link>
-              <Link to="/production" className="flex items-center gap-2">
+              </NavLink>
+              <NavLink
+                to="/production"
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
                 <Factory />
                 Production
-              </Link>
-              <Link to="/reports" className="flex items-center gap-2">
+              </NavLink>
+              <NavLink
+                to="/reports"
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
                 <Repeat2 /> Reports
-              </Link>
-              <Link to="/settings" className="flex items-center gap-2">
+              </NavLink>
+              <NavLink
+                to="/settings"
+                end
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
                 <Settings /> Settings
-              </Link>
+              </NavLink>
             </div>
           </div>
 
@@ -122,7 +160,7 @@ function App() {
         },
         {
           path: "settings",
-          element: <SettingRoute />,
+          element: <SettingLayout />,
           children: [
             {
               path: "customers",
