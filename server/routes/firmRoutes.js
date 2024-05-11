@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
 
   // If class is specified, add WHERE clause to filter by FIRMCLASS
   if (firmClassId) {
-    query += ` WHERE FIRMCLASSID = ?`;
+    query += ` WHERE FIRMCLASSID = ? ORDER BY ID DESC`;
   }
 
   dbConnection.query(query, [firmClassId], (error, result) => {
@@ -21,6 +21,25 @@ router.get("/", (req, res) => {
 
     res.json(result);
   });
+});
+
+router.post("/", (req, res) => {
+  const { CODE, NAME, FIRMCLASSID /* other fields */ } = req.body;
+  const query = `INSERT INTO FIRM (CODE, NAME, FIRMCLASSID /* other fields */) VALUES (?, ?, ? /* other values */)`;
+
+  dbConnection.query(
+    query,
+    [CODE, NAME, FIRMCLASSID /* other values */],
+    (error, result) => {
+      if (error) {
+        console.error("Error adding firm:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      res.json({ message: "Firm added successfully", Id: result.insertId });
+    }
+  );
 });
 
 export default router;

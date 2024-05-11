@@ -18,4 +18,12 @@ async function getFirmSupplier() {
   return data;
 }
 
-export { getFirmData, getFirmCustomer, getFirmSupplier };
+async function insertCustomerData(value) {
+  console.log(value);
+  const req = await axios.post(`http://localhost:3001/api/firm`, value);
+  const data = await req.data;
+  console.log(data.message, data.Id);
+  return data.message;
+}
+
+export { getFirmData, getFirmCustomer, getFirmSupplier, insertCustomerData };

@@ -10,7 +10,7 @@ function ReusableTable({ data, properties }) {
   }
 
   return (
-    <div className=" border border-gray-300 rounded-lg shadow-md overflow-x-auto max-h-[680px]">
+    <div className=" border border-gray-300 rounded-lg shadow-md overflow-x-auto max-h-[640px]">
       <table className="table-auto">
         <thead className="sticky top-0 bg-gray-400 text-white">
           <tr>
