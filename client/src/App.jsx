@@ -46,9 +46,9 @@ function App() {
         <div className="bg-[#393a3d] w-[210px] flex flex-col justify-between p-6 text-white">
           <div>
             <div>
-              <NavLink to="/">
+              <Link to="/">
                 <h1 className="text-3xl font-bold">SU FIA</h1>
-              </NavLink>
+              </Link>
             </div>
             <div className="flex flex-col mt-4 gap-6 px-2">
               {/* isActive =  border-solid border-2 border-green-500 rounded-2xl px-4 py-2 */}
