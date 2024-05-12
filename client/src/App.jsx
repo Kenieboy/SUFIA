@@ -40,7 +40,7 @@ function App() {
           <div>
             <div>
               <Link to="/">
-                <h1 className="text-3xl font-bold">SU FIA</h1>
+                <h1 className="text-3xl font-bold">s u f i a</h1>
               </Link>
             </div>
             <div className="flex flex-col mt-4 gap-4 px-2">
