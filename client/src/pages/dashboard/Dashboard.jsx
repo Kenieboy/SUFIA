@@ -20,7 +20,7 @@ import RecentSales from "@/custom-components/recent-sales/RecentSales";
 function Dashboard() {
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between bg-green-500 px-2 py-2 rounded-lg">
+      <div className="mb-6 flex items-center justify-between ">
         <h1 className="text-xl font-bold">Dashboard</h1>
         <UserLogged />
       </div>
