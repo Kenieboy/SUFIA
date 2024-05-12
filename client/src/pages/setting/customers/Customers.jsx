@@ -15,6 +15,7 @@ function Customers() {
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["customer"],
     queryFn: getFirmCustomer,
+    staleTime: Infinity,
   });
 
   const mutation = useMutation({

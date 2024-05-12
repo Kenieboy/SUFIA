@@ -50,11 +50,11 @@ function CustomerAddDialog({ mutate }) {
             Add
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-[900px] h-screen">
+        <DialogContent className="max-w-[900px] h-4/5">
           <DialogHeader>
             <DialogTitle>New Customer</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
+              {/* Make changes to your profile here. Click save when you're done. */}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -88,7 +88,7 @@ function CustomerAddDialog({ mutate }) {
               <Input className="col-span-3" />
             </div>
           </div> */}
-          <DialogFooter>
+          <DialogFooter className="absolute bottom-4 right-4">
             <Button
               type="submit"
               onClick={() => {
