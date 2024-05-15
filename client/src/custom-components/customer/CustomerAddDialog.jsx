@@ -18,7 +18,7 @@ import { PlusCircle } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 
-function CustomerAddDialog({ mutate }) {
+function CustomerAddDialog({ mutate, action }) {
   // dialog state
   const [isOpen, setIsOpen] = useState(false);
 
