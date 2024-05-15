@@ -5,6 +5,7 @@ import cors from "cors";
 import homeRoutes from "./routes/homeRoutes.js";
 import firmRoutes from "./routes/firmRoutes.js";
 
+
 const app = express();
 const PORT = 3001;
 
