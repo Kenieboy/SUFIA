@@ -3,11 +3,12 @@ import { dbConnection } from "../config/db.js";
 
 const router = express.Router();
 
+// fetching all firm data by firmClassId for 'customer' & 'supplier'
+
 router.get("/", (req, res) => {
-  const firmClassId = req.query.class; // Get the class query parameter
+  const firmClassId = req.query.class;
   let query = `SELECT * FROM FIRM`;
 
-  // If class is specified, add WHERE clause to filter by FIRMCLASS
   if (firmClassId) {
     query += ` WHERE FIRMCLASSID = ? ORDER BY ID DESC`;
   }
@@ -22,6 +23,8 @@ router.get("/", (req, res) => {
     res.json(result);
   });
 });
+
+// inserting data to firm table
 
 router.post("/", (req, res) => {
   const { CODE, NAME, FIRMCLASSID /* other fields */ } = req.body;
@@ -38,6 +41,33 @@ router.post("/", (req, res) => {
       }
 
       res.json({ message: "Firm added successfully", Id: result.insertId });
+    }
+  );
+});
+
+// updating data to firm table
+
+router.put("/:id", (req, res) => {
+  const firmId = req.params.id;
+  const { CODE, NAME, FIRMCLASSID /* other fields */ } = req.body;
+  const query = `UPDATE FIRM SET CODE=?, NAME=?, FIRMCLASSID=? /* other fields */ WHERE Id=?`;
+
+  dbConnection.query(
+    query,
+    [CODE, NAME, FIRMCLASSID /* other values */, firmId],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating firm:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        return;
+      }
+
+      if (result.affectedRows === 0) {
+        res.status(404).json({ error: "Firm not found" });
+        return;
+      }
+
+      res.json({ message: "Firm updated successfully", Id: firmId });
     }
   );
 });

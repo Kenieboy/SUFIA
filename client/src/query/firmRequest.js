@@ -26,4 +26,17 @@ async function insertCustomerData(value) {
   return data.message;
 }
 
-export { getFirmData, getFirmCustomer, getFirmSupplier, insertCustomerData };
+async function updateCustomerData(value) {
+  const { ID, ...others } = value;
+  const req = await axios.put(`http://localhost:3001/api/firm/${ID}`, others);
+  const data = await req.data;
+  return data.message;
+}
+
+export {
+  getFirmData,
+  getFirmCustomer,
+  getFirmSupplier,
+  insertCustomerData,
+  updateCustomerData,
+};

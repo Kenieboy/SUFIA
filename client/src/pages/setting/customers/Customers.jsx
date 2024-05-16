@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getFirmCustomer } from "@/query/firmRequest";
+import { getFirmCustomer, updateCustomerData } from "@/query/firmRequest";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
 import ReusableTable from "@/custom-components/table/ReusableTable";
@@ -29,10 +29,8 @@ function Customers() {
   });
 
   // edit customer data
-  const mutationEditData = useMutation({
-    mutationFn: (data) => {
-      console.log(`edit customer data: ${data.ID} , ${data.CODE}`);
-    },
+  const mutationUpdateData = useMutation({
+    mutationFn: updateCustomerData,
     onSuccess: () => {
       console.log("success Edit");
       refetch();
@@ -62,7 +60,7 @@ function Customers() {
           <div>
             {/* <CustomerAddDialog mutate={mutation.mutate} /> */}
             <Button
-              className="flex gap-2 bg-green-500 hover:bg-green-400"
+              className="flex gap-2 bg-green-500 hover:bg-green-400 px-8"
               onClick={handleAddBtn}
             >
               <PlusCircle />
@@ -70,10 +68,10 @@ function Customers() {
             </Button>
           </div>
 
-          <Button className="flex gap-2">
+          {/* <Button className="flex gap-2">
             <Pencil />
             Edit
-          </Button>
+          </Button> */}
         </div>
       </div>
       <div>
@@ -92,7 +90,7 @@ function Customers() {
                 "ADDRESS2",
                 "COUNTRY",
               ]}
-              mutate={mutationEditData.mutate}
+              mutate={mutationUpdateData.mutate}
             />
           </div>
         )}

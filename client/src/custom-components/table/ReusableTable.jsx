@@ -35,12 +35,14 @@ function ReusableTable({ data, properties, mutate }) {
           />
         )}
       </div>
-      <div className=" border border-gray-300 rounded-lg shadow-md overflow-x-auto max-h-[640px]">
+      <div className=" border border-gray-300 overflow-x-auto max-h-[640px]">
         <table className="table-auto">
-          <thead className="sticky top-0 bg-gray-400 text-white">
-            <tr>
+          <thead className="sticky top-0 bg-white">
+            <tr className="border-b border-gray-300 text-black text-xs">
               {properties.map((property) => (
-                <th key={property}>{property}</th>
+                <th key={property} className="px-4 py-2">
+                  {property}
+                </th>
               ))}
             </tr>
           </thead>
