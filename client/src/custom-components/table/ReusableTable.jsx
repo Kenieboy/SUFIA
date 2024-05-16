@@ -1,4 +1,4 @@
-import AddEditDialog from "@/pages/setting/customers/AddEditDialog";
+import CustomerAddEditDialog from "@/pages/setting/customers/CustomerAddEditDialog";
 import { useState } from "react";
 
 function ReusableTable({ data, properties, mutate }) {
@@ -26,7 +26,7 @@ function ReusableTable({ data, properties, mutate }) {
     <div>
       <div>
         {showModal && (
-          <AddEditDialog
+          <CustomerAddEditDialog
             mode={showModal}
             onClose={handleEditEvent}
             mutate={mutate}

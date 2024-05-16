@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 
 import { useForm } from "react-hook-form";
 
-function AddEditDialog({
+function CustomerAddEditDialog({
   mode = false,
   onClose,
   mutate,
@@ -112,4 +112,4 @@ function AddEditDialog({
   );
 }
 
-export default AddEditDialog;
+export default CustomerAddEditDialog;

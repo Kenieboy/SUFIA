@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
 // customer reusable add, edit form
-import AddEditDialog from "./AddEditDialog";
+import CustomerAddEditDialog from "./CustomerAddEditDialog";
 
 function Customers() {
   // add edit modal
@@ -66,7 +66,7 @@ function Customers() {
         <div>
           {/* Add/Edit form here */}
           {showModal && (
-            <AddEditDialog
+            <CustomerAddEditDialog
               mode={showModal}
               onClose={handleAddBtn}
               mutate={mutationInsertData.mutate}
