@@ -1,11 +1,28 @@
 import React, { useState } from "react";
-import { getFirmCustomer, updateCustomerData } from "@/query/firmRequest";
+
+// api request
+import {
+  getFirmCustomer,
+  insertCustomerData,
+  updateCustomerData,
+} from "@/query/firmRequest";
+
+// data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
+
+// routing
 import { Outlet } from "react-router-dom";
+
+// customer component to display table
 import ReusableTable from "@/custom-components/table/ReusableTable";
+
+// shadcn component
 import { Button } from "@/components/ui/button";
-import { Pencil, PlusCircle } from "lucide-react";
-import { insertCustomerData } from "@/query/firmRequest";
+
+// icons
+import { PlusCircle } from "lucide-react";
+
+// customer reusable add, edit form
 import AddEditDialog from "./AddEditDialog";
 
 function Customers() {
