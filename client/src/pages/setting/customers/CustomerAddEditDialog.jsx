@@ -235,7 +235,7 @@ function CustomerAddEditDialog({
               {/* Radio group */}
               <div className="flex gap-4 mt-4 mb-4">
                 <div className="flex flex-col gap-2">
-                  <Label className="text-xs">Languages</Label>
+                  <Label className="text-xs">Languages...</Label>
                   <Controller
                     control={control}
                     name="LANGUAGES"
@@ -260,7 +260,7 @@ function CustomerAddEditDialog({
                   {errors.LANGUAGES && <p>{errors.LANGUAGES.message}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label className="text-xs">yen or usd</Label>
+                  <Label className="text-xs">yen or usd...</Label>
                   <Controller
                     control={control}
                     name="CURRENCY"
@@ -287,7 +287,7 @@ function CustomerAddEditDialog({
               </div>
 
               <div className="flex flex-col gap-2">
-                <Label className="text-xs">Taxes</Label>
+                <Label className="text-xs">Taxes...</Label>
                 <Controller
                   control={control}
                   name="TAXES"
@@ -314,6 +314,10 @@ function CustomerAddEditDialog({
                     </RadioGroup>
                   )}
                 />
+              </div>
+
+              <div className="mt-6 mb-6">
+                <Separator />
               </div>
 
               {/* Radio group end */}
