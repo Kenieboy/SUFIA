@@ -1,0 +1,74 @@
+
+form add edit functionalities
+
+{
+    "LANGUAGES": "JAPANESE",
+    "COUNTRY": "JP",
+    "NAME": "asdf",
+    "INCHARGE": "asdf",
+    "DEPARTMENT": "asdf",
+    "ADDRESS1": "asdf",
+    "ADDRESS2": "asdf",
+    "ZIPCODE": "asdf",
+    "PHONENO": "asdf",
+    "FAX": "asdf",
+    "EMAIL": "asdf",
+    "NOTES": "asdfs",
+    "COMPANYTIN": "asdf",
+
+    "FIRMCLASSID": 1,  // 0 for all, 1 for customer, 2 for supplier
+
+    "CURRENCY": "YEN",
+    "TAXES": "TAXINCLUDED"
+}
+
+
+actual table
+
+{
+    "ID": 367,
+    "CODE": "NEW-01",
+    "NAME": "New Customer Edited",
+    "YOMI": null,
+    "LANGUAGEID": null,
+    "FIRMCLASSID": 1,
+    "CONTACTPERSON": null,
+    "DEPARTMENT": null,
+    "ADDRESS1": null,
+    "ADDRESS2": null,
+    "CITY": null,
+    "COUNTRY": null,
+    "ZIP": null,
+    "TELNO": null,
+    "FAXNO": null,
+    "EMAIL": null,
+    "BILLCONTACTID": null,
+    "SHIPCONTACTID": null,
+    "POCONTACTID": null,
+    "REMITCONTACTID": null,
+    "COLLECTTAXINCLUSIVE": null,
+    "COLLECTROUNDOFFTYPEID": null,
+    "PAYTAXINCLUSIVE": null,
+    "PAYROUNDOFFTYPEID": null,
+    "COLLECTTERMID": null,
+    "COLLECTMETHODID": null,
+    "PAYTERMID": null,
+    "PAYMETHODID": null,
+    "COLLECTCUTOFFDAY": null,
+    "COLLECTDAY": null,
+    "PAYCUTOFFDAY": null,
+    "PAYDAY": null,
+    "UPDATED": "2024-05-17T05:46:08.000Z",
+    "UPDATEBY": null,
+    "ISACTIVE": 1,
+    "SHOWINVOICEDUE": 0,
+    "REMARK": null,
+    "ISNEW": 1,
+    "POFORMAT": null,
+    "INVOICEFORMAT": null,
+    "POCURRENCY": null,
+    "INVOICECURRENCY": null,
+    "ISACCOUNTPRINTED": 1,
+    "SPECIALMARKUPRATE": null,
+    "REGISTRATIONID": null
+}

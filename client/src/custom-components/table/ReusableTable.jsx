@@ -1,12 +1,13 @@
+// customer reusable add, edit form
 import CustomerAddEditDialog from "@/pages/setting/customers/CustomerAddEditDialog";
+
+// react state
 import { useState } from "react";
 
 function ReusableTable({ data, properties, mutate }) {
   const [showModal, setShowModal] = useState(false);
 
   const [selectedItem, setSelectedItem] = useState(null);
-
-  console.log(selectedItem);
 
   if (!data || data.length === 0) {
     return <p>No data available</p>;

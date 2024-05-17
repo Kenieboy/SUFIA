@@ -26,13 +26,67 @@ router.get("/", (req, res) => {
 
 // inserting data to firm table
 
+// const {
+//   NAME,
+//   FIRMCLASSID,
+//   CONTACTPERSON,
+//   DEPARTMENT,
+//   ADDRESS1,
+//   ADDRESS2,
+//   CITY,
+//   COUNTRY,
+//   ZIP,
+//   TELNO,
+//   FAXNO,
+//   EMAIL,
+//   REMARK,
+// } = data;
+
 router.post("/", (req, res) => {
-  const { CODE, NAME, FIRMCLASSID /* other fields */ } = req.body;
-  const query = `INSERT INTO FIRM (CODE, NAME, FIRMCLASSID /* other fields */) VALUES (?, ?, ? /* other values */)`;
+  const {
+    NAME,
+    FIRMCLASSID,
+    CONTACTPERSON,
+    DEPARTMENT,
+    ADDRESS1,
+    ADDRESS2,
+    CITY,
+    COUNTRY,
+    ZIP,
+    TELNO,
+    FAXNO,
+    EMAIL,
+    REMARK /* other fields */,
+  } = req.body;
+  const query = `INSERT INTO FIRM (NAME, FIRMCLASSID, CONTACTPERSON,
+    DEPARTMENT,
+    ADDRESS1,
+    ADDRESS2,
+    CITY,
+    COUNTRY,
+    ZIP,
+    TELNO,
+    FAXNO,
+    EMAIL,
+    REMARK /* other fields */) VALUES (?, ?, ?,?,?,?,?,?,?,?,?,?,? /* other values */)`;
 
   dbConnection.query(
     query,
-    [CODE, NAME, FIRMCLASSID /* other values */],
+    [
+      NAME,
+      FIRMCLASSID,
+      CONTACTPERSON,
+      DEPARTMENT,
+      ADDRESS1,
+      ADDRESS2,
+      CITY,
+      COUNTRY,
+      ZIP,
+      TELNO,
+      FAXNO,
+      EMAIL,
+      REMARK /* other values */,
+    ],
     (error, result) => {
       if (error) {
         console.error("Error adding firm:", error);
@@ -49,12 +103,53 @@ router.post("/", (req, res) => {
 
 router.put("/:id", (req, res) => {
   const firmId = req.params.id;
-  const { CODE, NAME, FIRMCLASSID /* other fields */ } = req.body;
-  const query = `UPDATE FIRM SET CODE=?, NAME=?, FIRMCLASSID=? /* other fields */ WHERE Id=?`;
+  const {
+    NAME,
+    FIRMCLASSID,
+    CONTACTPERSON,
+    DEPARTMENT,
+    ADDRESS1,
+    ADDRESS2,
+    CITY,
+    COUNTRY,
+    ZIP,
+    TELNO,
+    FAXNO,
+    EMAIL,
+    REMARK /* other fields */,
+  } = req.body;
+  const query = `UPDATE FIRM SET NAME=?,
+  FIRMCLASSID=?,
+  CONTACTPERSON=?,
+  DEPARTMENT=?,
+  ADDRESS1=?,
+  ADDRESS2=?,
+  CITY=?,
+  COUNTRY=?,
+  ZIP=?,
+  TELNO=?,
+  FAXNO=?,
+  EMAIL=?,
+  REMARK=? /* other fields */ WHERE Id=?`;
 
   dbConnection.query(
     query,
-    [CODE, NAME, FIRMCLASSID /* other values */, firmId],
+    [
+      NAME,
+      FIRMCLASSID,
+      CONTACTPERSON,
+      DEPARTMENT,
+      ADDRESS1,
+      ADDRESS2,
+      CITY,
+      COUNTRY,
+      ZIP,
+      TELNO,
+      FAXNO,
+      EMAIL,
+      REMARK /* other values */,
+      firmId,
+    ],
     (error, result) => {
       if (error) {
         console.error("Error updating firm:", error);
