@@ -28,6 +28,7 @@ import CustomerAddEditDialog from "./CustomerAddEditDialog";
 function Customers() {
   // add edit modal
   const [showModal, setShowModal] = useState(false);
+  const [component, setComponent] = useState("customer");
 
   // fetching customer data
   const { isPending, error, data, refetch } = useQuery({
@@ -108,6 +109,7 @@ function Customers() {
                 "COUNTRY",
               ]}
               mutate={mutationUpdateData.mutate}
+              component={component}
             />
           </div>
         )}

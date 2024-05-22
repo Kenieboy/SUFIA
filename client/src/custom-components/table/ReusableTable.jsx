@@ -1,10 +1,11 @@
 // customer reusable add, edit form
 import CustomerAddEditDialog from "@/pages/setting/customers/CustomerAddEditDialog";
+import SupplierAddEditDialog from "@/pages/setting/suppliers/SupplierAddEditDialog";
 
 // react state
 import { useState } from "react";
 
-function ReusableTable({ data, properties, mutate }) {
+function ReusableTable({ data, properties, mutate, component }) {
   const [showModal, setShowModal] = useState(false);
 
   const [selectedItem, setSelectedItem] = useState(null);
@@ -23,11 +24,15 @@ function ReusableTable({ data, properties, mutate }) {
     setShowModal((prevState) => !prevState);
   };
 
+  const AddEditDialog =
+    component === "supplier" ? SupplierAddEditDialog : CustomerAddEditDialog;
+
   return (
     <div>
       <div>
+        {/* ======= Add Edit ======= */}
         {showModal && (
-          <CustomerAddEditDialog
+          <AddEditDialog
             mode={showModal}
             onClose={handleEditEvent}
             mutate={mutate}
@@ -35,6 +40,7 @@ function ReusableTable({ data, properties, mutate }) {
             selectedItem={selectedItem}
           />
         )}
+        {/* ======== Add Edit end ======== */}
       </div>
       <div className=" border border-gray-300 overflow-x-auto max-h-[640px]">
         <table className="table-auto">
