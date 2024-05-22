@@ -26,22 +26,6 @@ router.get("/", (req, res) => {
 
 // inserting data to firm table
 
-// const {
-//   NAME,
-//   FIRMCLASSID,
-//   CONTACTPERSON,
-//   DEPARTMENT,
-//   ADDRESS1,
-//   ADDRESS2,
-//   CITY,
-//   COUNTRY,
-//   ZIP,
-//   TELNO,
-//   FAXNO,
-//   EMAIL,
-//   REMARK,
-// } = data;
-
 router.post("/", (req, res) => {
   const {
     NAME,
@@ -88,6 +72,20 @@ router.post("/", (req, res) => {
       REMARK /* other values */,
     ],
     (error, result) => {
+      const lastInsertId = result.insertId;
+
+      const codeLables = {
+        0: "A",
+        1: "C",
+        2: "S",
+      };
+
+      const formattedCode = `${codeLables[FIRMCLASSID]}000-${lastInsertId}`;
+
+      const codeUpdateQuery = `UPDATE FIRM SET CODE=? WHERE ID=?`;
+
+      dbConnection.query(codeUpdateQuery, [formattedCode, lastInsertId]);
+
       if (error) {
         console.error("Error adding firm:", error);
         res.status(500).json({ error: "Internal Server Error" });
