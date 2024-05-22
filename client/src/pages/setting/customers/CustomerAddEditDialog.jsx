@@ -68,7 +68,16 @@ function CustomerAddEditDialog({
       <DialogContent className="max-w-[800px]">
         <DialogHeader>
           <DialogTitle>
-            {action === "edit" ? `Edit Customer` : `New Customer`}
+            {action === "edit" ? (
+              <div className="flex px-6 items-center justify-between">
+                <p>Edit Customer</p>
+                <p className="text-[10px] cursor-pointer bg-green-500 px-2 py-1 rounded-full text-white">
+                  {selectedItem?.CODE || ""}
+                </p>
+              </div>
+            ) : (
+              `New Customer`
+            )}
           </DialogTitle>
         </DialogHeader>
 
