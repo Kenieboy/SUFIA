@@ -32,6 +32,7 @@ import CustomerId from "./pages/setting/customers/customerId/CustomerId";
 // for api request components
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Suppliers from "./pages/setting/suppliers/Suppliers";
+import Items from "./pages/setting/items/Items";
 
 function App() {
   const currentUser = true;
@@ -186,11 +187,7 @@ function App() {
             },
             {
               path: "items",
-              element: (
-                <div>
-                  <h1>Items</h1>
-                </div>
-              ),
+              element: <Items />,
             },
             {
               path: "account-setup",

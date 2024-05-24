@@ -47,7 +47,12 @@ function ReusableTable({ data, properties, mutate, component }) {
           <thead className="sticky top-0 bg-white">
             <tr className="border-b border-gray-300 text-black text-xs">
               {properties.map((property) => (
-                <th key={property} className="px-4 py-2">
+                <th
+                  key={property}
+                  className={`px-4 py-2 w-80 ${
+                    property === "CODE" ? `w-60` : ``
+                  }`}
+                >
                   {property}
                 </th>
               ))}
@@ -55,17 +60,11 @@ function ReusableTable({ data, properties, mutate, component }) {
           </thead>
           <tbody className="divide-y divide-gray-300">
             {data.map((item, index) => (
-              <tr
-                key={item.ID}
-                className={
-                  index % 2 === 1
-                    ? "bg-gray-200 hover:bg-gray-100"
-                    : "hover:bg-gray-100"
-                }
-                onDoubleClick={() => handleEditEvent(item)}
-              >
+              <tr key={item.ID} onDoubleClick={() => handleEditEvent(item)}>
                 {properties.map((property) => (
-                  <td key={property}>{item[property]}</td>
+                  <td className="p-2 cursor-pointer" key={property}>
+                    {item[property]}
+                  </td>
                 ))}
               </tr>
             ))}
