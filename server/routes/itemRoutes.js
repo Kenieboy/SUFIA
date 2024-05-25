@@ -4,7 +4,7 @@ import { dbConnection } from "../config/db.js";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  const itemSQL = `SELECT * FROM ITEM`;
+  const itemSQL = `SELECT * FROM ITEM ORDER BY CODE DESC`;
 
   dbConnection.query(itemSQL, (err, result) => {
     if (err) {

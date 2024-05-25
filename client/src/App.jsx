@@ -27,7 +27,6 @@ import {
 } from "lucide-react";
 import SettingLayout from "./pages/setting/SettingLayout";
 import Customers from "./pages/setting/customers/Customers";
-import CustomerId from "./pages/setting/customers/customerId/CustomerId";
 
 // for api request components
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -173,12 +172,6 @@ function App() {
             {
               path: "customers",
               element: <Customers />,
-              children: [
-                {
-                  path: ":customerId",
-                  element: <CustomerId />,
-                },
-              ],
             },
 
             {

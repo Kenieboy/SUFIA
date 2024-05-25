@@ -62,7 +62,7 @@ function ReusableTable({ data, properties, mutate, component }) {
             {data.map((item, index) => (
               <tr key={item.ID} onDoubleClick={() => handleEditEvent(item)}>
                 {properties.map((property) => (
-                  <td className="p-2 cursor-pointer" key={property}>
+                  <td className="p-4 cursor-pointer" key={property}>
                     {item[property]}
                   </td>
                 ))}
