@@ -36,8 +36,6 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
     queryFn: getItemUnitData,
   });
 
-  console.log(data);
-
   // form state
   const {
     register,
@@ -49,7 +47,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
   } = useForm({
     defaultValues: {
       UNIT: "",
-      ID: "",
+      UNITID: "",
     },
   });
 
@@ -67,41 +65,10 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
             <div className="px-2 mt-6">
               <div>
                 <div className="flex gap-2">
-                  {/* ============ */}
-
                   <div>
-                    {/* <Controller
-                      name="UNIT" // Ensure the name matches the default value in the useForm
-                      control={control}
-                      render={({ field: { onChange, value } }) => (
-                        <Select
-                          onValueChange={(newValue) => {
-                            onChange(newValue);
-                            console.log(newValue);
-                          }}
-                          value={value}
-                        >
-                          <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="Select a unit" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {data?.map(
-                              (itemunit) =>
-                                itemunit.DESCRIPTIONEN && (
-                                  <SelectItem
-                                    key={itemunit.ID}
-                                    value={itemunit.ID} // Change the value to the ID
-                                  >
-                                    {itemunit.DESCRIPTIONEN}
-                                  </SelectItem>
-                                )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    /> */}
-
+                    {/* =============== ITEMUNIT COMBOBOX ================ */}
                     <Controller
+                      id="UNIT"
                       name="UNIT"
                       control={control}
                       render={({ field: { onChange, value } }) => (
@@ -113,7 +80,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                               (item) => item.DESCRIPTIONEN === newValue
                             );
 
-                            setValue("ID", ID);
+                            setValue("UNITID", ID);
                           }}
                           value={value}
                         >
