@@ -27,8 +27,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
 // react hook form component
 import { useForm, Controller } from "react-hook-form";
+import { Plus, PlusCircleIcon } from "lucide-react";
 
 const countries = [
   { label: "Philippines", value: "PH" },
@@ -67,7 +78,7 @@ function ItemAddEditDialog({
     <Dialog open={isOpen}>
       <DialogContent className="max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>
+          {/* <DialogTitle>
             {action === "edit" ? (
               <div className="flex px-6 items-center justify-between">
                 <p>Edit Customer</p>
@@ -78,11 +89,11 @@ function ItemAddEditDialog({
             ) : (
               `New Item`
             )}
-          </DialogTitle>
+          </DialogTitle> */}
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="relative">
-          <div className="px-6 mt-6">
+          <div className="px-2 mt-6">
             <div>
               {selectedItem === null ? (
                 ``
@@ -94,64 +105,24 @@ function ItemAddEditDialog({
                   {...register("ID", { valueAsNumber: true })}
                 />
               )}
-
-              <Input
-                id="NAME"
-                placeholder="Customer Name"
-                defaultValue={selectedItem?.NAME || ""}
-                aria-invalid={errors.NAME ? "true" : "false"}
-                {...register("NAME", { required: true, maxLength: 200 })}
-              />
-
-              <div className="mt-4 flex gap-2 ">
+              <div className="flex flex-col gap-2">
                 <Input
-                  id="CONTACTPERSON"
-                  placeholder="In-Charge"
-                  defaultValue={selectedItem?.CONTACTPERSON || ""}
-                  aria-invalid={errors.CONTACTPERSON ? "true" : "false"}
-                  {...register("CONTACTPERSON", {
-                    required: true,
-                    maxLength: 200,
-                  })}
+                  id="NAMEENG"
+                  placeholder="Name English"
+                  defaultValue={selectedItem?.NAMEENG || ""}
+                  aria-invalid={errors.NAMEENG ? "true" : "false"}
+                  {...register("NAMEENG", { required: true, maxLength: 200 })}
                 />
                 <Input
-                  id="DEPARTMENT"
-                  placeholder="Department"
-                  defaultValue={selectedItem?.DEPARTMENT || ""}
-                  aria-invalid={errors.DEPARTMENT ? "true" : "false"}
-                  {...register("DEPARTMENT", {
-                    required: true,
-                    maxLength: 200,
-                  })}
+                  id="NAMEJP"
+                  placeholder="Name Japanese"
+                  defaultValue={selectedItem?.NAMEJP || ""}
+                  aria-invalid={errors.NAMEJP ? "true" : "false"}
+                  {...register("NAMEJP", { required: true, maxLength: 200 })}
                 />
               </div>
 
-              <div className="mt-4 ">
-                <Textarea
-                  id="ADDRESS1"
-                  placeholder="Address 1"
-                  defaultValue={selectedItem?.ADDRESS1 || ""}
-                  aria-invalid={errors.ADDRESS1 ? "true" : "false"}
-                  {...register("ADDRESS1", { required: true, maxLength: 200 })}
-                />
-              </div>
-
-              <div className="mt-4 flex gap-2 ">
-                <Input
-                  id="ADDRESS2"
-                  placeholder="Address 2"
-                  defaultValue={selectedItem?.ADDRESS2 || ""}
-                  aria-invalid={errors.ADDRESS2 ? "true" : "false"}
-                  {...register("ADDRESS2", { required: true, maxLength: 200 })}
-                />
-                {/* <Input
-                  id="COUNTRY"
-                  placeholder="Country"
-                  defaultValue={selectedItem?.COUNTRY || ""}
-                  aria-invalid={errors.COUNTRY ? "true" : "false"}
-                  {...register("COUNTRY", { required: true, maxLength: 200 })}
-                /> */}
-
+              <div className="mt-2 flex gap-2">
                 <div>
                   <Controller
                     name="COUNTRY" // Ensure the name matches the default value in the useForm
@@ -162,7 +133,33 @@ function ItemAddEditDialog({
                         value={field.value}
                       >
                         <SelectTrigger className="w-[250px]">
-                          <SelectValue placeholder="Select a country" />
+                          <SelectValue placeholder="Select item class" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                <div>
+                  <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="Select item category" />
                         </SelectTrigger>
                         <SelectContent>
                           {countries.map((country) => (
@@ -180,167 +177,219 @@ function ItemAddEditDialog({
                 </div>
               </div>
 
-              <div className="mt-4 flex gap-2 ">
-                <Input
-                  id="ZIP"
-                  placeholder="Zip code"
-                  defaultValue={selectedItem?.ZIP || ""}
-                  aria-invalid={errors.ZIP ? "true" : "false"}
-                  {...register("ZIP", { required: true, maxLength: 200 })}
-                />
-                <Input
-                  id="TELNO"
-                  placeholder="Phone #"
-                  defaultValue={selectedItem?.TELNO || ""}
-                  aria-invalid={errors.TELNO ? "true" : "false"}
-                  {...register("TELNO", { required: true, maxLength: 200 })}
-                />
+              <div className="flex gap-2 mt-2 ">
+                <Button
+                  onClick={() => {
+                    alert("Trigger...");
+                  }}
+                  className=" text-xs flex gap-2 bg-green-500 hover:bg-green-400"
+                >
+                  <PlusCircleIcon />
+                  Add
+                </Button>
+                <Button className="text-xs">Edit</Button>
+                <Button className="bg-red-500 hover:bg-red-400 text-xs">
+                  Delete
+                </Button>
               </div>
 
-              <div className="mt-4 flex gap-2 ">
-                <Input
-                  id="FAXNO"
-                  placeholder="Fax"
-                  defaultValue={selectedItem?.FAXNO || ""}
-                  aria-invalid={errors.FAXNO ? "true" : "false"}
-                  {...register("FAXNO", { required: true, maxLength: 200 })}
-                />
-                <Input
-                  id="EMAIL"
-                  placeholder="Email"
-                  defaultValue={selectedItem?.EMAIL || ""}
-                  aria-invalid={errors.EMAIL ? "true" : "false"}
-                  {...register("EMAIL", { required: true, maxLength: 200 })}
-                />
-              </div>
+              {/* Item Variation Table */}
+              <Table className="text-[11px]">
+                {/* <TableCaption className="text-[12px]">
+                  A list of your item variation.
+                </TableCaption> */}
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">UNIT</TableHead>
+                    <TableHead>SPECS</TableHead>
+                    <TableHead>RATIO</TableHead>
+                    <TableHead className="text-right">COST</TableHead>
+                    <TableHead className="text-right">PRICE</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="">
+                    <TableCell className="font-medium">set(s)</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>1</TableCell>
+                    <TableCell className="text-right">$1,878.00</TableCell>
+                    <TableCell className="text-right">$20,658.00</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+              {/* Item Variation Table End */}
 
-              <div className="mt-4 ">
-                <Textarea
-                  id="REMARK"
-                  placeholder="Notes"
-                  defaultValue={selectedItem?.REMARK || ""}
-                  aria-invalid={errors.REMARK ? "true" : "false"}
-                  {...register("REMARK", { required: true, maxLength: 200 })}
-                />
-              </div>
-
-              <div className="mt-4 flex gap-2 ">
-                <Input
-                  id="COMPANYTIN"
-                  placeholder="Company TIN"
-                  defaultValue={selectedItem?.COMPANYTIN || ""}
-                  aria-invalid={errors.COMPANYTIN ? "true" : "false"}
-                  {...register("COMPANYTIN", {
-                    required: true,
-                    maxLength: 200,
-                  })}
-                />
-              </div>
-
-              <div className="mt-6 mb-6">
-                <Separator />
-              </div>
-
-              {/* Radio group */}
-              <div className="flex gap-4 mt-4 mb-4">
-                <div className="flex flex-col gap-2">
-                  <Label className="text-xs">Languages...</Label>
+              <div className="mt-2 flex flex-col gap-2">
+                <div>
                   <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
                     control={control}
-                    name="LANGUAGES"
                     render={({ field }) => (
-                      <RadioGroup
-                        {...field}
-                        className="flex items-center"
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
                         value={field.value}
-                        onValueChange={field.onChange}
                       >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="JAPANESE" id="JAPANESE" />
-                          <Label htmlFor="JAPANESE">Japanese</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="ENGLISH" id="ENGLISH" />
-                          <Label htmlFor="ENGLISH">English</Label>
-                        </div>
-                      </RadioGroup>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Default customer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   />
-                  {errors.LANGUAGES && <p>{errors.LANGUAGES.message}</p>}
                 </div>
-                <div className="flex flex-col gap-2">
-                  <Label className="text-xs">yen or usd...</Label>
+                <div>
                   <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
                     control={control}
-                    name="CURRENCY"
-                    defaultValue="YEN"
                     render={({ field }) => (
-                      <RadioGroup
-                        {...field}
-                        className="flex items-center"
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
                         value={field.value}
-                        onValueChange={field.onChange}
                       >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="YEN" id="YEN" />
-                          <Label htmlFor="YEN">YEN</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="USD" id="USD" />
-                          <Label htmlFor="USD">USD</Label>
-                        </div>
-                      </RadioGroup>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Default supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Label className="text-xs">Taxes...</Label>
-                <Controller
-                  control={control}
-                  name="TAXES"
-                  defaultValue="TAXINCLUDED"
-                  render={({ field }) => (
-                    <RadioGroup
-                      {...field}
-                      className="flex items-center"
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="TAXINCLUDED" id="TAXINCLUDED" />
-                        <Label htmlFor="TAXINCLUDED">tax included</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="TAXEXCUDED" id="TAXEXCUDED" />
-                        <Label htmlFor="TAXEXCUDED">tax excluded</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="NOTAX" id="NOTAX" />
-                        <Label htmlFor="NOTAX">no tax</Label>
-                      </div>
-                    </RadioGroup>
-                  )}
-                />
+              <div className="flex gap-2 mt-2">
+                <div className="flex flex-col gap-2">
+                  <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="For SO" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="For PO" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="For PL" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  <Controller
+                    name="COUNTRY" // Ensure the name matches the default value in the useForm
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) => field.onChange(value)}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-[250px]">
+                          <SelectValue placeholder="For INVOICE" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countries.map((country) => (
+                            <SelectItem
+                              key={country.value}
+                              value={country.value}
+                            >
+                              {country.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+                <div>
+                  <Textarea
+                    className="w-[475px] h-full"
+                    id="REMARK"
+                    placeholder="Notes"
+                    defaultValue={selectedItem?.REMARK || ""}
+                    aria-invalid={errors.REMARK ? "true" : "false"}
+                    {...register("REMARK", { required: true, maxLength: 200 })}
+                  />
+                </div>
               </div>
 
-              <div className="mt-6 mb-6">
+              <div className="mt-2 mb-2">
                 <Separator />
               </div>
 
-              {/* Radio group end */}
-
-              <Input
-                className="hidden"
-                defaultValue={1}
-                {...register("FIRMCLASSID", {
-                  valueAsNumber: true,
-                })}
-                type="number"
-              />
-
-              <div className="mt-6">
+              <div className="mt-2">
                 {errors.CODE && errors.NAME.type === "required" && (
                   <span>This is required</span>
                 )}
@@ -350,7 +399,7 @@ function ItemAddEditDialog({
               </div>
             </div>
 
-            <div className="flex gap-2 mt-6">
+            <div className="flex gap-2 mt-2">
               <Button type="submit">Submit</Button>
               <Button
                 className="bg-red-500 hover:bg-red-400"
