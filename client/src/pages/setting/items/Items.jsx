@@ -24,7 +24,7 @@ import { getItemData } from "@/query/itemRequest";
 function Items() {
   // add edit modal
   const [showModal, setShowModal] = useState(false);
-  const [component, setComponent] = useState("items");
+  const [component, setComponent] = useState("item");
 
   // fetching items data
   const { isPending, error, data, refetch } = useQuery({

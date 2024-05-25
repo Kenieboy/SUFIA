@@ -6,4 +6,10 @@ async function getItemData() {
   return data;
 }
 
-export { getItemData };
+async function getItemUnitData() {
+  const res = await axios.get("http://localhost:3001/api/items/itemunit");
+  const data = res.data;
+  return data;
+}
+
+export { getItemData, getItemUnitData };

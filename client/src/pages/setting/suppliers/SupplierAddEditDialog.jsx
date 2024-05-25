@@ -353,14 +353,14 @@ function SupplierAddEditDialog({
             <div className="flex gap-2 mt-6">
               <Button type="submit">Submit</Button>
               <Button
-                className="bg-red-500 hover:bg-red-400"
+                className="bg-orange-500 hover:bg-orange-400"
                 type="button"
                 onClick={() => {
                   onClose();
                   reset();
                 }}
               >
-                Close
+                Cancel
               </Button>
             </div>
           </div>
