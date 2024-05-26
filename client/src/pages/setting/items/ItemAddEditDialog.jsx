@@ -43,6 +43,10 @@ const countries = [
   { label: "Japan", value: "JP" },
 ];
 
+// redux kbmemTable
+import { useDispatch, useSelector } from "react-redux";
+import { removeItemVariation } from "@/redux/itemSlice";
+
 function ItemAddEditDialog({
   mode = false,
   onClose,
@@ -52,6 +56,9 @@ function ItemAddEditDialog({
 }) {
   const [isOpen, setIsOpen] = useState(mode);
   const [isItemVariationFormOpen, setIsItemVariationFormOpen] = useState(false);
+
+  // item state
+  const item = useSelector((state) => state.item);
 
   // form state
   const {
@@ -67,9 +74,13 @@ function ItemAddEditDialog({
     },
   });
 
+  // redux dispatch
+  const dispatch = useDispatch();
+
   const onSubmit = (data) => {
     mutate(data);
     onClose();
+    console.log(data);
   };
 
   const handleVariationForm = () => {
@@ -216,13 +227,21 @@ function ItemAddEditDialog({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow className="">
-                      <TableCell className="font-medium">set(s)</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell>1</TableCell>
-                      <TableCell className="text-right">$1,878.00</TableCell>
-                      <TableCell className="text-right">$20,658.00</TableCell>
-                    </TableRow>
+                    {item?.itemVariation?.map((item) => (
+                      <TableRow className="">
+                        <TableCell className="font-medium">
+                          {item.UNIT}
+                        </TableCell>
+                        <TableCell>{item.DESCRIPTION}</TableCell>
+                        <TableCell>{item.RATIO}</TableCell>
+                        <TableCell className="text-right">
+                          ${item.COST}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          ${item.PRICE}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
                 {/* Item Variation Table End */}
@@ -416,6 +435,7 @@ function ItemAddEditDialog({
                   className="bg-orange-500 hover:bg-orange-400"
                   type="button"
                   onClick={() => {
+                    dispatch(removeItemVariation());
                     onClose();
                     reset();
                   }}

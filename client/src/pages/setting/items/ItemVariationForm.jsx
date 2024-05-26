@@ -16,8 +16,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectLabel,
-  SelectGroup,
 } from "@/components/ui/select";
 
 // react hook form component
@@ -28,6 +26,10 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 
 // data fetching itemunit data for combobox purpose
 import { getItemUnitData } from "@/query/itemRequest";
+
+// redux
+import { useDispatch } from "react-redux";
+import { addItemVariation } from "@/redux/itemSlice";
 
 function ItemVariationForm({ selectedItem, mode, fnClose }) {
   // fetching items data
@@ -51,7 +53,10 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
     },
   });
 
+  const dispatch = useDispatch();
+
   const onSubmit = (data) => {
+    dispatch(addItemVariation(data));
     console.log(data);
     reset();
   };
@@ -108,24 +113,25 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                   {/* ============ */}
 
                   <Input
-                    id="RATION"
+                    id="RATIO"
                     type="number"
-                    placeholder="Ration"
-                    defaultValue={selectedItem?.RATION || ""}
-                    aria-invalid={errors.RATION ? "true" : "false"}
-                    {...register("RATION", {
-                      required: true,
-                      maxLength: 200,
+                    placeholder="Ratio"
+                    step="0.01"
+                    {...register("RATIO", {
+                      required: "Ratio is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
                     })}
+                    aria-invalid={errors.RATIO ? "true" : "false"}
                     onInput={(e) => {
-                      const inputValue = e.target.value;
-                      // Check if the input value is negative
+                      const inputValue = e.target.valueAsNumber;
                       if (inputValue < 0) {
-                        // Set the input value to an empty string or any default value
-                        e.target.value = ""; // You can set any default value here if needed
+                        e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
                   />
+                  {errors.RATIO && <p>{errors.RATIO.message}</p>}
                 </div>
 
                 <div className="mt-2">
@@ -174,61 +180,64 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                     id="COST"
                     type="number"
                     placeholder="Cost"
-                    defaultValue={selectedItem?.COST || ""}
-                    aria-invalid={errors.COST ? "true" : "false"}
+                    step="0.01"
                     {...register("COST", {
-                      required: true,
-                      maxLength: 200,
+                      required: "Cost is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
                     })}
+                    aria-invalid={errors.COST ? "true" : "false"}
                     onInput={(e) => {
-                      const inputValue = e.target.value;
-                      // Check if the input value is negative
+                      const inputValue = e.target.valueAsNumber;
                       if (inputValue < 0) {
-                        // Set the input value to an empty string or any default value
-                        e.target.value = ""; // You can set any default value here if needed
+                        e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
                   />
+                  {errors.COST && <p>{errors.COST.message}</p>}
 
                   <Input
                     id="PRICE"
                     type="number"
                     placeholder="Price"
-                    defaultValue={selectedItem?.PRICE || ""}
-                    aria-invalid={errors.PRICE ? "true" : "false"}
+                    step="0.01"
                     {...register("PRICE", {
-                      required: true,
-                      maxLength: 200,
+                      required: "Price is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
                     })}
+                    aria-invalid={errors.PRICE ? "true" : "false"}
                     onInput={(e) => {
-                      const inputValue = e.target.value;
-                      // Check if the input value is negative
+                      const inputValue = e.target.valueAsNumber;
                       if (inputValue < 0) {
-                        // Set the input value to an empty string or any default value
-                        e.target.value = ""; // You can set any default value here if needed
+                        e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
                   />
+                  {errors.PRICE && <p>{errors.PRICE.message}</p>}
 
                   <Input
                     id="HALFOFPRICE"
                     type="number"
-                    placeholder="1/2 OF Price"
-                    defaultValue={selectedItem?.HALFOFPRICE || ""}
-                    aria-invalid={errors.HALFOFPRICE ? "true" : "false"}
+                    placeholder="1/2 Of Price"
+                    step="0.01"
                     {...register("HALFOFPRICE", {
-                      required: true,
-                      maxLength: 200,
+                      required: "Half of price is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
                     })}
+                    aria-invalid={errors.HALFOFPRICE ? "true" : "false"}
                     onInput={(e) => {
-                      const inputValue = e.target.value;
-                      // Check if the input value is negative
+                      const inputValue = e.target.valueAsNumber;
                       if (inputValue < 0) {
-                        // Set the input value to an empty string or any default value
-                        e.target.value = ""; // You can set any default value here if needed
+                        e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
                   />
+                  {errors.HALFOFPRICE && <p>{errors.HALFOFPRICE.message}</p>}
                 </div>
               </div>
 

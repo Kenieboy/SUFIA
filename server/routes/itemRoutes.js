@@ -18,7 +18,7 @@ router.get("/", (req, res) => {
 });
 
 router.get("/itemclass", (req, res) => {
-  const itemSQL = `SELECT * FROM ITEMCLASS ORDER BY CODE DESC`;
+  const itemSQL = `SELECT * FROM ITEMCLASS WHERE ISACTIVE=1 ORDER BY CODE DESC`;
 
   dbConnection.query(itemSQL, (err, result) => {
     if (err) {
