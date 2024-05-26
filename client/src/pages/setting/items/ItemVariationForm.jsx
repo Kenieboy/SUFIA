@@ -33,7 +33,6 @@ import { useDispatch } from "react-redux";
 import { addItemVariation, updateItemVariationById } from "@/redux/itemSlice";
 
 function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
-  console.log(selectedItem);
   // fetching items data
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["itemunit"],
@@ -252,7 +251,6 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
                     defaultValue={selectedItem?.HALFOFPRICE || ""}
                     step="0.01"
                     {...register("HALFOFPRICE", {
-                      required: "Half of price is required",
                       valueAsNumber: true,
                       validate: (value) =>
                         value >= 0 || "Price must be a non-negative number",

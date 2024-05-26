@@ -45,12 +45,18 @@ const countries = [
 
 // redux kbmemTable
 import { useDispatch, useSelector } from "react-redux";
+
+// redux item variation actions
 import {
-  removeItemVariation,
   removeSelectedVariations,
   resetItemVariations,
   toggleItemVariationSelection,
 } from "@/redux/itemSlice";
+
+// data fetching tanstack component
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { getItemCategoryData, getItemClassData } from "@/query/itemRequest";
+import { getFirmCustomer, getFirmSupplier } from "@/query/firmRequest";
 
 function ItemAddEditDialog({
   mode = false,
@@ -62,9 +68,60 @@ function ItemAddEditDialog({
   const [isOpen, setIsOpen] = useState(mode);
   const [isItemVariationFormOpen, setIsItemVariationFormOpen] = useState(false);
 
+  // fetching item class & category data
+
+  //Query for item class
+  const {
+    isPending: isItemClassDataPending,
+    error: itemClassError,
+    data: itemClassData,
+    refetch: refetchItemClass,
+  } = useQuery({
+    queryKey: ["itemclass"],
+    queryFn: getItemClassData,
+    staleTime: Infinity,
+  });
+
+  // Query for item category
+  const {
+    isPending: isItemCategoryPending,
+    error: itemCategoryError,
+    data: itemCategoryData,
+    refetch: refetchItemCategory,
+  } = useQuery({
+    queryKey: ["itemcategory"],
+    queryFn: getItemCategoryData,
+    staleTime: Infinity,
+  });
+
+  // Query for customer data
+  const {
+    isPending: isCustomerDataPending,
+    error: customerDataError,
+    data: customerData,
+    refetch: refetchCustomerData,
+  } = useQuery({
+    queryKey: ["customer"],
+    queryFn: getFirmCustomer,
+    staleTime: Infinity,
+  });
+
+  // Query for supplier data
+  const {
+    isPending: isSupplierDataPending,
+    error: supplierDataError,
+    data: supplierData,
+    refetch: refetchSupplierData,
+  } = useQuery({
+    queryKey: ["supplier"],
+    queryFn: getFirmSupplier,
+    staleTime: Infinity,
+  });
+
   // item state
   const item = useSelector((state) => state.item);
 
+  // filter for selected variation
   const isSelectedValueLength = item?.itemVariation.filter(
     (item) => item.isSelected
   );
@@ -77,20 +134,20 @@ function ItemAddEditDialog({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      LANGUAGES: selectedItem?.LANGUAGES || "JAPANESE",
-      COUNTRY: selectedItem?.COUNTRY || "",
-    },
+    defaultValues: {},
   });
 
   // redux dispatch
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    mutate(data);
-    onClose();
+    // mutate(data);
+    // onClose();
+
+    console.log(data);
   };
 
   const handleVariationForm = () => {
@@ -131,16 +188,6 @@ function ItemAddEditDialog({
           <form onSubmit={handleSubmit(onSubmit)} className="relative">
             <div className="px-2 mt-6">
               <div>
-                {selectedItem === null ? (
-                  ``
-                ) : (
-                  <Input
-                    id="ID"
-                    type="hidden"
-                    defaultValue={selectedItem?.ID || ""}
-                    {...register("ID", { valueAsNumber: true })}
-                  />
-                )}
                 <div className="flex flex-col gap-2">
                   <Input
                     id="NAMEENG"
@@ -161,51 +208,68 @@ function ItemAddEditDialog({
                 <div className="mt-2 flex gap-2">
                   <div>
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      id="ITEMCLASS"
+                      name="ITEMCLASS"
                       control={control}
-                      render={({ field }) => (
+                      defaultValue={selectedItem?.ITEMCLASS || ""}
+                      rules={{ required: "Class is required" }}
+                      render={({ field: { onChange, value } }) => (
                         <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                          }}
+                          value={value}
                         >
                           <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="Select item class" />
+                            <SelectValue placeholder="Select a class" />
                           </SelectTrigger>
                           <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
+                            {itemClassData?.map(
+                              (iclass, index) =>
+                                iclass.DESCRIPTION && (
+                                  <SelectItem
+                                    key={`class_${index}`}
+                                    value={iclass.DESCRIPTION}
+                                  >
+                                    {iclass.DESCRIPTION}
+                                  </SelectItem>
+                                )
+                            )}
                           </SelectContent>
                         </Select>
                       )}
                     />
                   </div>
+
                   <div>
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      id="ITEMCATEGORY"
+                      name="ITEMCATEGORY"
                       control={control}
-                      render={({ field }) => (
+                      defaultValue={selectedItem?.ITEMCATEGORY || ""}
+                      rules={{ required: "Category is required" }}
+                      render={({ field: { onChange, value } }) => (
                         <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                          }}
+                          value={value}
                         >
                           <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="Select item category" />
+                            <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
+                            {itemCategoryData?.map(
+                              (icategory, index) =>
+                                icategory.DESCRIPTION && (
+                                  <SelectItem
+                                    key={`category_${index}`}
+                                    value={icategory.DESCRIPTION}
+                                  >
+                                    {icategory.DESCRIPTION}
+                                  </SelectItem>
+                                )
+                            )}
                           </SelectContent>
                         </Select>
                       )}
@@ -260,23 +324,25 @@ function ItemAddEditDialog({
                         className={`${
                           item.isSelected === true
                             ? `bg-gray-300 cursor-pointer`
-                            : ``
+                            : `cursor-pointer`
                         }`}
                         key={item.UNITID}
                         onClick={() => {
                           hanldeClick(item);
                         }}
                       >
-                        <TableCell className="font-medium">
-                          {item.UNIT}
+                        <TableCell className="font-medium ">
+                          <p className="bg-green-500 inline-block px-2 py-1 rounded-full">
+                            {item.UNIT}
+                          </p>
                         </TableCell>
                         <TableCell>{item.DESCRIPTION}</TableCell>
                         <TableCell>{item.RATIO}</TableCell>
                         <TableCell className="text-right">
-                          ${item.COST}
+                          Php {item.COST}
                         </TableCell>
                         <TableCell className="text-right">
-                          ${item.PRICE}
+                          Php {item.PRICE}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -287,25 +353,30 @@ function ItemAddEditDialog({
                 <div className="mt-2 flex flex-col gap-2">
                   <div>
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      id="CUSTOMER"
+                      name="CUSTOMER"
                       control={control}
-                      render={({ field }) => (
+                      defaultValue={selectedItem?.CUSTOMER || ""}
+                      rules={{ required: "Customer is required" }}
+                      render={({ field: { onChange, value } }) => (
                         <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                          }}
+                          value={value}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Default customer" />
+                            <SelectValue placeholder="Default Customer" />
                           </SelectTrigger>
                           <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
+                            {customerData?.map(
+                              (c, index) =>
+                                c.NAME && (
+                                  <SelectItem key={c.ID} value={c.NAME}>
+                                    {c.NAME}
+                                  </SelectItem>
+                                )
+                            )}
                           </SelectContent>
                         </Select>
                       )}
@@ -313,25 +384,30 @@ function ItemAddEditDialog({
                   </div>
                   <div>
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      id="SUPPLIER"
+                      name="SUPPLIER"
                       control={control}
-                      render={({ field }) => (
+                      defaultValue={selectedItem?.SUPPLIER || ""}
+                      rules={{ required: "Customer is required" }}
+                      render={({ field: { onChange, value } }) => (
                         <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                          }}
+                          value={value}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Default supplier" />
+                            <SelectValue placeholder="Default Supplier" />
                           </SelectTrigger>
                           <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
+                            {supplierData?.map(
+                              (s, index) =>
+                                s.NAME && (
+                                  <SelectItem key={s.ID} value={s.NAME}>
+                                    {s.NAME}
+                                  </SelectItem>
+                                )
+                            )}
                           </SelectContent>
                         </Select>
                       )}
@@ -342,98 +418,50 @@ function ItemAddEditDialog({
                 <div className="flex gap-2 mt-2">
                   <div className="flex flex-col gap-2">
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      name="FORSO" // Ensure the name matches the default value in the useForm
                       control={control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
-                        >
+                        <Select>
                           <SelectTrigger className="w-[250px]">
                             <SelectValue placeholder="For SO" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
+                          <SelectContent></SelectContent>
                         </Select>
                       )}
                     />
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      name="FORPO" // Ensure the name matches the default value in the useForm
                       control={control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
-                        >
+                        <Select>
                           <SelectTrigger className="w-[250px]">
                             <SelectValue placeholder="For PO" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
+                          <SelectContent></SelectContent>
                         </Select>
                       )}
                     />
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      name="FORPL" // Ensure the name matches the default value in the useForm
                       control={control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
-                        >
+                        <Select>
                           <SelectTrigger className="w-[250px]">
                             <SelectValue placeholder="For PL" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
+                          <SelectContent></SelectContent>
                         </Select>
                       )}
                     />
                     <Controller
-                      name="COUNTRY" // Ensure the name matches the default value in the useForm
+                      name="FORINVOICE" // Ensure the name matches the default value in the useForm
                       control={control}
                       render={({ field }) => (
-                        <Select
-                          onValueChange={(value) => field.onChange(value)}
-                          value={field.value}
-                        >
+                        <Select>
                           <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="For INVOICE" />
+                            <SelectValue placeholder="For Invoice" />
                           </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem
-                                key={country.value}
-                                value={country.value}
-                              >
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
+                          <SelectContent></SelectContent>
                         </Select>
                       )}
                     />

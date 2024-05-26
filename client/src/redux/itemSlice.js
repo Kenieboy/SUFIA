@@ -70,7 +70,6 @@ const itemSlice = createSlice({
     },
     updateItemVariationById(state, action) {
       const { ID } = action.payload;
-      console.log("slice", ID);
       const itemVariation = state.itemVariation.find(
         (variation) => variation.ID === ID
       );

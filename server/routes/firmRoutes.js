@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
   let query = `SELECT * FROM FIRM`;
 
   if (firmClassId) {
-    query += ` WHERE FIRMCLASSID = ? ORDER BY ID DESC`;
+    query += ` WHERE FIRMCLASSID = ? AND ISACTIVE=1 ORDER BY ID DESC`;
   }
 
   dbConnection.query(query, [firmClassId], (error, result) => {
