@@ -2,18 +2,18 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  NameEng: "",
-  NameJp: "",
-  itemClass: "",
-  itemCategory: "",
+  NAMEENG: "",
+  NAMEJP: "",
+  ITEMCLASS: "",
+  ITEMCATEGORY: "",
   itemVariation: [],
-  defaultCustomer: "",
-  defaultSupplier: "",
-  forSO: "",
-  forPO: "",
-  forPL: "",
-  forInvoice: "",
-  notes: "",
+  SUPPLIER: "",
+  CUSTOMER: "",
+  FORSO: "",
+  FORPO: "",
+  FORPL: "",
+  FORINVOICE: "",
+  REMARK: "",
 };
 
 const itemSlice = createSlice({

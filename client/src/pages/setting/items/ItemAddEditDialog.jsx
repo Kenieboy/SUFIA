@@ -50,7 +50,9 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   removeSelectedVariations,
   resetItemVariations,
+  setItem,
   toggleItemVariationSelection,
+  updateItemField,
 } from "@/redux/itemSlice";
 
 // data fetching tanstack component
@@ -146,7 +148,6 @@ function ItemAddEditDialog({
   const onSubmit = (data) => {
     // mutate(data);
     // onClose();
-
     console.log(data);
   };
 
@@ -156,6 +157,11 @@ function ItemAddEditDialog({
 
   const hanldeClick = ({ UNITID, ...others }) => {
     dispatch(toggleItemVariationSelection(UNITID));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    dispatch(updateItemField({ name, value }));
   };
 
   return (
@@ -195,6 +201,7 @@ function ItemAddEditDialog({
                     defaultValue={selectedItem?.NAMEENG || ""}
                     aria-invalid={errors.NAMEENG ? "true" : "false"}
                     {...register("NAMEENG", { required: true, maxLength: 200 })}
+                    onChange={handleChange}
                   />
                   <Input
                     id="NAMEJP"
@@ -202,6 +209,7 @@ function ItemAddEditDialog({
                     defaultValue={selectedItem?.NAMEJP || ""}
                     aria-invalid={errors.NAMEJP ? "true" : "false"}
                     {...register("NAMEJP", { required: true, maxLength: 200 })}
+                    onChange={handleChange}
                   />
                 </div>
 
@@ -217,6 +225,9 @@ function ItemAddEditDialog({
                         <Select
                           onValueChange={(newValue) => {
                             onChange(newValue);
+                            handleChange({
+                              target: { name: "ITEMCLASS", value: newValue },
+                            });
                           }}
                           value={value}
                         >
