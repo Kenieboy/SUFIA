@@ -45,7 +45,12 @@ const countries = [
 
 // redux kbmemTable
 import { useDispatch, useSelector } from "react-redux";
-import { removeItemVariation } from "@/redux/itemSlice";
+import {
+  removeItemVariation,
+  removeSelectedVariations,
+  resetItemVariations,
+  toggleItemVariationSelection,
+} from "@/redux/itemSlice";
 
 function ItemAddEditDialog({
   mode = false,
@@ -59,6 +64,12 @@ function ItemAddEditDialog({
 
   // item state
   const item = useSelector((state) => state.item);
+
+  const isSelectedValueLength = item?.itemVariation.filter(
+    (item) => item.isSelected
+  );
+  // check if edit mode
+  const isEditMode = isSelectedValueLength.length > 0;
 
   // form state
   const {
@@ -80,19 +91,24 @@ function ItemAddEditDialog({
   const onSubmit = (data) => {
     mutate(data);
     onClose();
-    console.log(data);
   };
 
   const handleVariationForm = () => {
     setIsItemVariationFormOpen((prev) => !prev);
   };
 
+  const hanldeClick = ({ UNITID, ...others }) => {
+    dispatch(toggleItemVariationSelection(UNITID));
+  };
+
   return (
     <>
       {isItemVariationFormOpen && (
         <ItemVariationForm
+          selectedItem={isEditMode ? isSelectedValueLength[0] : undefined}
           mode={isItemVariationFormOpen}
           fnClose={handleVariationForm}
+          action={isEditMode ? "edit" : undefined}
         />
       )}
       <Dialog open={isOpen}>
@@ -206,8 +222,20 @@ function ItemAddEditDialog({
                     <PlusCircleIcon />
                     Add
                   </Button>
-                  <Button className="text-xs">Edit</Button>
-                  <Button className="bg-red-500 hover:bg-red-400 text-xs">
+                  <Button
+                    disabled={isSelectedValueLength.length <= 0}
+                    className="text-xs"
+                    onClick={handleVariationForm}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    disabled={isSelectedValueLength.length <= 0}
+                    className="bg-red-500 hover:bg-red-400 text-xs"
+                    onClick={() => {
+                      dispatch(removeSelectedVariations());
+                    }}
+                  >
                     Delete
                   </Button>
                 </div>
@@ -228,7 +256,17 @@ function ItemAddEditDialog({
                   </TableHeader>
                   <TableBody>
                     {item?.itemVariation?.map((item) => (
-                      <TableRow className="">
+                      <TableRow
+                        className={`${
+                          item.isSelected === true
+                            ? `bg-gray-300 cursor-pointer`
+                            : ``
+                        }`}
+                        key={item.UNITID}
+                        onClick={() => {
+                          hanldeClick(item);
+                        }}
+                      >
                         <TableCell className="font-medium">
                           {item.UNIT}
                         </TableCell>
@@ -431,13 +469,14 @@ function ItemAddEditDialog({
 
               <div className="flex gap-2 mt-2">
                 <Button type="submit">Submit</Button>
+
                 <Button
                   className="bg-orange-500 hover:bg-orange-400"
                   type="button"
                   onClick={() => {
-                    dispatch(removeItemVariation());
                     onClose();
                     reset();
+                    dispatch(resetItemVariations());
                   }}
                 >
                   Cancel

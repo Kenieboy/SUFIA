@@ -1,5 +1,6 @@
-// shadcn component
+import React, { useEffect } from "react";
 
+// shadcn component
 import {
   Dialog,
   DialogContent,
@@ -29,9 +30,10 @@ import { getItemUnitData } from "@/query/itemRequest";
 
 // redux
 import { useDispatch } from "react-redux";
-import { addItemVariation } from "@/redux/itemSlice";
+import { addItemVariation, updateItemVariationById } from "@/redux/itemSlice";
 
-function ItemVariationForm({ selectedItem, mode, fnClose }) {
+function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
+  console.log(selectedItem);
   // fetching items data
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["itemunit"],
@@ -48,17 +50,34 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
+      ID: "",
       UNIT: "",
       UNITID: "",
     },
   });
 
+  useEffect(() => {
+    if (action === "edit" && selectedItem) {
+      setValue("ID", selectedItem.ID);
+      setValue("UNIT", selectedItem.UNIT);
+      setValue("UNITID", selectedItem.UNITID);
+    } else {
+      reset({ ID: "", UNIT: "", UNITID: "" });
+    }
+  }, [action, selectedItem, setValue, reset]);
+
+  // redux
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    dispatch(addItemVariation(data));
-    console.log(data);
-    reset();
+    const otherData = { ...data, isSelected: false };
+    if (action === "edit") {
+      dispatch(updateItemVariationById(otherData));
+      fnClose();
+    } else {
+      dispatch(addItemVariation(otherData));
+      fnClose();
+    }
   };
 
   return (
@@ -72,20 +91,24 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                 <div className="flex gap-2">
                   <div>
                     {/* =============== ITEMUNIT COMBOBOX ================ */}
+
                     <Controller
                       id="UNIT"
                       name="UNIT"
                       control={control}
+                      defaultValue={selectedItem?.UNIT || ""}
+                      rules={{ required: "Unit is required" }}
                       render={({ field: { onChange, value } }) => (
                         <Select
                           onValueChange={(newValue) => {
                             onChange(newValue);
-
                             const { ID } = data.find(
                               (item) => item.DESCRIPTIONEN === newValue
                             );
-
                             setValue("UNITID", ID);
+                            if (action !== "edit") {
+                              setValue("ID", ID);
+                            }
                           }}
                           value={value}
                         >
@@ -108,6 +131,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                         </Select>
                       )}
                     />
+                    {errors.UNIT && <span>{errors.UNIT.message}</span>}
                   </div>
 
                   {/* ============ */}
@@ -116,6 +140,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                     id="RATIO"
                     type="number"
                     placeholder="Ratio"
+                    defaultValue={selectedItem?.RATIO || ""}
                     step="0.01"
                     {...register("RATIO", {
                       required: "Ratio is required",
@@ -180,6 +205,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                     id="COST"
                     type="number"
                     placeholder="Cost"
+                    defaultValue={selectedItem?.COST || ""}
                     step="0.01"
                     {...register("COST", {
                       required: "Cost is required",
@@ -201,6 +227,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                     id="PRICE"
                     type="number"
                     placeholder="Price"
+                    defaultValue={selectedItem?.PRICE || ""}
                     step="0.01"
                     {...register("PRICE", {
                       required: "Price is required",
@@ -222,6 +249,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose }) {
                     id="HALFOFPRICE"
                     type="number"
                     placeholder="1/2 Of Price"
+                    defaultValue={selectedItem?.HALFOFPRICE || ""}
                     step="0.01"
                     {...register("HALFOFPRICE", {
                       required: "Half of price is required",

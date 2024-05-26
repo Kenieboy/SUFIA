@@ -43,7 +43,40 @@ const itemSlice = createSlice({
       state.itemVariation[index][name] = value;
     },
     removeItemVariation(state, action) {
-      state.itemVariation.splice(action.payload, 1);
+      const id = action.payload;
+      const index = state.itemVariation.findIndex(
+        (variation) => variation.UNITID === id
+      );
+      if (index !== -1) {
+        state.itemVariation.splice(index, 1);
+      }
+    },
+    toggleItemVariationSelection(state, action) {
+      const id = action.payload;
+      const itemVariation = state.itemVariation.find(
+        (variation) => variation.UNITID === id
+      );
+      if (itemVariation) {
+        itemVariation.isSelected = !itemVariation.isSelected;
+      }
+    },
+    removeSelectedVariations(state) {
+      state.itemVariation = state.itemVariation.filter(
+        (variation) => !variation.isSelected
+      );
+    },
+    resetItemVariations(state) {
+      state.itemVariation = [];
+    },
+    updateItemVariationById(state, action) {
+      const { ID } = action.payload;
+      console.log("slice", ID);
+      const itemVariation = state.itemVariation.find(
+        (variation) => variation.ID === ID
+      );
+      if (itemVariation) {
+        Object.assign(itemVariation, action.payload);
+      }
     },
   },
 });
@@ -54,5 +87,9 @@ export const {
   addItemVariation,
   updateItemVariation,
   removeItemVariation,
+  toggleItemVariationSelection,
+  removeSelectedVariations,
+  resetItemVariations,
+  updateItemVariationById,
 } = itemSlice.actions;
 export default itemSlice.reducer;
