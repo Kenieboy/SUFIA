@@ -2,18 +2,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  NAMEENG: "",
-  NAMEJP: "",
-  ITEMCLASS: "",
-  ITEMCATEGORY: "",
   itemVariation: [],
-  SUPPLIER: "",
-  CUSTOMER: "",
-  FORSO: "",
-  FORPO: "",
-  FORPL: "",
-  FORINVOICE: "",
-  REMARK: "",
 };
 
 const itemSlice = createSlice({
@@ -35,8 +24,17 @@ const itemSlice = createSlice({
 
       current[keys[0]] = value;
     },
+
     addItemVariation(state, action) {
-      state.itemVariation.push(action.payload);
+      const { ID } = action.payload;
+
+      const isIdExist = state.itemVariation.some((item) => item.ID === ID);
+
+      if (isIdExist) {
+        alert(`Id #${ID} already exist in the list`);
+      } else {
+        state.itemVariation.push(action.payload);
+      }
     },
     updateItemVariation(state, action) {
       const { index, name, value } = action.payload;

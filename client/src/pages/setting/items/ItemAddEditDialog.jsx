@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 //shadcn component
 import {
@@ -30,18 +30,13 @@ import {
 } from "@/components/ui/table";
 
 // react hook form component
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 
 // icons
 import { PlusCircleIcon } from "lucide-react";
 
 // Item Variation Form
 import ItemVariationForm from "./ItemVariationForm";
-
-const countries = [
-  { label: "Philippines", value: "PH" },
-  { label: "Japan", value: "JP" },
-];
 
 // redux kbmemTable
 import { useDispatch, useSelector } from "react-redux";
@@ -50,9 +45,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   removeSelectedVariations,
   resetItemVariations,
-  setItem,
   toggleItemVariationSelection,
-  updateItemField,
 } from "@/redux/itemSlice";
 
 // data fetching tanstack component
@@ -139,8 +132,29 @@ function ItemAddEditDialog({
     setValue,
     formState: { errors },
   } = useForm({
-    defaultValues: {},
+    defaultValues: {
+      ITEMCLASSID: "",
+      ITEMCATEGORYID: "",
+      DEFAULTCUSTOMERID: "",
+      DEFAULTSUPPLIERID: "",
+      ITEMVARIATION: item.itemVariation,
+    },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "ITEMVARIATION",
+  });
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    reset({ item });
+  }, [item, reset]);
 
   // redux dispatch
   const dispatch = useDispatch();
@@ -159,9 +173,14 @@ function ItemAddEditDialog({
     dispatch(toggleItemVariationSelection(UNITID));
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    dispatch(updateItemField({ name, value }));
+  const handleTestOnChange = (e) => {
+    const selectedValue = e.target.value;
+    const selectedItem = itemCategoryData.find(
+      (item) => item.DESCRIPTION === selectedValue
+    );
+    if (selectedItem) {
+      setValue("ITEMCATEGORYID", selectedItem.ID);
+    }
   };
 
   return (
@@ -201,7 +220,6 @@ function ItemAddEditDialog({
                     defaultValue={selectedItem?.NAMEENG || ""}
                     aria-invalid={errors.NAMEENG ? "true" : "false"}
                     {...register("NAMEENG", { required: true, maxLength: 200 })}
-                    onChange={handleChange}
                   />
                   <Input
                     id="NAMEJP"
@@ -209,83 +227,7 @@ function ItemAddEditDialog({
                     defaultValue={selectedItem?.NAMEJP || ""}
                     aria-invalid={errors.NAMEJP ? "true" : "false"}
                     {...register("NAMEJP", { required: true, maxLength: 200 })}
-                    onChange={handleChange}
                   />
-                </div>
-
-                <div className="mt-2 flex gap-2">
-                  <div>
-                    <Controller
-                      id="ITEMCLASS"
-                      name="ITEMCLASS"
-                      control={control}
-                      defaultValue={selectedItem?.ITEMCLASS || ""}
-                      rules={{ required: "Class is required" }}
-                      render={({ field: { onChange, value } }) => (
-                        <Select
-                          onValueChange={(newValue) => {
-                            onChange(newValue);
-                            handleChange({
-                              target: { name: "ITEMCLASS", value: newValue },
-                            });
-                          }}
-                          value={value}
-                        >
-                          <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="Select a class" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {itemClassData?.map(
-                              (iclass, index) =>
-                                iclass.DESCRIPTION && (
-                                  <SelectItem
-                                    key={`class_${index}`}
-                                    value={iclass.DESCRIPTION}
-                                  >
-                                    {iclass.DESCRIPTION}
-                                  </SelectItem>
-                                )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <Controller
-                      id="ITEMCATEGORY"
-                      name="ITEMCATEGORY"
-                      control={control}
-                      defaultValue={selectedItem?.ITEMCATEGORY || ""}
-                      rules={{ required: "Category is required" }}
-                      render={({ field: { onChange, value } }) => (
-                        <Select
-                          onValueChange={(newValue) => {
-                            onChange(newValue);
-                          }}
-                          value={value}
-                        >
-                          <SelectTrigger className="w-[250px]">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {itemCategoryData?.map(
-                              (icategory, index) =>
-                                icategory.DESCRIPTION && (
-                                  <SelectItem
-                                    key={`category_${index}`}
-                                    value={icategory.DESCRIPTION}
-                                  >
-                                    {icategory.DESCRIPTION}
-                                  </SelectItem>
-                                )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </div>
                 </div>
 
                 <div className="flex gap-2 mt-2 ">
@@ -361,6 +303,87 @@ function ItemAddEditDialog({
                 </Table>
                 {/* Item Variation Table End */}
 
+                <div className="mt-2 flex gap-2">
+                  <div>
+                    <Controller
+                      id="ITEMCLASS"
+                      name="ITEMCLASS"
+                      control={control}
+                      defaultValue={selectedItem?.ITEMCLASS || ""}
+                      rules={{ required: "Class is required" }}
+                      render={({ field: { onChange, value } }) => (
+                        <Select
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+
+                            const { ID } = itemClassData.find(
+                              (item) => item.DESCRIPTION === newValue
+                            );
+                            setValue("ITEMCLASSID", ID);
+                          }}
+                          value={value}
+                        >
+                          <SelectTrigger className="w-[250px]">
+                            <SelectValue placeholder="Select a class" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {itemClassData?.map(
+                              (iclass, index) =>
+                                iclass.DESCRIPTION && (
+                                  <SelectItem
+                                    key={`class_${index}`}
+                                    value={iclass.DESCRIPTION}
+                                  >
+                                    {iclass.DESCRIPTION}
+                                  </SelectItem>
+                                )
+                            )}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      id="ITEMCATEGORY"
+                      name="ITEMCATEGORY"
+                      control={control}
+                      defaultValue={selectedItem?.ITEMCATEGORY || ""}
+                      rules={{ required: "Category is required" }}
+                      render={({ field: { onChange, value } }) => (
+                        <Select
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                            const { ID } = itemCategoryData.find(
+                              (item) => item.DESCRIPTION === newValue
+                            );
+                            setValue("ITEMCATEGORYID", ID);
+                          }}
+                          value={value}
+                        >
+                          <SelectTrigger className="w-[250px]">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {itemCategoryData?.map(
+                              (icategory, index) =>
+                                icategory.DESCRIPTION && (
+                                  <SelectItem
+                                    key={`category_${index}`}
+                                    value={icategory.DESCRIPTION}
+                                  >
+                                    {icategory.DESCRIPTION}
+                                  </SelectItem>
+                                )
+                            )}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                </div>
+
                 <div className="mt-2 flex flex-col gap-2">
                   <div>
                     <Controller
@@ -373,6 +396,10 @@ function ItemAddEditDialog({
                         <Select
                           onValueChange={(newValue) => {
                             onChange(newValue);
+                            const { ID } = customerData.find(
+                              (item) => item.NAME === newValue
+                            );
+                            setValue("DEFAULTCUSTOMERID", ID);
                           }}
                           value={value}
                         >
@@ -404,6 +431,10 @@ function ItemAddEditDialog({
                         <Select
                           onValueChange={(newValue) => {
                             onChange(newValue);
+                            const { ID } = supplierData.find(
+                              (item) => item.NAME === newValue
+                            );
+                            setValue("DEFAULTSUPPLIERID", ID);
                           }}
                           value={value}
                         >
@@ -494,15 +525,6 @@ function ItemAddEditDialog({
 
                 <div className="mt-2 mb-2">
                   <Separator />
-                </div>
-
-                <div className="mt-2">
-                  {errors.CODE && errors.NAME.type === "required" && (
-                    <span>This is required</span>
-                  )}
-                  {errors.CODE && errors.NAME.type === "maxLength" && (
-                    <span>Max length exceeded</span>
-                  )}
                 </div>
               </div>
 
