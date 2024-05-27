@@ -50,7 +50,11 @@ import {
 
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getItemCategoryData, getItemClassData } from "@/query/itemRequest";
+import {
+  getItemCategoryData,
+  getItemClassData,
+  insertItemData,
+} from "@/query/itemRequest";
 import { getFirmCustomer, getFirmSupplier } from "@/query/firmRequest";
 
 function ItemAddEditDialog({
@@ -113,6 +117,15 @@ function ItemAddEditDialog({
     staleTime: Infinity,
   });
 
+  // insert item data
+  const mutationInsertData = useMutation({
+    mutationFn: insertItemData,
+    onSuccess: () => {
+      console.log("success insert");
+      refetch();
+    },
+  });
+
   // item state
   const item = useSelector((state) => state.item);
 
@@ -120,6 +133,7 @@ function ItemAddEditDialog({
   const isSelectedValueLength = item?.itemVariation.filter(
     (item) => item.isSelected
   );
+
   // check if edit mode
   const isEditMode = isSelectedValueLength.length > 0;
 
@@ -160,17 +174,19 @@ function ItemAddEditDialog({
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    // mutate(data);
-    // onClose();
+    // mutate(data)
+    mutationInsertData.mutate(data);
     console.log(data);
+    dispatch(resetItemVariations());
+    onClose();
   };
 
   const handleVariationForm = () => {
     setIsItemVariationFormOpen((prev) => !prev);
   };
 
-  const hanldeClick = ({ UNITID, ...others }) => {
-    dispatch(toggleItemVariationSelection(UNITID));
+  const hanldeClick = ({ ID, ...others }) => {
+    dispatch(toggleItemVariationSelection(ID));
   };
 
   const handleTestOnChange = (e) => {
@@ -240,7 +256,10 @@ function ItemAddEditDialog({
                     Add
                   </Button>
                   <Button
-                    disabled={isSelectedValueLength.length <= 0}
+                    disabled={
+                      isSelectedValueLength.length > 1 ||
+                      isSelectedValueLength.length <= 0
+                    }
                     className="text-xs"
                     onClick={handleVariationForm}
                   >
@@ -279,9 +298,10 @@ function ItemAddEditDialog({
                             ? `bg-gray-300 cursor-pointer`
                             : `cursor-pointer`
                         }`}
-                        key={item.UNITID}
+                        key={item.ID}
                         onClick={() => {
                           hanldeClick(item);
+                          console.log(item);
                         }}
                       >
                         <TableCell className="font-medium ">
@@ -289,7 +309,7 @@ function ItemAddEditDialog({
                             {item.UNIT}
                           </p>
                         </TableCell>
-                        <TableCell>{item.DESCRIPTION}</TableCell>
+                        <TableCell>{item.SPECIFICATIONS}</TableCell>
                         <TableCell>{item.RATIO}</TableCell>
                         <TableCell className="text-right">
                           Php {item.COST}
@@ -511,11 +531,11 @@ function ItemAddEditDialog({
                   <div>
                     <Textarea
                       className="w-[475px] h-full"
-                      id="REMARK"
+                      id="NOTE"
                       placeholder="Notes"
-                      defaultValue={selectedItem?.REMARK || ""}
-                      aria-invalid={errors.REMARK ? "true" : "false"}
-                      {...register("REMARK", {
+                      defaultValue={selectedItem?.NOTE || ""}
+                      aria-invalid={errors.NOTE ? "true" : "false"}
+                      {...register("NOTE", {
                         required: true,
                         maxLength: 200,
                       })}

@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 //import api routes request
 import homeRoutes from "./routes/homeRoutes.js";
@@ -10,6 +11,7 @@ const app = express();
 const PORT = 3001;
 
 // middlewares
+app.use(bodyParser.json());
 app.use(express.json());
 app.use(cors());
 

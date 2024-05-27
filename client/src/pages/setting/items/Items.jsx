@@ -30,7 +30,6 @@ function Items() {
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["items"],
     queryFn: getItemData,
-    staleTime: Infinity,
   });
 
   // ================================================== add edit operation =========

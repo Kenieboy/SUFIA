@@ -51,7 +51,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
     defaultValues: {
       ID: "",
       UNIT: "",
-      UNITID: "",
+      ITEMUNITID: "",
     },
   });
 
@@ -59,7 +59,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
     if (action === "edit" && selectedItem) {
       setValue("ID", selectedItem.ID);
       setValue("UNIT", selectedItem.UNIT);
-      setValue("UNITID", selectedItem.UNITID);
+      setValue("ITEMUNITID", selectedItem.ITEMUNITID);
     } else {
       reset({ ID: "", UNIT: "", UNITID: "" });
     }
@@ -104,7 +104,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
                             const { ID } = data.find(
                               (item) => item.DESCRIPTIONEN === newValue
                             );
-                            setValue("UNITID", ID);
+                            setValue("ITEMUNITID", ID);
                             if (action !== "edit") {
                               setValue("ID", ID);
                             }
@@ -160,11 +160,11 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
 
                 <div className="mt-2">
                   <Input
-                    id="DESCRIPTION"
-                    placeholder="Description"
-                    defaultValue={selectedItem?.DESCRIPTION || ""}
-                    aria-invalid={errors.DESCRIPTION ? "true" : "false"}
-                    {...register("DESCRIPTION", {
+                    id="SPECIFICATIONS"
+                    placeholder="SPECIFICATIONS"
+                    defaultValue={selectedItem?.SPECIFICATIONS || ""}
+                    aria-invalid={errors.SPECIFICATIONS ? "true" : "false"}
+                    {...register("SPECIFICATIONS", {
                       required: true,
                       maxLength: 200,
                     })}
@@ -173,29 +173,68 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
                 {/* ===================================== */}
                 <div className="flex gap-2 mt-2">
                   <Input
-                    id="NETWT"
-                    placeholder="Net Wt."
-                    defaultValue={selectedItem?.NETWT || ""}
-                    aria-invalid={errors.NETWT ? "true" : "false"}
-                    {...register("NETWT", { required: true, maxLength: 200 })}
-                  />
-                  <Input
-                    id="GROSSWT"
-                    placeholder="Gross Wt."
-                    defaultValue={selectedItem?.GROSSWT || ""}
-                    aria-invalid={errors.GROSSWT ? "true" : "false"}
-                    {...register("GROSSWT", {
-                      required: true,
-                      maxLength: 200,
+                    id="NETWEIGHT"
+                    type="number"
+                    placeholder="GROSS WT"
+                    defaultValue={selectedItem?.NETWEIGHT || ""}
+                    step="0.01"
+                    {...register("NETWEIGHT", {
+                      required: "Cost is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
                     })}
+                    aria-invalid={errors.NETWEIGHT ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Set to empty string if negative value
+                      }
+                    }}
                   />
+                  {errors.NETWEIGHT && <p>{errors.NETWEIGHT.message}</p>}
+                  <Input
+                    id="GROSSWEIGHT"
+                    type="number"
+                    placeholder="GROSS WT"
+                    defaultValue={selectedItem?.GROSSWEIGHT || ""}
+                    step="0.01"
+                    {...register("GROSSWEIGHT", {
+                      required: "Gross WT is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Gross WT must be a non-negative number",
+                    })}
+                    aria-invalid={errors.GROSSWEIGHT ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Set to empty string if negative value
+                      }
+                    }}
+                  />
+                  {errors.GROSSWEIGHT && <p>{errors.GROSSWEIGHT.message}</p>}
                   <Input
                     id="VOLUME"
-                    placeholder="Volume"
+                    type="number"
+                    placeholder="VOLUME"
                     defaultValue={selectedItem?.VOLUME || ""}
+                    step="0.01"
+                    {...register("VOLUME", {
+                      required: "Volume is required",
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Volume must be a non-negative number",
+                    })}
                     aria-invalid={errors.VOLUME ? "true" : "false"}
-                    {...register("VOLUME", { required: true, maxLength: 200 })}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Set to empty string if negative value
+                      }
+                    }}
                   />
+                  {errors.VOLUME && <p>{errors.COST.message}</p>}
                 </div>
 
                 {/* ===================================== */}
@@ -244,7 +283,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
                   />
                   {errors.PRICE && <p>{errors.PRICE.message}</p>}
 
-                  <Input
+                  {/* <Input
                     id="HALFOFPRICE"
                     type="number"
                     placeholder="1/2 Of Price"
@@ -263,7 +302,7 @@ function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
                       }
                     }}
                   />
-                  {errors.HALFOFPRICE && <p>{errors.HALFOFPRICE.message}</p>}
+                  {errors.HALFOFPRICE && <p>{errors.HALFOFPRICE.message}</p>} */}
                 </div>
               </div>
 

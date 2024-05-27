@@ -30,4 +30,17 @@ async function getItemCategoryData() {
   return data;
 }
 
-export { getItemData, getItemUnitData, getItemClassData, getItemCategoryData };
+async function insertItemData(value) {
+  const res = await axios.post(`http://localhost:3001/api/items/`, value);
+  const data = res.data;
+  console.log(data.message);
+  return data.message;
+}
+
+export {
+  getItemData,
+  getItemUnitData,
+  getItemClassData,
+  getItemCategoryData,
+  insertItemData,
+};

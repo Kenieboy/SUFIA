@@ -52,7 +52,7 @@ const itemSlice = createSlice({
     toggleItemVariationSelection(state, action) {
       const id = action.payload;
       const itemVariation = state.itemVariation.find(
-        (variation) => variation.UNITID === id
+        (variation) => variation.ID === id
       );
       if (itemVariation) {
         itemVariation.isSelected = !itemVariation.isSelected;
