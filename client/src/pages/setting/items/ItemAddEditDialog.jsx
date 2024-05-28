@@ -555,9 +555,15 @@ function ItemAddEditDialog({
                   className="bg-orange-500 hover:bg-orange-400"
                   type="button"
                   onClick={() => {
-                    onClose();
-                    reset();
-                    dispatch(resetItemVariations());
+                    if (action === "edit") {
+                      console.log("cancel is edit action");
+                      setIsOpen(false);
+                      dispatch(resetItemVariations());
+                    } else {
+                      onClose();
+                      reset();
+                      dispatch(resetItemVariations());
+                    }
                   }}
                 >
                   Cancel

@@ -26,7 +26,12 @@ router.get("/:id", (req, res) => {
     return res.status(400).json({ error: "Invalid ID parameter" });
   }
 
-  const itemVariationSQL = `SELECT * FROM ITEMVARIATION WHERE ITEMID=?`;
+  const itemVariationSQL = `SELECT IV.ID, IV.SPECIFICATIONS, IV.NETWEIGHT, IV.GROSSWEIGHT, IV.VOLUME, IV.COST, IV.PRICE, IV.RATIO, 
+  IV.ITEMUNITID, IU.DESCRIPTIONEN AS UNIT
+  FROM ITEMVARIATION IV
+  LEFT JOIN ITEMUNIT IU
+  ON IV.ITEMUNITID = IU.ID
+  WHERE IV.ITEMID=?`;
 
   dbConnection.query(itemVariationSQL, [id], (err, result) => {
     if (err) {

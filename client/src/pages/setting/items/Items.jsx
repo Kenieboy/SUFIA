@@ -110,6 +110,7 @@ function Items() {
               ]}
               mutate={mutationUpdateData.mutate}
               component={component}
+              fnClose={handleAddBtn}
             />
           </div>
         )}

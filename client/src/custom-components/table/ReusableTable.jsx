@@ -50,7 +50,6 @@ function ReusableTable({ data, properties, mutate, component }) {
   };
 
   const DynamicAddEditDialog = componentMap[component];
-  // component === "supplier" ? SupplierAddEditDialog : CustomerAddEditDialog;
 
   return (
     <div>
