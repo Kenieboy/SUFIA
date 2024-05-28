@@ -1,5 +1,20 @@
 // src/redux/itemSlice.js
-import { createSlice } from "@reduxjs/toolkit";
+import { getItemVariation } from "@/query/itemRequest";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Async thunk to query itemVariation by ID
+export const fetchItemVariationById = createAsyncThunk(
+  "item/fetchItemVariationById",
+
+  async (ID, thunkAPI) => {
+    try {
+      const data = await getItemVariation(ID);
+      return data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
 
 const initialState = {
   itemVariation: [],
@@ -36,6 +51,15 @@ const itemSlice = createSlice({
         state.itemVariation.push(action.payload);
       }
     },
+
+    getItemVariationBackToArray(state, action) {
+      const { ID } = action.payload;
+
+      const data = getItemVariation(ID);
+
+      console.log(data);
+    },
+
     updateItemVariation(state, action) {
       const { index, name, value } = action.payload;
       state.itemVariation[index][name] = value;
@@ -76,6 +100,38 @@ const itemSlice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchItemVariationById.fulfilled, (state, action) => {
+        console.log("Fetched item:", action.payload);
+
+        // If the fetched data is an array
+        const items = Array.isArray(action.payload)
+          ? action.payload
+          : [action.payload];
+
+        // Ensure each item includes isSelected: false
+        const newItems = items.map((item) => ({
+          ...item,
+          isSelected: false,
+        }));
+
+        // Add the new items if they don't already exist in the array
+        newItems.forEach((newItem) => {
+          const isIdExist = state.itemVariation.some(
+            (variation) => variation.ID === newItem.ID
+          );
+          if (!isIdExist) {
+            state.itemVariation.push(newItem);
+          } else {
+            console.log("Item already exists:", newItem);
+          }
+        });
+      })
+      .addCase(fetchItemVariationById.rejected, (state, action) => {
+        console.error("Failed to fetch item variation:", action.payload.error);
+      });
+  },
 });
 
 export const {
@@ -88,5 +144,6 @@ export const {
   removeSelectedVariations,
   resetItemVariations,
   updateItemVariationById,
+  getItemVariationBackToArray,
 } = itemSlice.actions;
 export default itemSlice.reducer;

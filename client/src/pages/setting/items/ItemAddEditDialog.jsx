@@ -298,13 +298,13 @@ function ItemAddEditDialog({
                             ? `bg-gray-300 cursor-pointer`
                             : `cursor-pointer`
                         }`}
-                        key={item.ID}
+                        key={`${item.ID}-${item.ITEMID}`} // Composite key
                         onClick={() => {
                           hanldeClick(item);
                           console.log(item);
                         }}
                       >
-                        <TableCell className="font-medium ">
+                        <TableCell className="font-medium">
                           <p className="bg-green-500 inline-block px-2 py-1 rounded-full">
                             {item.UNIT}
                           </p>

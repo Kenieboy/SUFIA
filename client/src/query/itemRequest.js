@@ -37,10 +37,21 @@ async function insertItemData(value) {
   return data.message;
 }
 
+async function getItemVariation(value) {
+  try {
+    const res = await axios.get(`http://localhost:3001/api/items/${value}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching item variation:", error);
+    throw new Error("Failed to fetch item variation data");
+  }
+}
+
 export {
   getItemData,
   getItemUnitData,
   getItemClassData,
   getItemCategoryData,
+  getItemVariation,
   insertItemData,
 };

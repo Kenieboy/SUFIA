@@ -2,9 +2,17 @@
 import CustomerAddEditDialog from "@/pages/setting/customers/CustomerAddEditDialog";
 import ItemAddEditDialog from "@/pages/setting/items/ItemAddEditDialog";
 import SupplierAddEditDialog from "@/pages/setting/suppliers/SupplierAddEditDialog";
+import {
+  addItemVariation,
+  fetchItemVariationById,
+  getItemVariationBackToArray,
+} from "@/redux/itemSlice";
 
 // react state
 import { useState } from "react";
+
+// redux kbmemTable
+import { useDispatch, useSelector } from "react-redux";
 
 function ReusableTable({ data, properties, mutate, component }) {
   const [showModal, setShowModal] = useState(false);
@@ -19,8 +27,18 @@ function ReusableTable({ data, properties, mutate, component }) {
     properties = Object.keys(data[0]);
   }
 
+  const dispatch = useDispatch();
+
   // trigger Edit event
   const handleEditEvent = (item) => {
+    const { ID } = item;
+    if (component === "item") {
+      try {
+        dispatch(fetchItemVariationById(ID));
+      } catch (error) {
+        console.error("Error fetching item variation:", error);
+      }
+    }
     setSelectedItem(item);
     setShowModal((prevState) => !prevState);
   };

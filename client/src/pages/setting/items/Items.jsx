@@ -19,7 +19,7 @@ import { PlusCircle } from "lucide-react";
 import ItemAddEditDialog from "./ItemAddEditDialog";
 
 // api request
-import { getItemData } from "@/query/itemRequest";
+import { getItemData, getItemVariation } from "@/query/itemRequest";
 
 function Items() {
   // add edit modal

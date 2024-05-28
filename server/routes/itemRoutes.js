@@ -17,57 +17,31 @@ router.get("/", (req, res) => {
   });
 });
 
-// Route to insert data into ITEM table
-// router.post("/", (req, res) => {
-//   const {
-//     NAMEENG,
-//     NAMEJP,
-//     ITEMCLASSID,
-//     ITEMCATEGORYID,
-//     NOTE,
-//     DEFAULTCUSTOMERID,
-//     DEFAULTSUPPLIERID,
-//     item: { itemVariation },
-//   } = req.body;
+// fetch item variation data
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
 
-//   // Insert into ITEM table
+  // Ensure the id parameter is valid
+  if (!id) {
+    return res.status(400).json({ error: "Invalid ID parameter" });
+  }
 
-//   // res.json(itemVariation);
+  const itemVariationSQL = `SELECT * FROM ITEMVARIATION WHERE ITEMID=?`;
 
-//   const itemSQL = `INSERT INTO ITEM (NAMEENG,
-//       NAMEJP,
-//       ITEMCLASSID,
-//       ITEMCATEGORYID,
-//       NOTE,
-//       DEFAULTCUSTOMERID,
-//       DEFAULTSUPPLIERID) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-//   dbConnection.query(
-//     itemSQL,
-//     [
-//       NAMEENG,
-//       NAMEJP,
-//       ITEMCLASSID,
-//       ITEMCATEGORYID,
-//       NOTE,
-//       DEFAULTCUSTOMERID,
-//       DEFAULTSUPPLIERID,
-//     ],
-//     (err, result) => {
-//       if (err) {
-//         console.error("Error inserting items:", err);
-//         res.status(500).json({ error: "Internal Server Error" });
-//         return;
-//       }
+  dbConnection.query(itemVariationSQL, [id], (err, result) => {
+    if (err) {
+      console.error("Error fetching item variation:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
 
-//       const lastInsertId = result.insertId;
+    // Handle case where no item variation is found
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Item Variation not found" });
+    }
 
-//       res.status(200).json({
-//         success: true,
-//         message: `Item inserted successfully id #${lastInsertId}`,
-//       });
-//     }
-//   );
-// });
+    res.json(result);
+  });
+});
 
 // Route to insert data into ITEM table
 router.post("/", (req, res) => {
@@ -103,6 +77,12 @@ router.post("/", (req, res) => {
       }
 
       const lastInsertId = result.insertId;
+
+      const formattedCode = `I000-${lastInsertId}`;
+
+      const codeItemUpdateQuery = `UPDATE ITEM SET CODE=? WHERE ID=?`;
+
+      dbConnection.query(codeItemUpdateQuery, [formattedCode, lastInsertId]);
 
       // Insert item variations if they exist
       if (itemVariation && itemVariation.length > 0) {
