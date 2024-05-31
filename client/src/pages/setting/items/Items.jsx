@@ -80,18 +80,6 @@ function Item() {
     staleTime: Infinity,
   });
 
-  // Query for item unit
-  const {
-    isPending: isItemUnitDataPending,
-    error: itemUnitError,
-    data: itemUnitData,
-    refetch: refetchItemUnit,
-  } = useQuery({
-    queryKey: ["itemunit"],
-    queryFn: getItemUnitData,
-    staleTime: Infinity,
-  });
-
   // Query for customer data
   const {
     isPending: isCustomerDataPending,
@@ -126,7 +114,6 @@ function Item() {
 
   const handleFormModal = () => {
     dispatch(addItemAction(itemClassData, "itemClass"));
-    dispatch(addItemAction(itemUnitData, "itemUnit"));
     dispatch(addItemAction(itemCategoryData, "itemCategory"));
     dispatch(addItemAction(customerData, "defaultCustomer"));
     dispatch(addItemAction(supplierData, "defaultSupplier"));
@@ -148,11 +135,7 @@ function Item() {
     },
   });
 
-  useEffect(() => {
-    return () => {
-      dispatch(resetAllArray());
-    };
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div>

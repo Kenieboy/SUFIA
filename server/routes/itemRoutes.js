@@ -58,7 +58,7 @@ router.post("/", (req, res) => {
     NOTE,
     DEFAULTCUSTOMERID,
     DEFAULTSUPPLIERID,
-    item: { itemVariation },
+    itemVariation,
   } = req.body;
 
   const itemSQL = `INSERT INTO ITEM (NAMEENG, NAMEJP, ITEMCLASSID, ITEMCATEGORYID, NOTE, DEFAULTCUSTOMERID, DEFAULTSUPPLIERID) VALUES (?, ?, ?, ?, ?, ?, ?)`;

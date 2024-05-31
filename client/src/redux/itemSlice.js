@@ -2,13 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   itemClass: [],
-  itemUnit: [],
   itemCategory: [],
   defaultCustomer: [],
   defaultSupplier: [],
-  item: {
-    itemVariation: [],
-  },
+  itemVariation: [],
 };
 
 const itemSlice = createSlice({
@@ -22,8 +19,10 @@ const itemSlice = createSlice({
         state[arrayType].push(...item);
       }
     },
+    addItemVariation(state, action) {
+      state.itemVariation.push({ ...state.itemVariation, ...action.payload });
+    },
     resetAllArray(state) {
-      state.itemUnit = [];
       state.itemCategory = [];
       state.itemClass = [];
       state.defaultCustomer = [];
@@ -37,5 +36,5 @@ export const addItemAction = (item, arrayType) => ({
   payload: { item, arrayType },
 });
 
-export const { resetAllArray } = itemSlice.actions;
+export const { resetAllArray, addItemVariation } = itemSlice.actions;
 export default itemSlice.reducer;
