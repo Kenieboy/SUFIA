@@ -33,7 +33,7 @@ import { useDispatch } from "react-redux";
 import { addItemVariation, updateItemVariationById } from "@/redux/itemSlice";
 
 function ItemVariationForm({ selectedItem, mode, fnClose, action }) {
-  // fetching items data
+  // fetching item unit data
   const { isPending, error, data, refetch } = useQuery({
     queryKey: ["itemunit"],
     queryFn: getItemUnitData,

@@ -36,7 +36,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { PlusCircleIcon } from "lucide-react";
 
 // Item Variation Form
-import ItemVariationForm from "./ItemVariationForm";
+import ItemVariationForm from "./ItemVariationForm-old";
 
 // redux kbmemTable
 import { useDispatch, useSelector } from "react-redux";

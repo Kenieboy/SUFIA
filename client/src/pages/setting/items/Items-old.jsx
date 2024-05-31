@@ -1,12 +1,5 @@
 import React, { useState } from "react";
 
-// api request
-import {
-  getFirmCustomer,
-  insertCustomerData,
-  updateCustomerData,
-} from "@/query/firmRequest";
-
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
 
@@ -23,32 +16,41 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 
 // customer reusable add, edit form
-import CustomerAddEditDialog from "./CustomerAddEditDialog";
+import ItemAddEditDialog from "./ItemAddEditDialog-old";
 
-function Customers() {
+// api request
+import { getItemData, getItemVariation } from "@/query/itemRequest";
+
+function Items() {
   // add edit modal
   const [showModal, setShowModal] = useState(false);
-  const [component, setComponent] = useState("customer");
+  const [component, setComponent] = useState("item");
 
-  // fetching customer data
+  // fetching items data
   const { isPending, error, data, refetch } = useQuery({
-    queryKey: ["customer"],
-    queryFn: getFirmCustomer,
-    staleTime: Infinity,
+    queryKey: ["items"],
+    queryFn: getItemData,
   });
 
+  // ================================================== add edit operation =========
   // insert customer data
   const mutationInsertData = useMutation({
-    mutationFn: insertCustomerData,
+    mutationFn: () => {
+      console.log("insert data...");
+    },
     onSuccess: () => {
+      console.log("success insert");
       refetch();
     },
   });
 
   // edit customer data
   const mutationUpdateData = useMutation({
-    mutationFn: updateCustomerData,
+    mutationFn: () => {
+      console.log("edit data...");
+    },
     onSuccess: () => {
+      console.log("success Edit");
       refetch();
     },
   });
@@ -65,7 +67,7 @@ function Customers() {
         <div>
           {/* Add/Edit form here */}
           {showModal && (
-            <CustomerAddEditDialog
+            <ItemAddEditDialog
               mode={showModal}
               onClose={handleAddBtn}
               mutate={mutationInsertData.mutate}
@@ -100,14 +102,15 @@ function Customers() {
               data={data}
               properties={[
                 "CODE",
-                "NAME",
-                "REMARK",
-                "ADDRESS1",
-                "ADDRESS2",
-                "COUNTRY",
+                "NAMEENG",
+                "NAMEJP",
+                "NOTE",
+                "POPRICE",
+                "UPDATED",
               ]}
               mutate={mutationUpdateData.mutate}
               component={component}
+              fnClose={handleAddBtn}
             />
           </div>
         )}
@@ -119,4 +122,4 @@ function Customers() {
   );
 }
 
-export default Customers;
+export default Items;

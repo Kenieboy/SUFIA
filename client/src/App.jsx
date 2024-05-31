@@ -32,6 +32,7 @@ import Customers from "./pages/setting/customers/Customers";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Suppliers from "./pages/setting/suppliers/Suppliers";
 import Items from "./pages/setting/items/Items";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function App() {
   const currentUser = true;
@@ -138,11 +139,9 @@ function App() {
     {
       path: "/",
       element: (
-        <QueryClientProvider client={queryClient}>
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        </QueryClientProvider>
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
       ),
       children: [
         {
@@ -220,7 +219,10 @@ function App() {
 
   return (
     <div>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
     </div>
   );
 }

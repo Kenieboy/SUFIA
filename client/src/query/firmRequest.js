@@ -14,10 +14,8 @@ async function getFirmCustomer() {
 }
 
 async function insertCustomerData(value) {
-  console.log(value);
   const req = await axios.post(`http://localhost:3001/api/firm`, value);
   const data = await req.data;
-  console.log(data.message, data.Id);
   return data.message;
 }
 
@@ -36,10 +34,8 @@ async function getFirmSupplier() {
 }
 
 async function insertSupplierData(value) {
-  console.log(value);
   const req = await axios.post(`http://localhost:3001/api/firm`, value);
   const data = await req.data;
-  console.log(data.message, data.Id);
   return data.message;
 }
 

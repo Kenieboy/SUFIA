@@ -1,64 +1,146 @@
 import React, { useState } from "react";
 
-// data fetching tanstack component
-import { useQuery, useMutation } from "@tanstack/react-query";
-
-// routing
-import { Outlet } from "react-router-dom";
-
-// customer component to display table
-import ReusableTable from "@/custom-components/table/ReusableTable";
+// item add edit form component
+import ItemAddEditForm from "./ItemAddEditForm";
 
 // shadcn component
 import { Button } from "@/components/ui/button";
 
-// icons
+// icon
 import { PlusCircle } from "lucide-react";
 
-// customer reusable add, edit form
-import ItemAddEditDialog from "./ItemAddEditDialog";
+// fetching item data api request
+import {
+  getItemCategoryData,
+  getItemClassData,
+  getItemData,
+  getItemUnitData,
+} from "@/query/itemRequest";
 
-// api request
-import { getItemData, getItemVariation } from "@/query/itemRequest";
+// tanstack data query component
+import { useQuery } from "@tanstack/react-query";
 
-function Items() {
-  // add edit modal
-  const [showModal, setShowModal] = useState(false);
-  const [component, setComponent] = useState("item");
+// redux action
+import { useDispatch, useSelector } from "react-redux";
+import { getFirmCustomer, getFirmSupplier } from "@/query/firmRequest";
+import { addItemAction, resetAllArray } from "@/redux/itemSlice";
 
+//==================================================================
+
+function Item() {
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+
+  //======================== QUERY AREA DATA =======================
   // fetching items data
-  const { isPending, error, data, refetch } = useQuery({
+  const {
+    isLoading: isItemLoading,
+    isPending: isItemPending,
+    error: itemError,
+    data: itemData,
+  } = useQuery({
     queryKey: ["items"],
     queryFn: getItemData,
   });
 
-  // ================================================== add edit operation =========
-  // insert customer data
-  const mutationInsertData = useMutation({
-    mutationFn: () => {
-      console.log("insert data...");
-    },
-    onSuccess: () => {
-      console.log("success insert");
-      refetch();
-    },
+  // item table properties
+  const properties = [
+    "CODE",
+    "NAMEENG",
+    "NAMEJP",
+    "NOTE",
+    "POPRICE",
+    "UPDATED",
+  ];
+
+  //===================== ITEM DATA & TABLE PROPERTIES ==================
+
+  //Query for item class
+  const {
+    isPending: isItemClassDataPending,
+    error: itemClassError,
+    data: itemClassData,
+    refetch: refetchItemClass,
+  } = useQuery({
+    queryKey: ["itemclass"],
+    queryFn: getItemClassData,
+    staleTime: Infinity,
   });
 
-  // edit customer data
-  const mutationUpdateData = useMutation({
-    mutationFn: () => {
-      console.log("edit data...");
-    },
-    onSuccess: () => {
-      console.log("success Edit");
-      refetch();
-    },
+  // Query for item category
+  const {
+    isPending: isItemCategoryPending,
+    error: itemCategoryError,
+    data: itemCategoryData,
+    refetch: refetchItemCategory,
+  } = useQuery({
+    queryKey: ["itemcategory"],
+    queryFn: getItemCategoryData,
+    staleTime: Infinity,
   });
 
-  //triger add dialog
-  const handleAddBtn = () => {
-    setShowModal((prevState) => !prevState);
+  // Query for item unit
+  const {
+    isPending: isItemUnitDataPending,
+    error: itemUnitError,
+    data: itemUnitData,
+    refetch: refetchItemUnit,
+  } = useQuery({
+    queryKey: ["itemunit"],
+    queryFn: getItemUnitData,
+    staleTime: Infinity,
+  });
+
+  // Query for customer data
+  const {
+    isPending: isCustomerDataPending,
+    error: customerDataError,
+    data: customerData,
+    refetch: refetchCustomerData,
+  } = useQuery({
+    queryKey: ["customer"],
+    queryFn: getFirmCustomer,
+    staleTime: Infinity,
+  });
+
+  // Query for supplier data
+  const {
+    isPending: isSupplierDataPending,
+    error: supplierDataError,
+    data: supplierData,
+    refetch: refetchSupplierData,
+  } = useQuery({
+    queryKey: ["supplier"],
+    queryFn: getFirmSupplier,
+    staleTime: Infinity,
+  });
+
+  // ========================== END QUERY DATA AREA =========================
+
+  const dispatch = useDispatch();
+
+  const { itemClass, itemUnit, itemCategory, itemVariation } = useSelector(
+    (state) => state.itemData
+  );
+
+  const handleFormModal = () => {
+    dispatch(addItemAction(itemClassData, "itemClass"));
+    dispatch(addItemAction(itemUnitData, "itemUnit"));
+    dispatch(addItemAction(itemCategoryData, "itemCategory"));
+    dispatch(addItemAction(customerData, "defaultCustomer"));
+    dispatch(addItemAction(supplierData, "defaultSupplier"));
+
+    setIsFormModalOpen((prev) => !prev);
   };
+
+  const handleCloseFormModal = () => {
+    dispatch(resetAllArray());
+    setIsFormModalOpen((prev) => !prev);
+  };
+
+  // redux
+  // const { itemClass, itemUnit, itemCategory, itemVariation } = useSelector(
+  //   (state) => state.itemData
+  // );
 
   return (
     <div>
@@ -66,60 +148,69 @@ function Items() {
         {/* button crud operation here */}
         <div>
           {/* Add/Edit form here */}
-          {showModal && (
-            <ItemAddEditDialog
-              mode={showModal}
-              onClose={handleAddBtn}
-              mutate={mutationInsertData.mutate}
+          {isFormModalOpen && (
+            <ItemAddEditForm
+              fmMode={isFormModalOpen}
+              fnClose={handleCloseFormModal}
             />
           )}
         </div>
         <div className="flex gap-2">
           <div>
-            {/* <CustomerAddDialog mutate={mutation.mutate} /> */}
             <Button
               className="flex gap-2 bg-green-500 hover:bg-green-400 px-8"
-              onClick={handleAddBtn}
+              onClick={handleFormModal}
             >
               <PlusCircle />
               Add
             </Button>
           </div>
-
-          {/* <Button className="flex gap-2">
-            <Pencil />
-            Edit
-          </Button> */}
         </div>
       </div>
+      {/* TABLE ITEM AREA */}
       <div>
-        {isPending ? (
+        {isItemLoading ? (
           <p>loading...</p>
         ) : (
-          <div>
-            {/* TABLE HERE */}
-            <ReusableTable
-              data={data}
-              properties={[
-                "CODE",
-                "NAMEENG",
-                "NAMEJP",
-                "NOTE",
-                "POPRICE",
-                "UPDATED",
-              ]}
-              mutate={mutationUpdateData.mutate}
-              component={component}
-              fnClose={handleAddBtn}
-            />
+          <div className=" border border-gray-300 overflow-x-auto max-h-[640px]">
+            <table className="table-auto">
+              <thead className="sticky top-0 bg-white">
+                <tr className="border-b border-gray-300 text-black text-xs">
+                  {properties.map((property) => (
+                    <th
+                      key={property}
+                      className={`px-4 py-2 w-80 ${
+                        property === "CODE" ? `w-60` : ``
+                      }`}
+                    >
+                      {property}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-300">
+                {itemData.map((item, index) => (
+                  <tr
+                    key={item.ID}
+                    onClick={() => {
+                      console.log(item);
+                    }}
+                  >
+                    {properties.map((property) => (
+                      <td className="p-4 cursor-pointer" key={property}>
+                        {item[property]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
-      <div>
-        <Outlet />
-      </div>
+      {/* END TABLE ITEM AREA */}
     </div>
   );
 }
 
-export default Items;
+export default Item;
