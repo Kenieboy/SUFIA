@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // item add edit form component
 import ItemAddEditForm from "./ItemAddEditForm";
@@ -15,10 +15,11 @@ import {
   getItemClassData,
   getItemData,
   getItemUnitData,
+  insertItemData,
 } from "@/query/itemRequest";
 
 // tanstack data query component
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 // redux action
 import { useDispatch, useSelector } from "react-redux";
@@ -37,6 +38,7 @@ function Item() {
     isPending: isItemPending,
     error: itemError,
     data: itemData,
+    refetch: refetchItem,
   } = useQuery({
     queryKey: ["items"],
     queryFn: getItemData,
@@ -133,14 +135,24 @@ function Item() {
   };
 
   const handleCloseFormModal = () => {
-    dispatch(resetAllArray());
+    //dispatch(resetAllArray());
     setIsFormModalOpen((prev) => !prev);
   };
 
-  // redux
-  // const { itemClass, itemUnit, itemCategory, itemVariation } = useSelector(
-  //   (state) => state.itemData
-  // );
+  // insert customer data
+  const mutationInsertData = useMutation({
+    mutationFn: insertItemData,
+    onSuccess: () => {
+      console.log("success insert");
+      refetchItem();
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      dispatch(resetAllArray());
+    };
+  }, []);
 
   return (
     <div>
@@ -152,6 +164,7 @@ function Item() {
             <ItemAddEditForm
               fmMode={isFormModalOpen}
               fnClose={handleCloseFormModal}
+              mutate={mutationInsertData.mutate}
             />
           )}
         </div>

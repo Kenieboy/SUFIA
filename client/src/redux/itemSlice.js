@@ -17,7 +17,10 @@ const itemSlice = createSlice({
   reducers: {
     addItem(state, action) {
       const { item, arrayType } = action.payload;
-      state[arrayType].push(...item);
+
+      if (state[arrayType].length === 0) {
+        state[arrayType].push(...item);
+      }
     },
     resetAllArray(state) {
       state.itemUnit = [];
