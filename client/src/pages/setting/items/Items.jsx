@@ -30,6 +30,9 @@ import { addItemAction, resetAllArray } from "@/redux/itemSlice";
 
 function Item() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [seletedItemData, setSelectedItemData] = useState(null);
+
+  console.log(seletedItemData);
 
   //======================== QUERY AREA DATA =======================
   // fetching items data
@@ -130,12 +133,9 @@ function Item() {
   const mutationInsertData = useMutation({
     mutationFn: insertItemData,
     onSuccess: () => {
-      console.log("success insert");
       refetchItem();
     },
   });
-
-  useEffect(() => {}, []);
 
   return (
     <div>
@@ -189,7 +189,7 @@ function Item() {
                   <tr
                     key={item.ID}
                     onClick={() => {
-                      console.log(item);
+                      setSelectedItemData(item);
                     }}
                   >
                     {properties.map((property) => (

@@ -28,6 +28,9 @@ const itemSlice = createSlice({
       state.defaultCustomer = [];
       state.defaultSupplier = [];
     },
+    resetItemVariation(state) {
+      state.itemVariation = [];
+    },
   },
 });
 
@@ -36,5 +39,6 @@ export const addItemAction = (item, arrayType) => ({
   payload: { item, arrayType },
 });
 
-export const { resetAllArray, addItemVariation } = itemSlice.actions;
+export const { resetAllArray, resetItemVariation, addItemVariation } =
+  itemSlice.actions;
 export default itemSlice.reducer;

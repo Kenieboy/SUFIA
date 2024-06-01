@@ -57,7 +57,6 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
 
   const onSubmit = (data) => {
     dispatch(addItemVariation(data));
-    console.log(data);
     reset();
     fnClose();
   };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // shadcn component
 import {
@@ -40,9 +40,12 @@ import { PlusCircleIcon } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import ItemVariationForm from "./ItemVariationForm";
+import { resetItemVariation } from "@/redux/itemSlice";
 
 function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
   const [isFormVariationOpen, setIsFormVariationOpen] = useState(false);
+
+  const dispatch = useDispatch();
 
   const {
     itemClass,
@@ -67,20 +70,29 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
       ITEMCATEGORYID: "",
       DEFAULTCUSTOMERID: "",
       DEFAULTSUPPLIERID: "",
-      itemVariation: [],
+      itemVariation: [...itemVariation],
     },
   });
 
+  useEffect(() => {
+    // Update form values with itemVariation from Redux store when component mounts
+    setValue("itemVariation", itemVariation);
+  }, [itemVariation, setValue]);
+
   const onSubmit = (data) => {
-    console.log(data);
     mutate(data);
     fnClose();
+    dispatch(resetItemVariation());
     navigate("/settings/items");
   };
 
   const handleFormVariation = () => {
     setIsFormVariationOpen((prev) => !prev);
   };
+
+  const initialItemClassDescription =
+    itemClass.find((iC) => iC.ID === selectedItem?.ITEMCLASSID)?.DESCRIPTION ||
+    "";
 
   return (
     <div>
@@ -175,7 +187,7 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                       id="ITEMCLASS"
                       name="ITEMCLASS"
                       control={control}
-                      defaultValue={selectedItem?.ITEMCLASS || ""}
+                      defaultValue={initialItemClassDescription}
                       rules={{ required: "Class is required" }}
                       render={({ field: { onChange, value } }) => (
                         <Select
