@@ -40,7 +40,10 @@ import { PlusCircleIcon } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import ItemVariationForm from "./ItemVariationForm";
-import { resetItemVariation } from "@/redux/itemSlice";
+import {
+  resetItemVariation,
+  toggleItemVariationSelection,
+} from "@/redux/itemSlice";
 
 function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
   const [isFormVariationOpen, setIsFormVariationOpen] = useState(false);
@@ -161,7 +164,11 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                   <TableBody>
                     {itemVariation?.map((item) => (
                       <TableRow
+                        className="cursor-pointer"
                         key={`${item.ID}-${item.ITEMID}`} // Composite key
+                        onClick={() => {
+                          dispatch(toggleItemVariationSelection(item));
+                        }}
                       >
                         <TableCell className="font-medium">
                           <p className="bg-green-500 inline-block px-2 py-1 rounded-full">
@@ -400,7 +407,10 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                 <Button
                   className="bg-orange-500 hover:bg-orange-400"
                   type="button"
-                  onClick={fnClose}
+                  onClick={() => {
+                    dispatch(resetItemVariation());
+                    fnClose();
+                  }}
                 >
                   Cancel
                 </Button>

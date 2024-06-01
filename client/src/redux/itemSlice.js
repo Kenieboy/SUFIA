@@ -20,7 +20,24 @@ const itemSlice = createSlice({
       }
     },
     addItemVariation(state, action) {
-      state.itemVariation.push({ ...state.itemVariation, ...action.payload });
+      const { ID } = action.payload;
+
+      const isIdExist = state.itemVariation.some((item) => item.ID === ID);
+
+      if (isIdExist) {
+        alert(`Id #${ID} already exist in the list`);
+      } else {
+        state.itemVariation.push(action.payload);
+      }
+    },
+    toggleItemVariationSelection(state, action) {
+      const { ID } = action.payload;
+      const itemVariation = state.itemVariation.find(
+        (variation) => variation.ID === ID
+      );
+      if (itemVariation) {
+        itemVariation.isSelected = !itemVariation.isSelected;
+      }
     },
     resetAllArray(state) {
       state.itemCategory = [];
@@ -39,6 +56,10 @@ export const addItemAction = (item, arrayType) => ({
   payload: { item, arrayType },
 });
 
-export const { resetAllArray, resetItemVariation, addItemVariation } =
-  itemSlice.actions;
+export const {
+  resetAllArray,
+  resetItemVariation,
+  addItemVariation,
+  toggleItemVariationSelection,
+} = itemSlice.actions;
 export default itemSlice.reducer;

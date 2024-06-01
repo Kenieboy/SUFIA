@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 // item add edit form component
 import ItemAddEditForm from "./ItemAddEditForm";
@@ -24,15 +24,13 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 // redux action
 import { useDispatch, useSelector } from "react-redux";
 import { getFirmCustomer, getFirmSupplier } from "@/query/firmRequest";
-import { addItemAction, resetAllArray } from "@/redux/itemSlice";
+import { addItemAction } from "@/redux/itemSlice";
 
 //==================================================================
 
 function Item() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [seletedItemData, setSelectedItemData] = useState(null);
-
-  console.log(seletedItemData);
 
   //======================== QUERY AREA DATA =======================
   // fetching items data

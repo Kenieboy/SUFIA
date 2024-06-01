@@ -22,7 +22,7 @@ import { useForm, Controller, set } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { getItemUnitData } from "@/query/itemRequest";
 import { useDispatch } from "react-redux";
-import { addItemVariation } from "@/redux/itemSlice";
+import { addItemVariation, resetItemVariation } from "@/redux/itemSlice";
 
 function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
   // Query for item unit
@@ -56,7 +56,8 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    dispatch(addItemVariation(data));
+    const newData = { ...data, isSelected: false };
+    dispatch(addItemVariation(newData));
     reset();
     fnClose();
   };
