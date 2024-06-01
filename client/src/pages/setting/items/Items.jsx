@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // item add edit form component
 import ItemAddEditForm from "./ItemAddEditForm";
@@ -24,13 +24,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 // redux action
 import { useDispatch, useSelector } from "react-redux";
 import { getFirmCustomer, getFirmSupplier } from "@/query/firmRequest";
-import { addItemAction } from "@/redux/itemSlice";
+import { addItemAction, fetchItemVariationById } from "@/redux/itemSlice";
 
 //==================================================================
 
 function Item() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [seletedItemData, setSelectedItemData] = useState(null);
+  const [selectedItemData, setSelectedItemData] = useState(null);
+  const [action, setAction] = useState(false);
 
   //======================== QUERY AREA DATA =======================
   // fetching items data
@@ -114,12 +115,11 @@ function Item() {
   );
 
   const handleFormModal = () => {
+    setIsFormModalOpen((prev) => !prev);
     dispatch(addItemAction(itemClassData, "itemClass"));
     dispatch(addItemAction(itemCategoryData, "itemCategory"));
     dispatch(addItemAction(customerData, "defaultCustomer"));
     dispatch(addItemAction(supplierData, "defaultSupplier"));
-
-    setIsFormModalOpen((prev) => !prev);
   };
 
   const handleCloseFormModal = () => {
@@ -127,7 +127,7 @@ function Item() {
     setIsFormModalOpen((prev) => !prev);
   };
 
-  // insert customer data
+  // insert item data
   const mutationInsertData = useMutation({
     mutationFn: insertItemData,
     onSuccess: () => {
@@ -135,17 +135,43 @@ function Item() {
     },
   });
 
+  // edit item data
+  const mutationUpdateData = useMutation({
+    mutationFn: () => {
+      console.log("edit data...");
+    },
+    onSuccess: () => {
+      console.log("Edit mode");
+      refetch();
+    },
+  });
+
+  const handleSetAction = () => {
+    setAction((prev) => !prev);
+  };
+
   return (
     <div>
       <div className="mb-6">
         {/* button crud operation here */}
         <div>
           {/* Add/Edit form here */}
+
           {isFormModalOpen && (
             <ItemAddEditForm
               fmMode={isFormModalOpen}
               fnClose={handleCloseFormModal}
-              mutate={mutationInsertData.mutate}
+              mutate={
+                selectedItemData
+                  ? mutationUpdateData.mutate
+                  : mutationInsertData.mutate
+              }
+              {...(action && {
+                selectedItem: selectedItemData,
+                setAction: handleSetAction,
+                setSelectedItem: setSelectedItemData,
+              })}
+              action={action}
             />
           )}
         </div>
@@ -153,7 +179,10 @@ function Item() {
           <div>
             <Button
               className="flex gap-2 bg-green-500 hover:bg-green-400 px-8"
-              onClick={handleFormModal}
+              onClick={() => {
+                handleFormModal();
+                handleSetAction();
+              }}
             >
               <PlusCircle />
               Add
@@ -187,7 +216,10 @@ function Item() {
                   <tr
                     key={item.ID}
                     onClick={() => {
+                      dispatch(fetchItemVariationById(item.ID));
+                      handleSetAction();
                       setSelectedItemData(item);
+                      handleFormModal();
                     }}
                   >
                     {properties.map((property) => (

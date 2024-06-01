@@ -41,11 +41,20 @@ import { PlusCircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ItemVariationForm from "./ItemVariationForm";
 import {
+  removeSelectedVariations,
   resetItemVariation,
   toggleItemVariationSelection,
 } from "@/redux/itemSlice";
 
-function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
+function ItemAddEditForm({
+  fmMode,
+  fnClose,
+  selectedItem = null,
+  mutate,
+  setAction,
+  setSelectedItem,
+  action,
+}) {
   const [isFormVariationOpen, setIsFormVariationOpen] = useState(false);
 
   const dispatch = useDispatch();
@@ -83,10 +92,14 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
   }, [itemVariation, setValue]);
 
   const onSubmit = (data) => {
-    mutate(data);
-    fnClose();
-    dispatch(resetItemVariation());
-    navigate("/settings/items");
+    if (itemVariation.length === 0) {
+      alert("Please provide variation for this new item!");
+    } else {
+      mutate(data);
+      fnClose();
+      dispatch(resetItemVariation());
+      navigate("/settings/items");
+    }
   };
 
   const handleFormVariation = () => {
@@ -94,8 +107,24 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
   };
 
   const initialItemClassDescription =
-    itemClass.find((iC) => iC.ID === selectedItem?.ITEMCLASSID)?.DESCRIPTION ||
+    itemClass.find((i) => i.ID === selectedItem?.ITEMCLASSID)?.DESCRIPTION ||
     "";
+
+  const initialItemCategoryDescription =
+    itemCategory.find((i) => i.ID === selectedItem?.ITEMCATEGORYID)
+      ?.DESCRIPTION || "";
+
+  const initialItemDefaultCustomer =
+    defaultCustomer.find((i) => i.ID === selectedItem?.DEFAULTCUSTOMERID)
+      ?.NAME || "";
+
+  const initialItemDefaultSupplier =
+    defaultSupplier.find((i) => i.ID === selectedItem?.DEFAULTSUPPLIERID)
+      ?.NAME || "";
+
+  const totalItemVariationSelected = itemVariation.filter(
+    (iv) => iv.isSelected
+  );
 
   return (
     <div>
@@ -108,7 +137,18 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
       <Dialog open={fmMode}>
         <DialogContent className="max-w-[800px]">
           <DialogHeader>
-            <DialogTitle>New Item</DialogTitle>
+            <DialogTitle>
+              {selectedItem ? (
+                <div className="flex px-2 items-center justify-between">
+                  <p>Edit Item</p>
+                  <p className="text-[10px] cursor-pointer bg-green-500 px-2 py-1 rounded-full text-white">
+                    {selectedItem?.CODE || ""}
+                  </p>
+                </div>
+              ) : (
+                `New Item`
+              )}
+            </DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
 
@@ -135,14 +175,28 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                 <div className="flex gap-2 mt-2 ">
                   {/* =================== BUTTON AREA ===================== */}
                   <Button
+                    disabled={totalItemVariationSelected.length > 0}
                     onClick={handleFormVariation}
                     className=" text-xs flex gap-2 bg-green-500 hover:bg-green-400"
                   >
                     <PlusCircleIcon />
                     Add
                   </Button>
-                  <Button>Edit</Button>
-                  <Button className="bg-red-500 hover:bg-red-400 text-xs">
+                  <Button
+                    disabled={
+                      totalItemVariationSelected.length > 1 ||
+                      totalItemVariationSelected.length <= 0
+                    }
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    disabled={totalItemVariationSelected.length <= 0}
+                    className="bg-red-500 hover:bg-red-400 text-xs"
+                    onClick={() => {
+                      dispatch(removeSelectedVariations());
+                    }}
+                  >
                     Delete
                   </Button>
                 </div>
@@ -162,29 +216,34 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {itemVariation?.map((item) => (
-                      <TableRow
-                        className="cursor-pointer"
-                        key={`${item.ID}-${item.ITEMID}`} // Composite key
-                        onClick={() => {
-                          dispatch(toggleItemVariationSelection(item));
-                        }}
-                      >
-                        <TableCell className="font-medium">
-                          <p className="bg-green-500 inline-block px-2 py-1 rounded-full">
-                            {item.UNIT}
-                          </p>
-                        </TableCell>
-                        <TableCell>{item.SPECIFICATIONS}</TableCell>
-                        <TableCell>{item.RATIO}</TableCell>
-                        <TableCell className="text-right">
-                          Php {item.COST}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          Php {item.PRICE}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {itemVariation &&
+                      itemVariation?.map((item) => (
+                        <TableRow
+                          className={`${
+                            item.isSelected
+                              ? `bg-gray-300 cursor-pointer`
+                              : `cursor-pointer`
+                          }`}
+                          key={`${item.ID}-${item.ITEMID}`} // Composite key
+                          onClick={() => {
+                            dispatch(toggleItemVariationSelection(item));
+                          }}
+                        >
+                          <TableCell className="font-medium">
+                            <p className="bg-green-500 inline-block px-2 py-1 rounded-full">
+                              {item.UNIT}
+                            </p>
+                          </TableCell>
+                          <TableCell>{item.SPECIFICATIONS}</TableCell>
+                          <TableCell>{item.RATIO}</TableCell>
+                          <TableCell className="text-right">
+                            Php {item.COST}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            Php {item.PRICE}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
 
@@ -232,7 +291,7 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                       id="ITEMCATEGORY"
                       name="ITEMCATEGORY"
                       control={control}
-                      defaultValue={selectedItem?.ITEMCATEGORY || ""}
+                      defaultValue={initialItemCategoryDescription}
                       rules={{ required: "Category is required" }}
                       render={({ field: { onChange, value } }) => (
                         <Select
@@ -272,7 +331,7 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                       id="DEFAULTCUSTOMER"
                       name="DEFAULTCUSTOMER"
                       control={control}
-                      defaultValue={selectedItem?.DEFAULTCUSTOMER || ""}
+                      defaultValue={initialItemDefaultCustomer}
                       rules={{ required: "Customer is required" }}
                       render={({ field: { onChange, value } }) => (
                         <Select
@@ -309,7 +368,7 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                       id="DEFAULTSUPPLIER"
                       name="DEFAULTSUPPLIER"
                       control={control}
-                      defaultValue={selectedItem?.DEFAULTSUPPLIER || ""}
+                      defaultValue={initialItemDefaultSupplier}
                       rules={{ required: "Supplier is required" }}
                       render={({ field: { onChange, value } }) => (
                         <Select
@@ -408,6 +467,10 @@ function ItemAddEditForm({ fmMode, fnClose, selectedItem = null, mutate }) {
                   className="bg-orange-500 hover:bg-orange-400"
                   type="button"
                   onClick={() => {
+                    if (action) {
+                      setSelectedItem(null);
+                      setAction();
+                    }
                     dispatch(resetItemVariation());
                     fnClose();
                   }}
