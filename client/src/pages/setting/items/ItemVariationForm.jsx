@@ -21,7 +21,7 @@ import {
 import { useForm, Controller, set } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { getItemUnitData } from "@/query/itemRequest";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addItemVariation, resetItemVariation } from "@/redux/itemSlice";
 
 function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
@@ -56,8 +56,16 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    const newData = { ...data, isSelected: false };
+    const newData = {
+      ...data,
+      FORSO: 0,
+      FORPO: 0,
+      FORPACKINGLIST: 0,
+      FORINVOICE: 0,
+      isSelected: false,
+    };
     dispatch(addItemVariation(newData));
+
     reset();
     fnClose();
   };

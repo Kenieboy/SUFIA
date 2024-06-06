@@ -26,7 +26,7 @@ router.get("/:id", (req, res) => {
     return res.status(400).json({ error: "Invalid ID parameter" });
   }
 
-  const itemVariationSQL = `SELECT IV.ID, IV.SPECIFICATIONS, IV.NETWEIGHT, IV.GROSSWEIGHT, IV.VOLUME, IV.COST, IV.PRICE, IV.RATIO, 
+  const itemVariationSQL = `SELECT IV.ID, IV.SPECIFICATIONS, IV.NETWEIGHT, IV.GROSSWEIGHT, IV.VOLUME, IV.COST, IV.PRICE, IV.RATIO, IV.FORSO, IV.FORPO, IV.FORPACKINGLIST, IV.FORINVOICE,
   IV.ITEMUNITID, IU.DESCRIPTIONEN AS UNIT
   FROM ITEMVARIATION IV
   LEFT JOIN ITEMUNIT IU
@@ -91,7 +91,7 @@ router.post("/", (req, res) => {
 
       // Insert item variations if they exist
       if (itemVariation && itemVariation.length > 0) {
-        const itemVariationSQL = `INSERT INTO ITEMVARIATION (ITEMID, ITEMUNITID, SPECIFICATIONS, NETWEIGHT, GROSSWEIGHT, VOLUME, COST, PRICE, RATIO) VALUES ?`;
+        const itemVariationSQL = `INSERT INTO ITEMVARIATION (ITEMID, ITEMUNITID, SPECIFICATIONS, NETWEIGHT, GROSSWEIGHT, VOLUME, COST, PRICE, RATIO, FORSO, FORPO, FORPACKINGLIST,  FORINVOICE) VALUES ?`;
 
         const itemVariationData = itemVariation.map(
           ({
@@ -103,6 +103,10 @@ router.post("/", (req, res) => {
             COST,
             PRICE,
             RATIO,
+            FORSO,
+            FORPO,
+            FORPACKINGLIST,
+            FORINVOICE,
           }) => [
             lastInsertId,
             ITEMUNITID,
@@ -113,6 +117,10 @@ router.post("/", (req, res) => {
             COST,
             PRICE,
             RATIO,
+            FORSO,
+            FORPO,
+            FORPACKINGLIST,
+            FORINVOICE,
           ]
         );
 

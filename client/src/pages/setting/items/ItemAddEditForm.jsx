@@ -21,6 +21,7 @@ import {
 
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   Select,
@@ -44,6 +45,7 @@ import {
   removeSelectedVariations,
   resetItemVariation,
   toggleItemVariationSelection,
+  toggleSelect,
 } from "@/redux/itemSlice";
 
 function ItemAddEditForm({
@@ -125,6 +127,17 @@ function ItemAddEditForm({
   const totalItemVariationSelected = itemVariation.filter(
     (iv) => iv.isSelected
   );
+
+  const handleCheckboxChange = (itemId, propertyName) => {
+    dispatch(toggleSelect({ itemId, propertyName }));
+  };
+
+  // Define isPropertyUnique function
+  const isPropertyUnique = (property, itemId) => {
+    return !itemVariation.some(
+      (item) => item[property] === 1 && item.ID !== itemId
+    );
+  };
 
   return (
     <div>
@@ -213,18 +226,22 @@ function ItemAddEditForm({
                       <TableHead>RATIO</TableHead>
                       <TableHead className="text-right">COST</TableHead>
                       <TableHead className="text-right">PRICE</TableHead>
+                      <TableHead>FOR SO</TableHead>
+                      <TableHead>FOR PO</TableHead>
+                      <TableHead>FOR PL</TableHead>
+                      <TableHead>FOR INVOICE</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {itemVariation &&
-                      itemVariation?.map((item) => (
+                      itemVariation?.map((item, i) => (
                         <TableRow
                           className={`${
                             item.isSelected
                               ? `bg-gray-300 cursor-pointer`
                               : `cursor-pointer`
                           }`}
-                          key={`${item.ID}-${item.ITEMID}`} // Composite key
+                          key={i} // index key
                           onClick={() => {
                             dispatch(toggleItemVariationSelection(item));
                           }}
@@ -241,6 +258,89 @@ function ItemAddEditForm({
                           </TableCell>
                           <TableCell className="text-right">
                             Php {item.PRICE}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Checkbox
+                              name="FORSO"
+                              disabled={
+                                selectedItem &&
+                                item?.FORSO === 1 &&
+                                !isPropertyUnique(
+                                  itemVariation,
+                                  "FORSO",
+                                  item.ID
+                                )
+                              }
+                              checked={item?.FORSO === 1}
+                              onCheckedChange={() => {
+                                handleCheckboxChange(item.ID, "FORSO");
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {/* <Checkbox
+                              name="FORPO"
+                              {...(selectedItem
+                                ? {
+                                    checked: item?.FORPO === 1,
+                                  }
+                                : {})}
+                              onCheckedChange={() => {
+                                handleCheckboxChange(item.ID, "FORPO");
+                              }}
+                            /> */}
+                            <Checkbox
+                              name="FORPO"
+                              disabled={
+                                selectedItem &&
+                                item?.FORPO === 1 &&
+                                !isPropertyUnique(
+                                  itemVariation,
+                                  "FORPO",
+                                  item.ID
+                                )
+                              }
+                              checked={item?.FORPO === 1}
+                              onCheckedChange={() => {
+                                handleCheckboxChange(item.ID, "FORPO");
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Checkbox
+                              name="FORPACKINGLIST"
+                              disabled={
+                                selectedItem &&
+                                item?.FORPACKINGLIST === 1 &&
+                                !isPropertyUnique(
+                                  itemVariation,
+                                  "FORPACKINGLIST",
+                                  item.ID
+                                )
+                              }
+                              checked={item?.FORPACKINGLIST === 1}
+                              onCheckedChange={() => {
+                                handleCheckboxChange(item.ID, "FORPACKINGLIST");
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Checkbox
+                              name="FORINVOICE"
+                              disabled={
+                                selectedItem &&
+                                item?.FORINVOICE === 1 &&
+                                !isPropertyUnique(
+                                  itemVariation,
+                                  "FORINVOICE",
+                                  item.ID
+                                )
+                              }
+                              checked={item?.FORINVOICE === 1}
+                              onCheckedChange={() => {
+                                handleCheckboxChange(item.ID, "FORINVOICE");
+                              }}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}
@@ -403,7 +503,7 @@ function ItemAddEditForm({
                 </div>
 
                 <div className="flex gap-2 mt-2">
-                  <div className="flex flex-col gap-2">
+                  {/* <div className="flex flex-col gap-2">
                     <Input
                       id="FORSO"
                       type="number"
@@ -439,10 +539,10 @@ function ItemAddEditForm({
                         maxLength: 200,
                       })}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <Textarea
-                      className="w-[475px] h-full"
+                      className="w-[730px] h-full"
                       id="NOTE"
                       placeholder="Notes"
                       defaultValue={selectedItem?.NOTE || ""}
