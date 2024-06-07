@@ -1,4 +1,7 @@
-import { getItemVariation } from "@/query/itemRequest";
+import {
+  deleteFromItemVariationId,
+  getItemVariation,
+} from "@/query/itemRequest";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Async thunk to query itemVariation by ID
@@ -15,6 +18,19 @@ export const fetchItemVariationById = createAsyncThunk(
       return data;
     } catch (error) {
       return thunkAPI.rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+export const deleteFromItemVariation = createAsyncThunk(
+  "item/deleteFromItemVariation",
+  async (variation, { rejectWithValue }) => {
+    const { ID } = variation;
+    try {
+      const res = await deleteFromItemVariationId(ID);
+      return res.data.message;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
   }
 );
@@ -54,6 +70,11 @@ const itemSlice = createSlice({
 
     //   state.itemVariation.push(action.payload);
     // },
+    addItemVariationNegativeId(state, action) {
+      let { ID } = action.payload;
+
+      state.itemVariation.push({ ...action.payload, ID: -ID });
+    },
     addItemVariation(state, action) {
       let { ID, FORSO, FORPO, FORPACKINGLIST, FORINVOICE } = action.payload;
 
@@ -181,6 +202,13 @@ const itemSlice = createSlice({
         (variation) => !variation.isSelected
       );
     },
+    removeSelectedVariationsFromTable(state) {
+      const selectedItem = (state.itemVariation = state.itemVariation.filter(
+        (variation) => !variation.isSelected
+      ));
+
+      console.log(selectedItem);
+    },
     toggleItemVariationSelection(state, action) {
       const { ID } = action.payload;
       const itemVariation = state.itemVariation.find(
@@ -228,6 +256,20 @@ const itemSlice = createSlice({
       })
       .addCase(fetchItemVariationById.rejected, (state, action) => {
         console.log("Failed to fetch item variation:", action.payload.error);
+      })
+      .addCase(deleteFromItemVariation.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteFromItemVariation.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.itemVariation = state.itemVariation.filter(
+          (variation) => !variation.isSelected
+        );
+        console.log(action.payload); // Log success message
+      })
+      .addCase(deleteFromItemVariation.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });
@@ -241,8 +283,10 @@ export const {
   resetAllArray,
   resetItemVariation,
   addItemVariation,
+  addItemVariationNegativeId,
   toggleItemVariationSelection,
   toggleSelect,
   removeSelectedVariations,
+  removeSelectedVariationsFromTable,
 } = itemSlice.actions;
 export default itemSlice.reducer;

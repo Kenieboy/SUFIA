@@ -42,7 +42,9 @@ import { PlusCircleIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ItemVariationForm from "./ItemVariationForm";
 import {
+  deleteFromItemVariation,
   removeSelectedVariations,
+  removeSelectedVariationsFromTable,
   resetItemVariation,
   toggleItemVariationSelection,
   toggleSelect,
@@ -97,6 +99,7 @@ function ItemAddEditForm({
     if (itemVariation.length === 0) {
       alert("Please provide variation for this new item!");
     } else {
+      console.log(data);
       mutate(data);
       fnClose();
       dispatch(resetItemVariation());
@@ -139,12 +142,29 @@ function ItemAddEditForm({
     );
   };
 
+  const handleRemoveSelected = () => {
+    const selectedVariations = itemVariation.filter(
+      (variation) => variation.isSelected
+    );
+    selectedVariations.forEach((variation) =>
+      dispatch(deleteFromItemVariation(variation))
+    );
+  };
+
+  if (selectedItem) {
+    setValue("ITEMCLASSID", selectedItem.ITEMCLASSID);
+    setValue("ITEMCATEGORYID", selectedItem.ITEMCATEGORYID);
+    setValue("DEFAULTCUSTOMERID", selectedItem.DEFAULTCUSTOMERID);
+    setValue("DEFAULTSUPPLIERID", selectedItem.DEFAULTSUPPLIERID);
+  }
+
   return (
     <div>
       {isFormVariationOpen && (
         <ItemVariationForm
           fnClose={handleFormVariation}
           fmMode={isFormVariationOpen}
+          selectedItem={selectedItem}
         />
       )}
       <Dialog open={fmMode}>
@@ -168,6 +188,16 @@ function ItemAddEditForm({
           <form onSubmit={handleSubmit(onSubmit)} className="relative">
             <div className="px-2 mt-6">
               <div>
+                {selectedItem === null ? (
+                  ``
+                ) : (
+                  <Input
+                    id="ID"
+                    type="hidden"
+                    defaultValue={selectedItem?.ID || ""}
+                    {...register("ID", { valueAsNumber: true })}
+                  />
+                )}
                 <div className="flex flex-col gap-2">
                   <Input
                     id="NAMEENG"
@@ -188,6 +218,7 @@ function ItemAddEditForm({
                 <div className="flex gap-2 mt-2 ">
                   {/* =================== BUTTON AREA ===================== */}
                   <Button
+                    type="button"
                     disabled={totalItemVariationSelected.length > 0}
                     onClick={handleFormVariation}
                     className=" text-xs flex gap-2 bg-green-500 hover:bg-green-400"
@@ -196,6 +227,7 @@ function ItemAddEditForm({
                     Add
                   </Button>
                   <Button
+                    type="button"
                     disabled={
                       totalItemVariationSelected.length > 1 ||
                       totalItemVariationSelected.length <= 0
@@ -204,9 +236,13 @@ function ItemAddEditForm({
                     Edit
                   </Button>
                   <Button
+                    type="button"
                     disabled={totalItemVariationSelected.length <= 0}
                     className="bg-red-500 hover:bg-red-400 text-xs"
                     onClick={() => {
+                      if (selectedItem) {
+                        handleRemoveSelected();
+                      }
                       dispatch(removeSelectedVariations());
                     }}
                   >
@@ -242,7 +278,7 @@ function ItemAddEditForm({
                               : `cursor-pointer`
                           }`}
                           key={i} // index key
-                          onClick={() => {
+                          onDoubleClick={() => {
                             dispatch(toggleItemVariationSelection(item));
                           }}
                         >

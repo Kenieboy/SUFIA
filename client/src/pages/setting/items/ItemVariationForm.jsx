@@ -21,8 +21,12 @@ import {
 import { useForm, Controller, set } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { getItemUnitData } from "@/query/itemRequest";
-import { useDispatch, useSelector } from "react-redux";
-import { addItemVariation, resetItemVariation } from "@/redux/itemSlice";
+import { useDispatch } from "react-redux";
+import {
+  addItemVariation,
+  addItemVariationNegativeId,
+  resetItemVariation,
+} from "@/redux/itemSlice";
 
 function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
   // Query for item unit
@@ -56,18 +60,33 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    const newData = {
-      ...data,
-      FORSO: 0,
-      FORPO: 0,
-      FORPACKINGLIST: 0,
-      FORINVOICE: 0,
-      isSelected: false,
-    };
-    dispatch(addItemVariation(newData));
+    if (selectedItem) {
+      const newDataEditMode = {
+        ...data,
+        FORSO: 0,
+        FORPO: 0,
+        FORPACKINGLIST: 0,
+        FORINVOICE: 0,
+        isSelected: false,
+      };
 
-    reset();
-    fnClose();
+      dispatch(addItemVariationNegativeId(newDataEditMode));
+      reset();
+      fnClose();
+    } else {
+      const newData = {
+        ...data,
+        FORSO: 0,
+        FORPO: 0,
+        FORPACKINGLIST: 0,
+        FORINVOICE: 0,
+        isSelected: false,
+      };
+      dispatch(addItemVariation(newData));
+
+      reset();
+      fnClose();
+    }
   };
   return (
     <Dialog open={fmMode}>

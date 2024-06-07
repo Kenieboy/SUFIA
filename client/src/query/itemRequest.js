@@ -47,6 +47,14 @@ async function getItemVariation(value) {
   }
 }
 
+async function deleteFromItemVariationId(value) {
+  const res = await axios.delete(
+    `http://localhost:3001/api/items/itemvariation/${value}`
+  );
+  const data = res.data;
+  return data.message;
+}
+
 export {
   getItemData,
   getItemUnitData,
@@ -54,4 +62,5 @@ export {
   getItemCategoryData,
   getItemVariation,
   insertItemData,
+  deleteFromItemVariationId,
 };

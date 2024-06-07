@@ -199,4 +199,23 @@ router.get("/metadata/:type", (req, res) => {
   });
 });
 
+//=============================== ITEM VARIATION =====================
+
+router.delete("/itemvariation/:Id", (req, res) => {
+  const { Id } = req.params;
+
+  const itemVariationDeleteSQL = "DELETE FROM ITEMVARIATION WHERE ID=?";
+
+  dbConnection.query(itemVariationDeleteSQL, [Id], (err, result) => {
+    if (err) {
+      console.error("Error deleting item variation", err);
+
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+
+    return res.json(result);
+  });
+});
+
 export default router;
