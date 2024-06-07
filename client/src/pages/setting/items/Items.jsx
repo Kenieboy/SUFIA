@@ -16,6 +16,7 @@ import {
   getItemData,
   getItemUnitData,
   insertItemData,
+  updateItemData,
 } from "@/query/itemRequest";
 
 // tanstack data query component
@@ -137,12 +138,9 @@ function Item() {
 
   // edit item data
   const mutationUpdateData = useMutation({
-    mutationFn: () => {
-      console.log("edit data...");
-    },
+    mutationFn: updateItemData,
     onSuccess: () => {
-      console.log("Edit mode");
-      refetch();
+      refetchItem();
     },
   });
 

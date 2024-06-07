@@ -33,7 +33,13 @@ async function getItemCategoryData() {
 async function insertItemData(value) {
   const res = await axios.post(`http://localhost:3001/api/items/`, value);
   const data = res.data;
-  console.log(data.message);
+  return data.message;
+}
+
+async function updateItemData(value) {
+  //console.log(`http://localhost:3001/api/items/`, value);
+  const res = await axios.put(`http://localhost:3001/api/items/`, value);
+  const data = res.data;
   return data.message;
 }
 
@@ -62,5 +68,6 @@ export {
   getItemCategoryData,
   getItemVariation,
   insertItemData,
+  updateItemData,
   deleteFromItemVariationId,
 };

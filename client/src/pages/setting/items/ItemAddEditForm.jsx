@@ -99,7 +99,6 @@ function ItemAddEditForm({
     if (itemVariation.length === 0) {
       alert("Please provide variation for this new item!");
     } else {
-      console.log(data);
       mutate(data);
       fnClose();
       dispatch(resetItemVariation());

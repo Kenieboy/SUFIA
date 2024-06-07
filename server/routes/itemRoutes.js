@@ -48,7 +48,7 @@ router.get("/:id", (req, res) => {
   });
 });
 
-// Route to insert data into ITEM table
+// insert item data & item variation
 router.post("/", (req, res) => {
   const {
     NAMEENG,
@@ -146,6 +146,163 @@ router.post("/", (req, res) => {
         res.status(200).json({
           success: true,
           message: `Item inserted successfully with Item ID #${lastInsertId}`,
+        });
+      }
+    }
+  );
+});
+
+// update item data & item variation
+
+router.put("/", (req, res) => {
+  const {
+    ID: itemIdMain,
+    NAMEENG,
+    NAMEJP,
+    NOTE,
+    ITEMCLASSID,
+    ITEMCATEGORYID,
+    DEFAULTCUSTOMERID,
+    DEFAULTSUPPLIERID,
+    itemVariation,
+  } = req.body;
+
+  const updateItemSQL = `
+    UPDATE ITEM
+    SET NAMEENG = ?, NAMEJP = ?, NOTE = ?, ITEMCLASSID = ?, ITEMCATEGORYID = ?,
+    DEFAULTCUSTOMERID = ?, DEFAULTSUPPLIERID = ?
+    WHERE ID = ?
+  `;
+
+  dbConnection.query(
+    updateItemSQL,
+    [
+      NAMEENG,
+      NAMEJP,
+      NOTE,
+      ITEMCLASSID,
+      ITEMCATEGORYID,
+      DEFAULTCUSTOMERID,
+      DEFAULTSUPPLIERID,
+      itemIdMain,
+    ],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating item:", err);
+        return res
+          .status(500)
+          .json({ error: "Item Update Internal Server Error" });
+      }
+
+      // If there are item variations, update or insert them
+      if (itemVariation && itemVariation.length > 0) {
+        const promises = itemVariation.map((variation) => {
+          return new Promise((resolve, reject) => {
+            const {
+              ID,
+              ITEMUNITID,
+              SPECIFICATIONS,
+              NETWEIGHT,
+              GROSSWEIGHT,
+              VOLUME,
+              COST,
+              PRICE,
+              RATIO,
+              FORSO,
+              FORPO,
+              FORPACKINGLIST,
+              FORINVOICE,
+            } = variation;
+
+            if (ID > 0) {
+              // Update existing variation
+              const updateVariationSQL = `
+                UPDATE ITEMVARIATION
+                SET ITEMUNITID = ?, SPECIFICATIONS = ?, NETWEIGHT = ?, GROSSWEIGHT = ?, VOLUME = ?, COST = ?, PRICE = ?, RATIO = ?, FORSO = ?, FORPO = ?, FORPACKINGLIST = ?, FORINVOICE = ?
+                WHERE ID = ?
+              `;
+              dbConnection.query(
+                updateVariationSQL,
+                [
+                  ITEMUNITID,
+                  SPECIFICATIONS,
+                  NETWEIGHT,
+                  GROSSWEIGHT,
+                  VOLUME,
+                  COST,
+                  PRICE,
+                  RATIO,
+                  FORSO,
+                  FORPO,
+                  FORPACKINGLIST,
+                  FORINVOICE,
+                  ID,
+                ],
+                (err) => {
+                  if (err) {
+                    console.error(
+                      `Error updating item variation ID ${ID}:`,
+                      err
+                    );
+                    reject(err);
+                  } else {
+                    resolve();
+                  }
+                }
+              );
+            } else {
+              // Insert new variation
+              const insertVariationSQL = `
+                INSERT INTO ITEMVARIATION (
+                  ITEMID, ITEMUNITID, SPECIFICATIONS, NETWEIGHT, GROSSWEIGHT, VOLUME, COST, PRICE, RATIO, FORSO, FORPO, FORPACKINGLIST, FORINVOICE
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              `;
+              dbConnection.query(
+                insertVariationSQL,
+                [
+                  itemIdMain,
+                  ITEMUNITID,
+                  SPECIFICATIONS,
+                  NETWEIGHT,
+                  GROSSWEIGHT,
+                  VOLUME,
+                  COST,
+                  PRICE,
+                  RATIO,
+                  FORSO,
+                  FORPO,
+                  FORPACKINGLIST,
+                  FORINVOICE,
+                ],
+                (err) => {
+                  if (err) {
+                    console.error("Error inserting item variation:", err);
+                    reject(err);
+                  } else {
+                    resolve();
+                  }
+                }
+              );
+            }
+          });
+        });
+
+        Promise.all(promises)
+          .then(() => {
+            res.status(200).json({
+              success: true,
+              message: `Item and variations updated successfully with Item ID #${itemIdMain}`,
+            });
+          })
+          .catch((err) => {
+            res
+              .status(500)
+              .json({ error: "Item Variation Update Internal Server Error" });
+          });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: `Item updated successfully with Item ID #${itemIdMain}`,
         });
       }
     }
