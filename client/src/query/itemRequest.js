@@ -61,12 +61,21 @@ async function deleteFromItemVariationId(value) {
   return data.message;
 }
 
+async function getPurchaseDeliveryDetail(value) {
+  const res = await axios.get(
+    `http://localhost:3001/api/items/itemdetail/${value}`
+  );
+  const data = res.data;
+  return data;
+}
+
 export {
   getItemData,
   getItemUnitData,
   getItemClassData,
   getItemCategoryData,
   getItemVariation,
+  getPurchaseDeliveryDetail,
   insertItemData,
   updateItemData,
   deleteFromItemVariationId,

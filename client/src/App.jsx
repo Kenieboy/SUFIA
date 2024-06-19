@@ -155,6 +155,7 @@ function App() {
         {
           path: "inventory",
           element: <Inventory />,
+          children: [{ path: "receiving", element: <div>receiving</div> }],
         },
         {
           path: "production",

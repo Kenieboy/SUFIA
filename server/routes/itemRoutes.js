@@ -375,4 +375,93 @@ router.delete("/itemvariation/:Id", (req, res) => {
   });
 });
 
+//================================ ITEM DETAILS =======================
+
+router.get("/itemdetail/:Id", (req, res) => {
+  const { Id } = req.params;
+
+  const q = `
+    SELECT 
+    i.ID AS ITEMID,
+      i.CODE AS ITEMCODE, 
+      i.NAMEENG, 
+      i.NAMEJP, 
+      IFNULL(
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'ID', iv.ID,
+            'ITEMUNITID', iv.ITEMUNITID,
+            'ITEMUNITDESCRIPTION', iu.DESCRIPTIONEN,
+            'SPECIFICATIONS', iv.SPECIFICATIONS,
+            'NETWEIGHT', iv.NETWEIGHT,
+            'GROSSWEIGHT', iv.GROSSWEIGHT,
+            'VOLUME', iv.VOLUME,
+            'COST', iv.COST,
+            'PRICE', iv.PRICE,
+            'CUSTOMPRICE', iv.CUSTOMPRICE,
+            'FORORDER', iv.FORORDER,
+            'FORSTOCKING', iv.FORSTOCKING,
+            'FORSELLING', iv.FORSELLING,
+            'RATIO', iv.RATIO
+          )
+        ),
+        JSON_ARRAY()
+      ) AS itemVariations
+    FROM 
+      kis.ITEM i
+    LEFT JOIN kis.ITEMVARIATION iv ON i.ID = iv.ITEMID
+    LEFT JOIN kis.ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
+    WHERE i.ID = ?
+    GROUP BY i.ID, i.CODE, i.NAMEENG, i.NAMEJP
+  `;
+
+  dbConnection.query(q, [Id], (error, result) => {
+    if (error) {
+      console.error("Database query error:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+
+    // Log the result to see what is being returned
+    //console.log("Database query result:", result);
+
+    // Transform the itemVariations string to a JSON array
+    const transformedResult = result.map((row) => {
+      try {
+        // Check if itemVariations is null or empty, return an empty array if so
+        const itemVariations =
+          row.itemVariations && row.itemVariations.length > 0
+            ? row.itemVariations
+            : [];
+
+        const QTY = 1;
+        const CODE =
+          itemVariations.length > 0
+            ? itemVariations[0].ITEMUNITDESCRIPTION
+            : ""; // Ensure there is at least one item variation
+        const PRICE = itemVariations.length > 0 ? itemVariations[0].COST : 0; // Ensure there is at least one item variation
+        const AMOUNT = QTY * PRICE;
+
+        return {
+          ...row,
+          itemVariations: itemVariations,
+          QTY,
+          CODE,
+          PRICE,
+          AMOUNT,
+        };
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        console.error("Offending JSON string:", row.itemVariations);
+        return res.status(500).json({ error: "Error parsing item variations" });
+      }
+    });
+
+    res.json(transformedResult[0]);
+  });
+});
+
 export default router;

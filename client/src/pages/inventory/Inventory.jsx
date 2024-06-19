@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Receiving from "./receiving/Receiving";
 
 function Inventory() {
   return (
@@ -20,34 +21,13 @@ function Inventory() {
       </div>
 
       <div>
-        <Tabs defaultValue="account" className="w-[400px]">
+        <Tabs defaultValue="receiving" className="w-[400px]">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="account">Receiving</TabsTrigger>
+            <TabsTrigger value="receiving">Receiving</TabsTrigger>
             <TabsTrigger value="password">Item</TabsTrigger>
           </TabsList>
-          <TabsContent value="account">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account</CardTitle>
-                <CardDescription>
-                  Make changes to your account here. Click save when you're
-                  done.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="space-y-1">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" defaultValue="Pedro Duarte" />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="username">Username</Label>
-                  <Input id="username" defaultValue="@peduarte" />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Save changes</Button>
-              </CardFooter>
-            </Card>
+          <TabsContent className="w-[1000px]" value="receiving">
+            <Receiving />
           </TabsContent>
           <TabsContent value="password">
             <Card>
