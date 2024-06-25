@@ -56,7 +56,7 @@ import {
 } from "@/redux/purchaseDDSlice";
 import { insertPurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
-function ReceivingAddEditForm({ isVisible, fnClose }) {
+function ReceivingAddEditForm({ isVisible, fnClose, fnPDInsert }) {
   const [date, setDate] = useState();
   const [itemListModalState, setItemListModalState] = useState(false);
 
@@ -110,17 +110,8 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
     );
   }, [purchaseDeliveryDetail, setValue]);
 
-  // insert purchasedelivery data
-  const mutationInsertPurchaseDeliveryData = useMutation({
-    mutationFn: insertPurchaseDeliveryData,
-    onSuccess: () => {
-      console.log("mutation insert!");
-    },
-  });
-
   const onSubmit = (data) => {
-    mutationInsertPurchaseDeliveryData.mutate(data);
-    console.log(data);
+    fnPDInsert(data);
     dispatch(resetPurchaseDetailData());
     fnClose({ isVisible: false });
   };
@@ -340,9 +331,7 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
                 </div>
 
                 <div className="absolute bottom-0 right-2 flex gap-2">
-                  <Button type="submit" className=" bg-green-500">
-                    Save
-                  </Button>
+                  <Button type="submit">Save</Button>
                   <Button
                     className="bg-red-500 hover:bg-red-400"
                     type="button"

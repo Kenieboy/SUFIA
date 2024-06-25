@@ -26,10 +26,36 @@ import {
 import ReceivingAddEditForm from "./ReceivingAddEditForm";
 import { Plus } from "lucide-react";
 
+// data fetching tanstack component
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getPurchaseDeliveryData,
+  insertPurchaseDeliveryData,
+} from "@/query/purchaseDeliveryRequest";
+
 function Receiving() {
   const [modalState, setModalState] = useState({
     isVisible: false,
     isEditMode: false,
+  });
+
+  // Query for purchase delivery data
+  const {
+    isPending: isPurchaseDeliveryPending,
+    error: purchaseDeliveryError,
+    data: purchaseDeliveryData,
+    refetch: refetchPurchaseDeliveryData,
+  } = useQuery({
+    queryKey: ["purchasedelivery"],
+    queryFn: getPurchaseDeliveryData,
+  });
+
+  // insert purchasedelivery data
+  const mutationInsertPurchaseDeliveryData = useMutation({
+    mutationFn: insertPurchaseDeliveryData,
+    onSuccess: () => {
+      refetchPurchaseDeliveryData();
+    },
   });
 
   return (
@@ -39,6 +65,7 @@ function Receiving() {
           <ReceivingAddEditForm
             isVisible={modalState.isVisible}
             fnClose={setModalState}
+            fnPDInsert={mutationInsertPurchaseDeliveryData.mutate}
           />
         )}
 
@@ -60,19 +87,26 @@ function Receiving() {
             <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Invoice</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="w-[100px]">PurchaseNo.</TableHead>
+                <TableHead>Supplier</TableHead>
+                <TableHead>DateDelivered</TableHead>
+                <TableHead>Note</TableHead>
+                <TableHead>Total Amount</TableHead>
+                <TableHead>Grand Total Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">INV001</TableCell>
-                <TableCell>Paid</TableCell>
-                <TableCell>Credit Card</TableCell>
-                <TableCell className="text-right">$250.00</TableCell>
-              </TableRow>
+              {purchaseDeliveryData &&
+                purchaseDeliveryData.map((pd, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
+                    <TableCell>{pd.NAME}</TableCell>
+                    <TableCell>{pd.DATEDELIVERED}</TableCell>
+                    <TableCell>{pd.NOTE}</TableCell>
+                    <TableCell>{pd.TOTALAMOUNT}</TableCell>
+                    <TableCell>{pd.GRANDTOTALAMOUNT}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

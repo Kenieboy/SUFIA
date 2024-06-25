@@ -1,5 +1,14 @@
 import axios from "axios";
 
+async function getPurchaseDeliveryData(value) {
+  const res = await axios.get(
+    `http://localhost:3001/api/purchasedelivery/`,
+    value
+  );
+  const data = res.data;
+  return data;
+}
+
 async function insertPurchaseDeliveryData(value) {
   const res = await axios.post(
     `http://localhost:3001/api/purchasedelivery/`,
@@ -9,4 +18,4 @@ async function insertPurchaseDeliveryData(value) {
   return data.message;
 }
 
-export { insertPurchaseDeliveryData };
+export { insertPurchaseDeliveryData, getPurchaseDeliveryData };
