@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Dialog,
@@ -50,30 +50,15 @@ import ReceivingItemList from "./ReceivingItemList";
 //redux
 
 import { useDispatch, useSelector } from "react-redux";
-import { resetPurchaseDetailData } from "@/redux/purchaseDDSlice";
+import {
+  resetPurchaseDetailData,
+  updatePDDItem,
+  updatePDDItemvariationIdPrice,
+} from "@/redux/purchaseDDSlice";
 
 function ReceivingAddEditForm({ isVisible, fnClose }) {
   const [date, setDate] = useState();
   const [itemListModalState, setItemListModalState] = useState(false);
-  // form state
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      SUPPLIERID: "",
-      DATEDELIVERED: "",
-    },
-  });
-
-  const onSubmit = (data) => {
-    console.log("submit", data);
-    fnClose({ isVisible: false });
-  };
-
   // Query for supplier data
   const {
     isPending: isSupplierDataPending,
@@ -91,6 +76,44 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
   );
 
   const dispatch = useDispatch();
+
+  const handleInputChange = (e, itemId, field) => {
+    const { value } = e.target;
+    dispatch(updatePDDItem({ itemId, field, value: parseFloat(value) }));
+  };
+
+  // form state
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      SUPPLIERID: "",
+      DATEDELIVERED: "",
+      PURCHASEDELIVERYDETAIL: "",
+    },
+  });
+
+  useEffect(() => {
+    setValue(
+      "PURCHASEDELIVERYDETAIL",
+      purchaseDeliveryDetail.map(({ ITEMVARIATIONID, QTY, PRICE, AMOUNT }) => ({
+        ITEMVARIATIONID,
+        QTY,
+        PRICE,
+        AMOUNT,
+      }))
+    );
+  }, [purchaseDeliveryDetail, setValue]);
+
+  const onSubmit = (data) => {
+    console.log("submit", data);
+    dispatch(resetPurchaseDetailData());
+    fnClose({ isVisible: false });
+  };
 
   return (
     <>
@@ -210,14 +233,76 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
                         <TableRow key={`${pdd.ITEMID}-${index}`}>
                           <TableCell>{pdd.ITEMCODE}</TableCell>
                           <TableCell>{pdd.NAMEENG}</TableCell>
-                          <TableCell className="text-right">
-                            {pdd.QTY}
+                          <TableCell className="flex justify-end">
+                            <Input
+                              type="number"
+                              id={`ITEMVARIATIONID-${index}`}
+                              value={pdd.ITEMVARIATIONID}
+                              className="w-[100px]"
+                              onChange={(e) =>
+                                handleInputChange(
+                                  e,
+                                  pdd.ITEMID,
+                                  "ITEMVARIATIONID"
+                                )
+                              }
+                            />
+                            <Input
+                              type="number"
+                              id={`QTY-${index}`}
+                              value={pdd.QTY}
+                              onChange={(e) =>
+                                handleInputChange(e, pdd.ITEMID, "QTY")
+                              }
+                              className="w-[100px]"
+                            />
                           </TableCell>
                           <TableCell className="text-right">
                             {pdd.CODE}
+                            <Select
+                              defaultValue={pdd.CODE}
+                              onValueChange={(value) => {
+                                const itemId = pdd.ITEMID;
+                                const { ID, COST, ITEMUNITDESCRIPTION } =
+                                  pdd.itemVariations.find(
+                                    (iu) => iu.ITEMUNITDESCRIPTION === value
+                                  );
+
+                                dispatch(
+                                  updatePDDItemvariationIdPrice({
+                                    itemId,
+                                    ID,
+                                    COST,
+                                    ITEMUNITDESCRIPTION,
+                                  })
+                                );
+                              }}
+                            >
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {pdd.itemVariations.map((iu) => (
+                                  <SelectItem
+                                    value={`${iu.ITEMUNITDESCRIPTION}`}
+                                    key={iu.ID}
+                                  >
+                                    {`${iu.ITEMUNITDESCRIPTION}, ${iu.COST}, ${iu.ID}`}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </TableCell>
-                          <TableCell className="text-right">
-                            {pdd.PRICE}
+                          <TableCell className="flex justify-end">
+                            <Input
+                              type="number"
+                              id={`PRICE-${index}`}
+                              value={pdd.PRICE}
+                              onChange={(e) =>
+                                handleInputChange(e, pdd.ITEMID, "PRICE")
+                              }
+                              className="w-[150px]"
+                            />
                           </TableCell>
                           <TableCell className="text-right">
                             Php {pdd.AMOUNT}

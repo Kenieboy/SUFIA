@@ -19,9 +19,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { FixedSizeList as List } from "react-window";
-import AutoSizer from "react-virtualized-auto-sizer";
-
 // tanstack data query component
 import { useQuery } from "@tanstack/react-query";
 import { getItemData } from "@/query/itemRequest";
@@ -82,8 +79,8 @@ function ReceivingItemList({ modalState, fnRIClose }) {
                         <tr
                           key={item.ID}
                           onClick={() => {
-                            console.log(item.ID);
                             dispatch(fetchPurchaseDetailId(item.ID));
+                            fnRIClose(false);
                           }}
                         >
                           {properties.map((property) => (

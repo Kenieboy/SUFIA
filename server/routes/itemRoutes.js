@@ -393,15 +393,9 @@ router.get("/itemdetail/:Id", (req, res) => {
             'ITEMUNITID', iv.ITEMUNITID,
             'ITEMUNITDESCRIPTION', iu.DESCRIPTIONEN,
             'SPECIFICATIONS', iv.SPECIFICATIONS,
-            'NETWEIGHT', iv.NETWEIGHT,
-            'GROSSWEIGHT', iv.GROSSWEIGHT,
-            'VOLUME', iv.VOLUME,
             'COST', iv.COST,
             'PRICE', iv.PRICE,
-            'CUSTOMPRICE', iv.CUSTOMPRICE,
-            'FORORDER', iv.FORORDER,
-            'FORSTOCKING', iv.FORSTOCKING,
-            'FORSELLING', iv.FORSELLING,
+            'FORPO', iv.FORPO,
             'RATIO', iv.RATIO
           )
         ),
@@ -425,29 +419,33 @@ router.get("/itemdetail/:Id", (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    // Log the result to see what is being returned
-    //console.log("Database query result:", result);
-
-    // Transform the itemVariations string to a JSON array
     const transformedResult = result.map((row) => {
       try {
-        // Check if itemVariations is null or empty, return an empty array if so
         const itemVariations =
           row.itemVariations && row.itemVariations.length > 0
             ? row.itemVariations
             : [];
 
+        //look for the index of FORPO === 1 is the dafualt COST below
+        const priceIndexDefaultFORPO = row.itemVariations.findIndex(
+          (fp) => fp.FORPO === 1
+        );
+        const ITEMVARIATIONID = row.itemVariations[priceIndexDefaultFORPO].ID;
         const QTY = 1;
         const CODE =
           itemVariations.length > 0
-            ? itemVariations[0].ITEMUNITDESCRIPTION
-            : ""; // Ensure there is at least one item variation
-        const PRICE = itemVariations.length > 0 ? itemVariations[0].COST : 0; // Ensure there is at least one item variation
+            ? itemVariations[priceIndexDefaultFORPO].ITEMUNITDESCRIPTION
+            : "";
+        const PRICE =
+          itemVariations.length > 0
+            ? itemVariations[priceIndexDefaultFORPO].COST
+            : 0;
         const AMOUNT = QTY * PRICE;
 
         return {
           ...row,
           itemVariations: itemVariations,
+          ITEMVARIATIONID,
           QTY,
           CODE,
           PRICE,
