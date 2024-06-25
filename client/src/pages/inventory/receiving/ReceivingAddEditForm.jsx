@@ -48,17 +48,18 @@ import { ArrowDownToLine } from "lucide-react";
 import ReceivingItemList from "./ReceivingItemList";
 
 //redux
-
 import { useDispatch, useSelector } from "react-redux";
 import {
   resetPurchaseDetailData,
   updatePDDItem,
   updatePDDItemvariationIdPrice,
 } from "@/redux/purchaseDDSlice";
+import { insertPurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
 function ReceivingAddEditForm({ isVisible, fnClose }) {
   const [date, setDate] = useState();
   const [itemListModalState, setItemListModalState] = useState(false);
+
   // Query for supplier data
   const {
     isPending: isSupplierDataPending,
@@ -109,8 +110,17 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
     );
   }, [purchaseDeliveryDetail, setValue]);
 
+  // insert purchasedelivery data
+  const mutationInsertPurchaseDeliveryData = useMutation({
+    mutationFn: insertPurchaseDeliveryData,
+    onSuccess: () => {
+      console.log("mutation insert!");
+    },
+  });
+
   const onSubmit = (data) => {
-    console.log("submit", data);
+    mutationInsertPurchaseDeliveryData.mutate(data);
+    console.log(data);
     dispatch(resetPurchaseDetailData());
     fnClose({ isVisible: false });
   };
@@ -136,10 +146,10 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
               {/* form area */}
               <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
                 <Input
-                  id="RECEIVINGNO"
+                  id="PURCHASEDELIVERYNO"
                   placeholder="Receiving No."
                   className="w-[350px]"
-                  {...register("RECEIVINGNO", {
+                  {...register("PURCHASEDELIVERYNO", {
                     required: true,
                     maxLength: 200,
                   })}
@@ -192,7 +202,11 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
                         selected={date}
                         onSelect={(selectedDate) => {
                           setDate(selectedDate);
-                          setValue("DATEDELIVERED", selectedDate);
+
+                          setValue(
+                            "DATEDELIVERED",
+                            format(selectedDate, "yyyy-MM-dd")
+                          );
                         }}
                         initialFocus
                       />
@@ -326,7 +340,9 @@ function ReceivingAddEditForm({ isVisible, fnClose }) {
                 </div>
 
                 <div className="absolute bottom-0 right-2 flex gap-2">
-                  <Button type="submit">Save</Button>
+                  <Button type="submit" className=" bg-green-500">
+                    Save
+                  </Button>
                   <Button
                     className="bg-red-500 hover:bg-red-400"
                     type="button"
