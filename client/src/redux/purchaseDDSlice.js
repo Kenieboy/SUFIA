@@ -18,6 +18,7 @@ export const fetchPurchaseDetailId = createAsyncThunk(
 );
 
 const initialState = {
+  lastUsedId: 0,
   purchaseDeliveryDetail: [],
   purchaseDelivery: [],
 };
@@ -27,7 +28,19 @@ const pddSlice = createSlice({
   initialState,
   reducers: {
     addPDDItem(state, action) {
-      state.purchaseDeliveryDetail.push(action.payload);
+      if (Array.isArray(action.payload)) {
+        const updatedPayload = action.payload.map((item) => ({
+          ...item,
+          ID: --state.lastUsedId, // Decrementing the last used ID
+        }));
+        state.purchaseDeliveryDetail.push(...updatedPayload);
+      } else {
+        const updatedPayload = {
+          ...action.payload,
+          ID: --state.lastUsedId, // Decrementing the last used ID
+        };
+        state.purchaseDeliveryDetail.push(updatedPayload);
+      }
     },
     addPDDItemEditMode(state, action) {
       return {
@@ -73,6 +86,7 @@ const pddSlice = createSlice({
     resetPurchaseDetailData(state, action) {
       state.purchaseDeliveryDetail = [];
       state.purchaseDelivery = [];
+      state.lastUsedId = 0;
     },
   },
   extraReducers: (builder) => {

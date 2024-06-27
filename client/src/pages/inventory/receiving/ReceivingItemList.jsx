@@ -21,7 +21,7 @@ import {
 
 // tanstack data query component
 import { useQuery } from "@tanstack/react-query";
-import { getItemData } from "@/query/itemRequest";
+import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
 import { useDispatch } from "react-redux";
 import { addPDDItem, fetchPurchaseDetailId } from "@/redux/purchaseDDSlice";
 
@@ -78,8 +78,16 @@ function ReceivingItemList({ modalState, fnRIClose }) {
                       {itemData.map((item, index) => (
                         <tr
                           key={item.ID}
-                          onClick={() => {
-                            dispatch(fetchPurchaseDetailId(item.ID));
+                          onClick={async () => {
+                            console.log(item.ID);
+                            // dispatch(fetchPurchaseDetailId(item.ID));
+                            // fnRIClose(false);
+
+                            const fetchItem = await getPurchaseDeliveryDetail(
+                              item.ID
+                            );
+
+                            dispatch(addPDDItem(fetchItem));
                             fnRIClose(false);
                           }}
                         >

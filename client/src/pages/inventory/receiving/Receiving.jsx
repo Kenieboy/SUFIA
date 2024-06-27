@@ -100,11 +100,11 @@ function Receiving() {
         <div className="mt-6 relative overflow-hidden">
           <div className="w-full text-xs">
             <div className="sticky top-0 bg-white z-10">
-              <Table className="w-full text-xs">
+              <Table className="w-full text-xs bg-gray-100">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px]">PurchaseNo.</TableHead>
-                    <TableHead>Supplier</TableHead>
+                    <TableHead className="w-[230px]">Supplier</TableHead>
                     <TableHead>DateDelivered</TableHead>
                     <TableHead>Note</TableHead>
                     <TableHead>Total Amount</TableHead>
@@ -142,7 +142,7 @@ function Receiving() {
                         className="cursor-pointer"
                       >
                         <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
-                        <TableCell>{pd.NAME}</TableCell>
+                        <TableCell className="w-[230px]">{pd.NAME}</TableCell>
                         <TableCell>
                           {format(pd.DATEDELIVERED, "yyyy-MM-dd")}
                         </TableCell>
