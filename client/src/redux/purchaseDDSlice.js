@@ -19,6 +19,7 @@ export const fetchPurchaseDetailId = createAsyncThunk(
 
 const initialState = {
   purchaseDeliveryDetail: [],
+  purchaseDelivery: [],
 };
 
 const pddSlice = createSlice({
@@ -65,8 +66,13 @@ const pddSlice = createSlice({
         item.AMOUNT = item.QTY * item.PRICE;
       }
     },
+
+    addPurchaseDelivery(state, action) {
+      state.purchaseDelivery.push(action.payload);
+    },
     resetPurchaseDetailData(state, action) {
       state.purchaseDeliveryDetail = [];
+      state.purchaseDelivery = [];
     },
   },
   extraReducers: (builder) => {
@@ -83,6 +89,7 @@ const pddSlice = createSlice({
 export const {
   addPDDItem,
   addPDDItemEditMode,
+  addPurchaseDelivery,
   updatePDDItem,
   updatePDDItemvariationIdPrice,
   resetPurchaseDetailData,

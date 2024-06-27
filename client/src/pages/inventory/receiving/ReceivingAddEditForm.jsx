@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 import { format } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
@@ -57,7 +57,16 @@ import {
 import { insertPurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
 function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
-  const [date, setDate] = useState();
+  const purchaseDeliveryDetail = useSelector(
+    (state) => state.pddData.purchaseDeliveryDetail
+  );
+
+  const purchaseDelivery = useSelector(
+    (state) => state.pddData.purchaseDelivery
+  );
+  const [date, setDate] = useState(
+    modalState.isEditMode ? purchaseDelivery[0].DATEDELIVERED : ""
+  );
   const [itemListModalState, setItemListModalState] = useState(false);
 
   // Query for supplier data
@@ -72,10 +81,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
     staleTime: Infinity,
   });
 
-  const purchaseDeliveryDetail = useSelector(
-    (state) => state.pddData.purchaseDeliveryDetail
-  );
-
   const dispatch = useDispatch();
 
   const handleInputChange = (e, itemId, field) => {
@@ -87,12 +92,15 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
-      SUPPLIERID: "",
+      SUPPLIERID: modalState.isEditMode
+        ? purchaseDeliveryDetail[0].SUPPLIERID
+        : "",
       DATEDELIVERED: "",
       PURCHASEDELIVERYDETAIL: "",
     },
@@ -108,17 +116,24 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
         AMOUNT,
       }))
     );
-  }, [purchaseDeliveryDetail, setValue]);
+  }, [purchaseDeliveryDetail, setValue, setDate]);
 
   const onSubmit = (data) => {
-    fnPDInsert(data);
-    dispatch(resetPurchaseDetailData());
-    fnClose({ isVisible: false });
+    if (modalState.isEditMode === true) {
+      console.log(data);
+      console.log("edit mode trigger!");
+      dispatch(resetPurchaseDetailData());
+      fnClose({ isVisible: false });
+    } else {
+      fnPDInsert(data);
+      dispatch(resetPurchaseDetailData());
+      fnClose({ isVisible: false });
+    }
   };
 
-  const pdNO = modalState.isEditMode
-    ? purchaseDeliveryDetail[0].PURCHASEDELIVERYNO
-    : "";
+  if (modalState.isEditMode) {
+    setValue("DATEDELIVERED", purchaseDelivery[0].DATEDELIVERED);
+  }
 
   return (
     <>
@@ -143,7 +158,11 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                 <Input
                   id="PURCHASEDELIVERYNO"
                   placeholder="Receiving No."
-                  defaultValue={pdNO}
+                  defaultValue={
+                    modalState.isEditMode
+                      ? purchaseDelivery[0].PURCHASEDELIVERYNO
+                      : ""
+                  }
                   className="w-[350px]"
                   {...register("PURCHASEDELIVERYNO", {
                     required: true,
@@ -151,28 +170,38 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                   })}
                 />
                 <div className="mt-2">
-                  <Select
-                    onValueChange={(newValue) => {
-                      const { ID: supplierId } = supplierData.find(
-                        (su) => su.NAME === newValue
-                      );
-                      setValue("SUPPLIERID", supplierId);
-                    }}
-                  >
-                    <SelectTrigger className="max-w-[350px]">
-                      <SelectValue placeholder="Select Supplier" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {/* <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem> */}
-                      {supplierData?.map((supplier) => (
-                        <SelectItem value={supplier.NAME} key={supplier.ID}>
-                          {supplier.NAME}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    id="SUPPLIERID"
+                    name="SUPPLIERID"
+                    control={control}
+                    defaultValue={
+                      modalState.isEditMode
+                        ? purchaseDelivery[0].SUPPLIERID
+                        : ""
+                    }
+                    rules={{ required: "Supplier is required" }}
+                    render={({ field: { onChange, value } }) => (
+                      <Select
+                        onValueChange={(newValue) => {
+                          const { ID: supplierId } = supplierData.find(
+                            (su) => su.NAME === newValue
+                          );
+                          setValue("SUPPLIERID", supplierId);
+                        }}
+                      >
+                        <SelectTrigger className="max-w-[350px]">
+                          <SelectValue placeholder="Select Supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {supplierData?.map((supplier) => (
+                            <SelectItem value={supplier.NAME} key={supplier.ID}>
+                              {supplier.NAME}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </div>
                 <div className="mt-2">
                   <Popover>
@@ -212,6 +241,10 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
 
                 <div className="mt-2 max-w-[600px]">
                   <Textarea
+                    defaultValue={
+                      modalState.isEditMode ? purchaseDelivery[0].NOTE : ""
+                    }
+                    name="NOTE"
                     id="NOTE"
                     placeholder="Type your note here."
                     {...register("NOTE", { maxLength: 200 })}
@@ -245,6 +278,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                           <TableCell>{pdd.NAMEENG}</TableCell>
                           <TableCell className="flex justify-end">
                             <Input
+                              name="ITEMVARIATIONID"
                               type="number"
                               id={`ITEMVARIATIONID-${index}`}
                               value={pdd.ITEMVARIATIONID}
@@ -258,6 +292,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                               }
                             />
                             <Input
+                              name="QTY"
                               type="number"
                               id={`QTY-${index}`}
                               value={pdd.QTY}
@@ -305,6 +340,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                           </TableCell>
                           <TableCell className="flex justify-end">
                             <Input
+                              name="PRICE"
                               type="number"
                               id={`PRICE-${index}`}
                               value={pdd.PRICE}
@@ -330,7 +366,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                       }}
                     >
                       ...item
-                      <ArrowDownToLine className="w-[15px]" />
                     </Button>
                   </div>
                 </div>

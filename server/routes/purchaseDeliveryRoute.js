@@ -93,79 +93,102 @@ router.post("/", (req, res) => {
 router.get("/pddItemVariation/:Id", (req, res) => {
   const { Id } = req.params;
 
-  const pddItemVaritaionSQL = `
-  SELECT 
-PURCHASEDELIVERYDETAIL.ID,
-PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID,
-PURCHASEDELIVERY.PURCHASEDELIVERYNO,
-PURCHASEDELIVERY.SUPPLIERID,
-PURCHASEDELIVERY.DATEDELIVERED,
-PURCHASEDELIVERY.NOTE,
-PURCHASEDELIVERYDETAIL.QTY, 
-PURCHASEDELIVERYDETAIL.PRICE, 
-PURCHASEDELIVERYDETAIL.AMOUNT, 
-ITEMVARIATION.SPECIFICATIONS, 
-ITEM.ID AS ITEMID,
-ITEMVARIATION.ID AS ITEMVARIATIONID,
-ITEMVARIATION.RATIO, 
-ITEM.CODE AS ITEMCODE,
-ITEM.NAMEENG, 
-ITEMUNIT.DESCRIPTIONEN AS CODE,
-  IFNULL(
-    (
-      SELECT JSON_ARRAYAGG(
-        JSON_OBJECT(
-          'ID', iv.ID,
-          'ITEMUNITID', iv.ITEMUNITID,
-          'ITEMUNITDESCRIPTION', iu.DESCRIPTIONEN,
-          'SPECIFICATIONS', iv.SPECIFICATIONS,
-          'COST', iv.COST,
-          'PRICE', iv.PRICE,
-          'FORPO', iv.FORPO,
-          'RATIO', iv.RATIO
-        )
-      )
-      FROM ITEMVARIATION iv
-      LEFT JOIN ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
-      WHERE iv.ITEMID = ITEM.ID
-    ),
-    JSON_ARRAY()
-  ) AS itemVariations
-FROM PURCHASEDELIVERYDETAIL
-LEFT JOIN ITEMVARIATION ON PURCHASEDELIVERYDETAIL.ITEMVARIATIONID = ITEMVARIATION.ID
-LEFT JOIN ITEMUNIT ON ITEMVARIATION.ITEMUNITID = ITEMUNIT.ID
-LEFT JOIN ITEM ON ITEMVARIATION.ITEMID = ITEM.ID
-LEFT JOIN PURCHASEDELIVERY ON PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID = PURCHASEDELIVERY.ID
-WHERE PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID = ?
-GROUP BY 
-PURCHASEDELIVERYDETAIL.ID,
-PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID, 
-PURCHASEDELIVERY.PURCHASEDELIVERYNO,
-PURCHASEDELIVERY.SUPPLIERID,
-PURCHASEDELIVERY.DATEDELIVERED,
-PURCHASEDELIVERY.NOTE,
-PURCHASEDELIVERYDETAIL.QTY, 
-PURCHASEDELIVERYDETAIL.PRICE, 
-PURCHASEDELIVERYDETAIL.AMOUNT, 
-ITEMVARIATION.SPECIFICATIONS, 
-ITEM.ID,
-ITEMVARIATION.ID,
-ITEMVARIATION.RATIO, 
-ITEM.CODE,
-ITEM.NAMEENG, 
-ITEMUNIT.DESCRIPTIONEN`;
+  const purchaseDeliverySQL = `
+    SELECT 
+      ID AS PURCHASEDELIVERYID,
+      PURCHASEDELIVERYNO, 
+      SUPPLIERID, 
+      DATEDELIVERED, 
+      NOTE 
+    FROM kis.PURCHASEDELIVERY 
+    WHERE ID = ?`;
 
-  dbConnection.query(pddItemVaritaionSQL, [Id], (error, result) => {
-    if (error) {
+  const pddItemVariationSQL = `
+    SELECT 
+      PURCHASEDELIVERYDETAIL.ID,
+      PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID,
+      PURCHASEDELIVERYDETAIL.QTY, 
+      PURCHASEDELIVERYDETAIL.PRICE, 
+      PURCHASEDELIVERYDETAIL.AMOUNT, 
+      ITEMVARIATION.SPECIFICATIONS, 
+      ITEM.ID AS ITEMID,
+      ITEMVARIATION.ID AS ITEMVARIATIONID,
+      ITEMVARIATION.RATIO, 
+      ITEM.CODE AS ITEMCODE,
+      ITEM.NAMEENG, 
+      ITEMUNIT.DESCRIPTIONEN AS CODE,
+      IFNULL(
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'ID', iv.ID,
+              'ITEMUNITID', iv.ITEMUNITID,
+              'ITEMUNITDESCRIPTION', iu.DESCRIPTIONEN,
+              'SPECIFICATIONS', iv.SPECIFICATIONS,
+              'COST', iv.COST,
+              'PRICE', iv.PRICE,
+              'FORPO', iv.FORPO,
+              'RATIO', iv.RATIO
+            )
+          )
+          FROM ITEMVARIATION iv
+          LEFT JOIN ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
+          WHERE iv.ITEMID = ITEM.ID
+        ),
+        JSON_ARRAY()
+      ) AS itemVariations
+    FROM PURCHASEDELIVERYDETAIL
+    LEFT JOIN ITEMVARIATION ON PURCHASEDELIVERYDETAIL.ITEMVARIATIONID = ITEMVARIATION.ID
+    LEFT JOIN ITEMUNIT ON ITEMVARIATION.ITEMUNITID = ITEMUNIT.ID
+    LEFT JOIN ITEM ON ITEMVARIATION.ITEMID = ITEM.ID
+    LEFT JOIN PURCHASEDELIVERY ON PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID = PURCHASEDELIVERY.ID
+    WHERE PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID = ?
+    GROUP BY 
+      PURCHASEDELIVERYDETAIL.ID,
+      PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID,
+      PURCHASEDELIVERYDETAIL.QTY, 
+      PURCHASEDELIVERYDETAIL.PRICE, 
+      PURCHASEDELIVERYDETAIL.AMOUNT, 
+      ITEMVARIATION.SPECIFICATIONS, 
+      ITEM.ID,
+      ITEMVARIATION.ID,
+      ITEMVARIATION.RATIO, 
+      ITEM.CODE,
+      ITEM.NAMEENG, 
+      ITEMUNIT.DESCRIPTIONEN`;
+
+  dbConnection.query(
+    purchaseDeliverySQL,
+    [Id],
+    (error, purchaseDeliveryResult) => {
       if (error) {
-        console.error("Error getting purchasedeliverydetail:", error);
-        res.status(500).json({ error: "PDD Internal Server Error" });
+        console.error("Error getting purchase delivery:", error);
+        res
+          .status(500)
+          .json({ error: "Purchase Delivery Internal Server Error" });
         return;
       }
-    }
 
-    return res.json(result);
-  });
+      dbConnection.query(
+        pddItemVariationSQL,
+        [Id],
+        (error, pddItemVariationResult) => {
+          if (error) {
+            console.error("Error getting purchase delivery detail:", error);
+            res.status(500).json({
+              error: "Purchase Delivery Detail Internal Server Error",
+            });
+            return;
+          }
+
+          return res.json({
+            purchaseDelivery: purchaseDeliveryResult,
+            purchaseDeliveryDetail: pddItemVariationResult,
+          });
+        }
+      );
+    }
+  );
 });
 
 export default router;

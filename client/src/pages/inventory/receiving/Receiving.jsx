@@ -37,7 +37,11 @@ import {
 import { format } from "date-fns";
 
 import { useDispatch, useSelector } from "react-redux";
-import { addPDDItem, addPDDItemEditMode } from "@/redux/purchaseDDSlice";
+import {
+  addPDDItem,
+  addPDDItemEditMode,
+  addPurchaseDelivery,
+} from "@/redux/purchaseDDSlice";
 import { getPurchaseDeliveryDetail } from "@/query/itemRequest";
 
 function Receiving() {
@@ -45,6 +49,7 @@ function Receiving() {
     isVisible: false,
     isEditMode: false,
   });
+  const [selectedItem, setSelectedItem] = useState(null);
 
   // Query for purchase delivery data
   const {
@@ -92,51 +97,64 @@ function Receiving() {
           </Button>
         </div>
 
-        <div className="mt-6">
-          <Table className="w-full text-xs">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">PurchaseNo.</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>DateDelivered</TableHead>
-                <TableHead>Note</TableHead>
-                <TableHead>Total Amount</TableHead>
-                <TableHead>Grand Total Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {purchaseDeliveryData &&
-                purchaseDeliveryData.map((pd, index) => (
-                  <TableRow
-                    key={index}
-                    onClick={async () => {
-                      const { ID } = pd;
-                      const formattedDate = format(
-                        pd.DATEDELIVERED,
-                        "yyyy-MM-dd"
-                      );
-                      console.log({ ...pd, DATEDELIVERED: formattedDate });
-                      console.log(ID);
-                      const getPDDEditMode =
-                        await getPurchaseDeliveryDetailData(ID);
-
-                      dispatch(addPDDItemEditMode(getPDDEditMode));
-                      setModalState({ isVisible: true, isEditMode: true });
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
-                    <TableCell>{pd.NAME}</TableCell>
-                    <TableCell>
-                      {format(pd.DATEDELIVERED, "yyyy-MM-dd")}
-                    </TableCell>
-                    <TableCell>{pd.NOTE}</TableCell>
-                    <TableCell>{pd.TOTALAMOUNT}</TableCell>
-                    <TableCell>{pd.GRANDTOTALAMOUNT}</TableCell>
+        <div className="mt-6 relative overflow-hidden">
+          <div className="w-full text-xs">
+            <div className="sticky top-0 bg-white z-10">
+              <Table className="w-full text-xs">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">PurchaseNo.</TableHead>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>DateDelivered</TableHead>
+                    <TableHead>Note</TableHead>
+                    <TableHead>Total Amount</TableHead>
+                    <TableHead>Grand Total Amount</TableHead>
                   </TableRow>
-                ))}
-            </TableBody>
-          </Table>
+                </TableHeader>
+              </Table>
+            </div>
+            <div className="overflow-auto max-h-[500px]">
+              <Table className="w-full text-xs">
+                <TableBody>
+                  {purchaseDeliveryData &&
+                    purchaseDeliveryData.map((pd, index) => (
+                      <TableRow
+                        key={index}
+                        onClick={async () => {
+                          const { ID } = pd;
+                          const formattedDate = format(
+                            pd.DATEDELIVERED,
+                            "yyyy-MM-dd"
+                          );
+
+                          const { purchaseDelivery, purchaseDeliveryDetail } =
+                            await getPurchaseDeliveryDetailData(ID);
+
+                          dispatch(
+                            addPurchaseDelivery({
+                              ...purchaseDelivery[0],
+                              DATEDELIVERED: formattedDate,
+                            })
+                          );
+                          dispatch(addPDDItemEditMode(purchaseDeliveryDetail));
+                          setModalState({ isVisible: true, isEditMode: true });
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
+                        <TableCell>{pd.NAME}</TableCell>
+                        <TableCell>
+                          {format(pd.DATEDELIVERED, "yyyy-MM-dd")}
+                        </TableCell>
+                        <TableCell>{pd.NOTE}</TableCell>
+                        <TableCell>{pd.TOTALAMOUNT}</TableCell>
+                        <TableCell>{pd.GRANDTOTALAMOUNT}</TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
