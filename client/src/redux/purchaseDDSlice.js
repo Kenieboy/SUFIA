@@ -28,6 +28,15 @@ const pddSlice = createSlice({
     addPDDItem(state, action) {
       state.purchaseDeliveryDetail.push(action.payload);
     },
+    addPDDItemEditMode(state, action) {
+      return {
+        ...state,
+        purchaseDeliveryDetail: [
+          ...state.purchaseDeliveryDetail,
+          ...action.payload,
+        ],
+      };
+    },
     updatePDDItem(state, action) {
       const { itemId, field, value } = action.payload;
       const item = state.purchaseDeliveryDetail.find(
@@ -73,6 +82,7 @@ const pddSlice = createSlice({
 
 export const {
   addPDDItem,
+  addPDDItemEditMode,
   updatePDDItem,
   updatePDDItemvariationIdPrice,
   resetPurchaseDetailData,

@@ -30,8 +30,15 @@ import { Plus } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getPurchaseDeliveryData,
+  getPurchaseDeliveryDetailData,
   insertPurchaseDeliveryData,
 } from "@/query/purchaseDeliveryRequest";
+
+import { format } from "date-fns";
+
+import { useDispatch, useSelector } from "react-redux";
+import { addPDDItem, addPDDItemEditMode } from "@/redux/purchaseDDSlice";
+import { getPurchaseDeliveryDetail } from "@/query/itemRequest";
 
 function Receiving() {
   const [modalState, setModalState] = useState({
@@ -58,11 +65,14 @@ function Receiving() {
     },
   });
 
+  const dispatch = useDispatch();
+
   return (
     <div>
       <div className="mt-6">
         {modalState.isVisible && (
           <ReceivingAddEditForm
+            modalState={modalState}
             isVisible={modalState.isVisible}
             fnClose={setModalState}
             fnPDInsert={mutationInsertPurchaseDeliveryData.mutate}
@@ -84,7 +94,6 @@ function Receiving() {
 
         <div className="mt-6">
           <Table className="w-full text-xs">
-            <TableCaption>A list of your recent invoices.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">PurchaseNo.</TableHead>
@@ -98,10 +107,29 @@ function Receiving() {
             <TableBody>
               {purchaseDeliveryData &&
                 purchaseDeliveryData.map((pd, index) => (
-                  <TableRow key={index}>
+                  <TableRow
+                    key={index}
+                    onClick={async () => {
+                      const { ID } = pd;
+                      const formattedDate = format(
+                        pd.DATEDELIVERED,
+                        "yyyy-MM-dd"
+                      );
+                      console.log({ ...pd, DATEDELIVERED: formattedDate });
+                      console.log(ID);
+                      const getPDDEditMode =
+                        await getPurchaseDeliveryDetailData(ID);
+
+                      dispatch(addPDDItemEditMode(getPDDEditMode));
+                      setModalState({ isVisible: true, isEditMode: true });
+                    }}
+                    className="cursor-pointer"
+                  >
                     <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
                     <TableCell>{pd.NAME}</TableCell>
-                    <TableCell>{pd.DATEDELIVERED}</TableCell>
+                    <TableCell>
+                      {format(pd.DATEDELIVERED, "yyyy-MM-dd")}
+                    </TableCell>
                     <TableCell>{pd.NOTE}</TableCell>
                     <TableCell>{pd.TOTALAMOUNT}</TableCell>
                     <TableCell>{pd.GRANDTOTALAMOUNT}</TableCell>

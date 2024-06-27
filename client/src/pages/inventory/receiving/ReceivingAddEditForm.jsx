@@ -56,7 +56,7 @@ import {
 } from "@/redux/purchaseDDSlice";
 import { insertPurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
-function ReceivingAddEditForm({ isVisible, fnClose, fnPDInsert }) {
+function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
   const [date, setDate] = useState();
   const [itemListModalState, setItemListModalState] = useState(false);
 
@@ -116,6 +116,10 @@ function ReceivingAddEditForm({ isVisible, fnClose, fnPDInsert }) {
     fnClose({ isVisible: false });
   };
 
+  const pdNO = modalState.isEditMode
+    ? purchaseDeliveryDetail[0].PURCHASEDELIVERYNO
+    : "";
+
   return (
     <>
       {itemListModalState && (
@@ -139,6 +143,7 @@ function ReceivingAddEditForm({ isVisible, fnClose, fnPDInsert }) {
                 <Input
                   id="PURCHASEDELIVERYNO"
                   placeholder="Receiving No."
+                  defaultValue={pdNO}
                   className="w-[350px]"
                   {...register("PURCHASEDELIVERYNO", {
                     required: true,
