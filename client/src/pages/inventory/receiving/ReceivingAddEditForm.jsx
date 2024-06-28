@@ -44,26 +44,31 @@ import {
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getFirmSupplier } from "@/query/firmRequest";
-import { ArrowDownToLine } from "lucide-react";
+import { ArrowDownToLine, X } from "lucide-react";
 import ReceivingItemList from "./ReceivingItemList";
 
 //redux
 import { useDispatch, useSelector } from "react-redux";
 import {
+  removePurchaseDeliveryDetail,
   resetPurchaseDetailData,
   updatePDDItem,
   updatePDDItemvariationIdPrice,
 } from "@/redux/purchaseDDSlice";
-import { insertPurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
 function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
-  const purchaseDeliveryDetail = useSelector(
-    (state) => state.pddData.purchaseDeliveryDetail
+  // const purchaseDeliveryDetail = useSelector(
+  //   (state) => state.pddData.purchaseDeliveryDetail
+  // );
+
+  // const purchaseDelivery = useSelector(
+  //   (state) => state.pddData.purchaseDelivery
+  // );
+
+  const { purchaseDeliveryDetail, purchaseDelivery } = useSelector(
+    (state) => state.pddData
   );
 
-  const purchaseDelivery = useSelector(
-    (state) => state.pddData.purchaseDelivery
-  );
   const [date, setDate] = useState(
     modalState.isEditMode ? purchaseDelivery[0].DATEDELIVERED : ""
   );
@@ -98,9 +103,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      SUPPLIERID: modalState.isEditMode
-        ? purchaseDeliveryDetail[0].SUPPLIERID
-        : "",
+      SUPPLIERID: "",
       DATEDELIVERED: "",
       PURCHASEDELIVERYDETAIL: "",
     },
@@ -116,7 +119,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
         AMOUNT,
       }))
     );
-  }, [purchaseDeliveryDetail, setValue, setDate]);
+  }, [purchaseDeliveryDetail, setValue]);
 
   const onSubmit = (data) => {
     if (modalState.isEditMode === true) {
@@ -133,7 +136,12 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
 
   if (modalState.isEditMode) {
     setValue("DATEDELIVERED", purchaseDelivery[0].DATEDELIVERED);
+    setValue("SUPPLIERID", purchaseDelivery[0].SUPPLIERID);
   }
+
+  const initialItemDefaultSupplier =
+    supplierData?.find((i) => i.ID === purchaseDelivery[0]?.SUPPLIERID)?.NAME ||
+    "";
 
   return (
     <>
@@ -170,38 +178,43 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                   })}
                 />
                 <div className="mt-2">
-                  <Controller
-                    id="SUPPLIERID"
-                    name="SUPPLIERID"
-                    control={control}
-                    defaultValue={
-                      modalState.isEditMode
-                        ? purchaseDelivery[0].SUPPLIERID
-                        : ""
-                    }
-                    rules={{ required: "Supplier is required" }}
-                    render={({ field: { onChange, value } }) => (
-                      <Select
-                        onValueChange={(newValue) => {
-                          const { ID: supplierId } = supplierData.find(
-                            (su) => su.NAME === newValue
-                          );
-                          setValue("SUPPLIERID", supplierId);
-                        }}
-                      >
-                        <SelectTrigger className="max-w-[350px]">
-                          <SelectValue placeholder="Select Supplier" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {supplierData?.map((supplier) => (
-                            <SelectItem value={supplier.NAME} key={supplier.ID}>
-                              {supplier.NAME}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+                  {supplierData && (
+                    <Controller
+                      id="DEFAULTSUPPLIER"
+                      name="DEFAULTSUPPLIER"
+                      control={control}
+                      defaultValue={initialItemDefaultSupplier}
+                      rules={{ required: "Supplier is required" }}
+                      render={({ field: { onChange, value } }) => (
+                        <Select
+                          onValueChange={(newValue) => {
+                            onChange(newValue);
+                            const supplierId = supplierData?.find(
+                              (sup) => sup.NAME === newValue
+                            );
+
+                            setValue("SUPPLIERID", supplierId.ID);
+                          }}
+                          value={value}
+                        >
+                          <SelectTrigger className="max-w-[350px]">
+                            <SelectValue placeholder="Select Supplier" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {supplierData &&
+                              supplierData.map((defSupplier) => (
+                                <SelectItem
+                                  key={defSupplier.ID}
+                                  value={defSupplier.NAME}
+                                >
+                                  {defSupplier.NAME}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  )}
                 </div>
                 <div className="mt-2">
                   <Popover>
@@ -263,6 +276,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                         <TableHead className="text-right">Unit</TableHead>
                         <TableHead className="text-right">Price</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
+                        <TableHead className="text-right">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -352,6 +366,14 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                           </TableCell>
                           <TableCell className="text-right">
                             Php {pdd.AMOUNT}
+                          </TableCell>
+                          <TableCell className="flex items-center justify-center">
+                            <X
+                              className="cursor-pointer"
+                              onClick={() => {
+                                dispatch(removePurchaseDeliveryDetail(pdd.ID));
+                              }}
+                            />
                           </TableCell>
                         </TableRow>
                       ))}

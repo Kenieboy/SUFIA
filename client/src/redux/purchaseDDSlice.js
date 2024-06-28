@@ -83,6 +83,14 @@ const pddSlice = createSlice({
     addPurchaseDelivery(state, action) {
       state.purchaseDelivery.push(action.payload);
     },
+    removePurchaseDeliveryDetail(state, action) {
+      return {
+        ...state,
+        purchaseDeliveryDetail: state.purchaseDeliveryDetail.filter(
+          (detail) => detail.ID !== action.payload
+        ),
+      };
+    },
     resetPurchaseDetailData(state, action) {
       state.purchaseDeliveryDetail = [];
       state.purchaseDelivery = [];
@@ -106,6 +114,7 @@ export const {
   addPurchaseDelivery,
   updatePDDItem,
   updatePDDItemvariationIdPrice,
+  removePurchaseDeliveryDetail,
   resetPurchaseDetailData,
 } = pddSlice.actions;
 export default pddSlice.reducer;

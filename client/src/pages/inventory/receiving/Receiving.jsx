@@ -137,7 +137,11 @@ function Receiving() {
                             })
                           );
                           dispatch(addPDDItemEditMode(purchaseDeliveryDetail));
-                          setModalState({ isVisible: true, isEditMode: true });
+
+                          setModalState({
+                            isVisible: true,
+                            isEditMode: true,
+                          });
                         }}
                         className="cursor-pointer"
                       >
