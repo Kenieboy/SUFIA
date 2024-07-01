@@ -26,8 +26,31 @@ async function insertPurchaseDeliveryData(value) {
   return data.message;
 }
 
+async function updatePurchaseDeliveryData(value) {
+  const res = await axios.put(
+    `http://localhost:3001/api/purchasedelivery/`,
+    value
+  );
+  const data = res.data;
+  return data.message;
+}
+
+async function deletePurchaseDeliveryData(Id) {
+  try {
+    const res = await axios.delete(
+      `http://localhost:3001/api/purchasedelivery/${Id}`
+    );
+    return res.data.message;
+  } catch (error) {
+    console.error("Error deleting purchase delivery detail:", error);
+    throw error;
+  }
+}
+
 export {
   insertPurchaseDeliveryData,
+  updatePurchaseDeliveryData,
+  deletePurchaseDeliveryData,
   getPurchaseDeliveryData,
   getPurchaseDeliveryDetailData,
 };

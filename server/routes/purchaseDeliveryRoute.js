@@ -90,6 +90,111 @@ router.post("/", (req, res) => {
   );
 });
 
+router.put("/", (req, res) => {
+  const {
+    PURCHASEDELIVERYID,
+    PURCHASEDELIVERYNO,
+    SUPPLIERID,
+    DATEDELIVERED,
+    NOTE,
+    PURCHASEDELIVERYDETAIL,
+  } = req.body;
+
+  const pdSQL = `UPDATE PURCHASEDELIVERY SET PURCHASEDELIVERYNO = ?, SUPPLIERID = ?, DATEDELIVERED = ?, NOTE = ? WHERE ID = ?`;
+
+  dbConnection.query(
+    pdSQL,
+    [PURCHASEDELIVERYNO, SUPPLIERID, DATEDELIVERED, NOTE, PURCHASEDELIVERYID],
+    (error, result) => {
+      if (error) {
+        console.error("Error updating purchasedelivery:", error);
+        res.status(500).json({ error: "PD Internal Server Error" });
+        return;
+      }
+
+      if (PURCHASEDELIVERYDETAIL && PURCHASEDELIVERYDETAIL.length > 0) {
+        PURCHASEDELIVERYDETAIL.forEach((detail) => {
+          const {
+            PURCHASEDELIVERYDETAILID,
+            ITEMVARIATIONID,
+            QTY,
+            PRICE,
+            AMOUNT,
+          } = detail;
+
+          if (PURCHASEDELIVERYDETAILID < 0) {
+            // Insert new record if PURCHASEDELIVERYDETAILID is negative
+            const pddInsertSQL = `INSERT INTO PURCHASEDELIVERYDETAIL (PURCHASEDELIVERYID, ITEMVARIATIONID, QTY, PRICE, AMOUNT) VALUES (?, ?, ?, ?, ?)`;
+
+            dbConnection.query(
+              pddInsertSQL,
+              [PURCHASEDELIVERYID, ITEMVARIATIONID, QTY, PRICE, AMOUNT],
+              (error, result) => {
+                if (error) {
+                  console.error(
+                    "Error inserting purchasedeliverydetail:",
+                    error
+                  );
+                  res.status(500).json({ error: "PDD Internal Server Error" });
+                  return;
+                }
+              }
+            );
+          } else {
+            // Update existing record
+            const pddUpdateSQL = `UPDATE PURCHASEDELIVERYDETAIL SET ITEMVARIATIONID = ?, QTY = ?, PRICE = ?, AMOUNT = ? WHERE ID = ?`;
+
+            dbConnection.query(
+              pddUpdateSQL,
+              [ITEMVARIATIONID, QTY, PRICE, AMOUNT, PURCHASEDELIVERYDETAILID],
+              (error, result) => {
+                if (error) {
+                  console.error(
+                    "Error updating purchasedeliverydetail:",
+                    error
+                  );
+                  res.status(500).json({ error: "PDD Internal Server Error" });
+                  return;
+                }
+              }
+            );
+          }
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: `PD and PDD updated successfully for Item ID #:${PURCHASEDELIVERYID}`,
+      });
+    }
+  );
+});
+
+router.delete("/:Id", (req, res) => {
+  const { Id } = req.params; // Get the PURCHASEDELIVERYDETAILID from request params
+
+  const deleteSQL = `DELETE FROM PURCHASEDELIVERYDETAIL WHERE ID = ?`;
+
+  dbConnection.query(deleteSQL, [Id], (error, result) => {
+    if (error) {
+      console.error("Error deleting purchase delivery detail:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+      return;
+    }
+
+    // Check if any rows were affected (if no rows affected, ID may not exist)
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: "Purchase delivery detail not found" });
+      return;
+    }
+
+    // Respond with success message
+    res
+      .status(200)
+      .json({ message: "Purchase delivery detail deleted successfully" });
+  });
+});
+
 router.get("/pddItemVariation/:Id", (req, res) => {
   const { Id } = req.params;
 
@@ -105,7 +210,7 @@ router.get("/pddItemVariation/:Id", (req, res) => {
 
   const pddItemVariationSQL = `
     SELECT 
-      PURCHASEDELIVERYDETAIL.ID,
+      PURCHASEDELIVERYDETAIL.ID AS PURCHASEDELIVERYDETAILID,
       PURCHASEDELIVERYDETAIL.PURCHASEDELIVERYID,
       PURCHASEDELIVERYDETAIL.QTY, 
       PURCHASEDELIVERYDETAIL.PRICE, 

@@ -31,13 +31,13 @@ const pddSlice = createSlice({
       if (Array.isArray(action.payload)) {
         const updatedPayload = action.payload.map((item) => ({
           ...item,
-          ID: --state.lastUsedId, // Decrementing the last used ID
+          PURCHASEDELIVERYDETAILID: --state.lastUsedId, // Decrementing the last used ID
         }));
         state.purchaseDeliveryDetail.push(...updatedPayload);
       } else {
         const updatedPayload = {
           ...action.payload,
-          ID: --state.lastUsedId, // Decrementing the last used ID
+          PURCHASEDELIVERYDETAILID: --state.lastUsedId, // Decrementing the last used ID
         };
         state.purchaseDeliveryDetail.push(updatedPayload);
       }
@@ -87,7 +87,7 @@ const pddSlice = createSlice({
       return {
         ...state,
         purchaseDeliveryDetail: state.purchaseDeliveryDetail.filter(
-          (detail) => detail.ID !== action.payload
+          (detail) => detail.PURCHASEDELIVERYDETAILID !== action.payload
         ),
       };
     },

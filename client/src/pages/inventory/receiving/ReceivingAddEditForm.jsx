@@ -55,6 +55,7 @@ import {
   updatePDDItem,
   updatePDDItemvariationIdPrice,
 } from "@/redux/purchaseDDSlice";
+import { deletePurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
 function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
   // const purchaseDeliveryDetail = useSelector(
@@ -112,26 +113,33 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
   useEffect(() => {
     setValue(
       "PURCHASEDELIVERYDETAIL",
-      purchaseDeliveryDetail.map(({ ITEMVARIATIONID, QTY, PRICE, AMOUNT }) => ({
-        ITEMVARIATIONID,
-        QTY,
-        PRICE,
-        AMOUNT,
-      }))
+      purchaseDeliveryDetail.map(
+        ({
+          PURCHASEDELIVERYDETAILID,
+          ITEMVARIATIONID,
+          QTY,
+          PRICE,
+          AMOUNT,
+        }) => ({
+          PURCHASEDELIVERYDETAILID,
+          ITEMVARIATIONID,
+          QTY,
+          PRICE,
+          AMOUNT,
+        })
+      )
     );
   }, [purchaseDeliveryDetail, setValue]);
 
   const onSubmit = (data) => {
-    if (modalState.isEditMode === true) {
-      console.log(data);
-      console.log("edit mode trigger!");
-      dispatch(resetPurchaseDetailData());
-      fnClose({ isVisible: false });
-    } else {
-      fnPDInsert(data);
-      dispatch(resetPurchaseDetailData());
-      fnClose({ isVisible: false });
+    if (purchaseDeliveryDetail.length === 0) {
+      alert("Please provide item for receiving instance!");
+      return;
     }
+
+    fnPDInsert(data);
+    dispatch(resetPurchaseDetailData());
+    fnClose({ isVisible: false });
   };
 
   if (modalState.isEditMode) {
@@ -142,6 +150,17 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
   const initialItemDefaultSupplier =
     supplierData?.find((i) => i.ID === purchaseDelivery[0]?.SUPPLIERID)?.NAME ||
     "";
+
+  const handleDelete = async (purchaseDeliveryDetailId) => {
+    try {
+      const message = await deletePurchaseDeliveryData(
+        purchaseDeliveryDetailId
+      );
+      console.log("Deletion successful:", message);
+    } catch (error) {
+      console.error("Error deleting purchase delivery detail:", error);
+    }
+  };
 
   return (
     <>
@@ -163,6 +182,17 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
             <div>
               {/* form area */}
               <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+                {purchaseDelivery.length === 0 ? (
+                  ``
+                ) : (
+                  <Input
+                    id="PURCHASEDELIVERYID"
+                    type="hidden"
+                    defaultValue={purchaseDelivery[0]?.PURCHASEDELIVERYID || ""}
+                    {...register("PURCHASEDELIVERYID", { valueAsNumber: true })}
+                  />
+                )}
+
                 <Input
                   id="PURCHASEDELIVERYNO"
                   placeholder="Receiving No."
@@ -287,7 +317,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                       <TableCell className="text-right">$250.00</TableCell>
                     </TableRow> */}
                       {purchaseDeliveryDetail.map((pdd, index) => (
-                        <TableRow key={`${pdd.ITEMID}-${index}`}>
+                        <TableRow key={pdd.PURCHASEDELIVERYDETAILID}>
                           <TableCell>{pdd.ITEMCODE}</TableCell>
                           <TableCell>{pdd.NAMEENG}</TableCell>
                           <TableCell className="flex justify-end">
@@ -309,10 +339,25 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                               name="QTY"
                               type="number"
                               id={`QTY-${index}`}
-                              value={pdd.QTY}
-                              onChange={(e) =>
-                                handleInputChange(e, pdd.ITEMID, "QTY")
-                              }
+                              value={pdd.QTY || 0}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === "" ? 0 : e.target.value;
+                                handleInputChange(
+                                  { target: { value } },
+                                  pdd.ITEMID,
+                                  "QTY"
+                                );
+                              }}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  handleInputChange(
+                                    { target: { value: 0 } },
+                                    pdd.ITEMID,
+                                    "QTY"
+                                  );
+                                }
+                              }}
                               className="w-[100px]"
                             />
                           </TableCell>
@@ -357,10 +402,25 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                               name="PRICE"
                               type="number"
                               id={`PRICE-${index}`}
-                              value={pdd.PRICE}
-                              onChange={(e) =>
-                                handleInputChange(e, pdd.ITEMID, "PRICE")
-                              }
+                              value={pdd.PRICE || 0}
+                              onChange={(e) => {
+                                const value =
+                                  e.target.value === "" ? 0 : e.target.value;
+                                handleInputChange(
+                                  { target: { value } },
+                                  pdd.ITEMID,
+                                  "PRICE"
+                                );
+                              }}
+                              onBlur={(e) => {
+                                if (e.target.value === "") {
+                                  handleInputChange(
+                                    { target: { value: 0 } },
+                                    pdd.ITEMID,
+                                    "PRICE"
+                                  );
+                                }
+                              }}
                               className="w-[150px]"
                             />
                           </TableCell>
@@ -370,8 +430,18 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                           <TableCell className="flex items-center justify-center">
                             <X
                               className="cursor-pointer"
-                              onClick={() => {
-                                dispatch(removePurchaseDeliveryDetail(pdd.ID));
+                              onClick={async () => {
+                                if (
+                                  modalState.isEditMode &&
+                                  pdd.PURCHASEDELIVERYDETAILID > 0
+                                ) {
+                                  handleDelete(pdd.PURCHASEDELIVERYDETAILID);
+                                }
+                                dispatch(
+                                  removePurchaseDeliveryDetail(
+                                    pdd.PURCHASEDELIVERYDETAILID
+                                  )
+                                );
                               }}
                             />
                           </TableCell>

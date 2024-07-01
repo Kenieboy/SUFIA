@@ -79,7 +79,6 @@ function ReceivingItemList({ modalState, fnRIClose }) {
                         <tr
                           key={item.ID}
                           onClick={async () => {
-                            console.log(item.ID);
                             // dispatch(fetchPurchaseDetailId(item.ID));
                             // fnRIClose(false);
 

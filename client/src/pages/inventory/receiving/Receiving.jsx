@@ -32,6 +32,7 @@ import {
   getPurchaseDeliveryData,
   getPurchaseDeliveryDetailData,
   insertPurchaseDeliveryData,
+  updatePurchaseDeliveryData,
 } from "@/query/purchaseDeliveryRequest";
 
 import { format } from "date-fns";
@@ -70,6 +71,14 @@ function Receiving() {
     },
   });
 
+  // update purchasedelivery data
+  const mutationUpdatePurchaseDeliveryData = useMutation({
+    mutationFn: updatePurchaseDeliveryData,
+    onSuccess: () => {
+      refetchPurchaseDeliveryData();
+    },
+  });
+
   const dispatch = useDispatch();
 
   return (
@@ -80,7 +89,11 @@ function Receiving() {
             modalState={modalState}
             isVisible={modalState.isVisible}
             fnClose={setModalState}
-            fnPDInsert={mutationInsertPurchaseDeliveryData.mutate}
+            fnPDInsert={
+              modalState.isEditMode
+                ? mutationUpdatePurchaseDeliveryData.mutate
+                : mutationInsertPurchaseDeliveryData.mutate
+            }
           />
         )}
 
@@ -152,7 +165,7 @@ function Receiving() {
                         </TableCell>
                         <TableCell>{pd.NOTE}</TableCell>
                         <TableCell>{pd.TOTALAMOUNT}</TableCell>
-                        <TableCell>{pd.GRANDTOTALAMOUNT}</TableCell>
+                        <TableCell>Php {pd.GRANDTOTALAMOUNT}</TableCell>
                       </TableRow>
                     ))}
                 </TableBody>
