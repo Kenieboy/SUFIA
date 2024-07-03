@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -22,15 +20,12 @@ import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
-  TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
+  TableCell,
 } from "@/components/ui/table";
-
 import { useForm, Controller } from "react-hook-form";
-
 import { format } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
@@ -40,14 +35,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
-// data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getFirmSupplier } from "@/query/firmRequest";
 import { ArrowDownToLine, X } from "lucide-react";
 import ReceivingItemList from "./ReceivingItemList";
-
-//redux
 import { useDispatch, useSelector } from "react-redux";
 import {
   removePurchaseDeliveryDetail,
@@ -58,24 +49,19 @@ import {
 import { deletePurchaseDeliveryData } from "@/query/purchaseDeliveryRequest";
 
 function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
-  // const purchaseDeliveryDetail = useSelector(
-  //   (state) => state.pddData.purchaseDeliveryDetail
-  // );
-
-  // const purchaseDelivery = useSelector(
-  //   (state) => state.pddData.purchaseDelivery
-  // );
-
   const { purchaseDeliveryDetail, purchaseDelivery } = useSelector(
     (state) => state.pddData
   );
 
-  const [date, setDate] = useState(
-    modalState.isEditMode ? purchaseDelivery[0].DATEDELIVERED : ""
-  );
+  const [date, setDate] = useState("");
   const [itemListModalState, setItemListModalState] = useState(false);
 
-  // Query for supplier data
+  useEffect(() => {
+    if (modalState.isEditMode) {
+      setDate(purchaseDelivery[0]?.DATEDELIVERED);
+    }
+  }, [modalState.isEditMode, purchaseDelivery]);
+
   const {
     isPending: isSupplierDataPending,
     error: supplierDataError,
@@ -94,7 +80,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
     dispatch(updatePDDItem({ itemId, field, value: parseFloat(value) }));
   };
 
-  // form state
   const {
     register,
     handleSubmit,
@@ -131,21 +116,22 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
     );
   }, [purchaseDeliveryDetail, setValue]);
 
+  useEffect(() => {
+    if (modalState.isEditMode) {
+      setValue("DATEDELIVERED", purchaseDelivery[0]?.DATEDELIVERED);
+      setValue("SUPPLIERID", purchaseDelivery[0]?.SUPPLIERID);
+    }
+  }, [modalState.isEditMode, purchaseDelivery, setValue]);
+
   const onSubmit = (data) => {
     if (purchaseDeliveryDetail.length === 0) {
       alert("Please provide item for receiving instance!");
       return;
     }
-
     fnPDInsert(data);
     dispatch(resetPurchaseDetailData());
     fnClose({ isVisible: false });
   };
-
-  if (modalState.isEditMode) {
-    setValue("DATEDELIVERED", purchaseDelivery[0].DATEDELIVERED);
-    setValue("SUPPLIERID", purchaseDelivery[0].SUPPLIERID);
-  }
 
   const initialItemDefaultSupplier =
     supplierData?.find((i) => i.ID === purchaseDelivery[0]?.SUPPLIERID)?.NAME ||
@@ -156,7 +142,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
       const message = await deletePurchaseDeliveryData(
         purchaseDeliveryDetailId
       );
-      console.log("Deletion successful:", message);
     } catch (error) {
       console.error("Error deleting purchase delivery detail:", error);
     }
@@ -180,7 +165,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
             </div>
 
             <div>
-              {/* form area */}
               <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
                 {purchaseDelivery.length === 0 ? (
                   ``
@@ -258,7 +242,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {date ? (
-                          format(date, "yyyy-MM-dd")
+                          format(new Date(date), "yyyy-MM-dd")
                         ) : (
                           <span>Pick a date</span>
                         )}
@@ -285,7 +269,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                 <div className="mt-2 max-w-[600px]">
                   <Textarea
                     defaultValue={
-                      modalState.isEditMode ? purchaseDelivery[0].NOTE : ""
+                      modalState.isEditMode ? purchaseDelivery[0]?.NOTE : ""
                     }
                     name="NOTE"
                     id="NOTE"
@@ -310,12 +294,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {/* <TableRow>
-                      <TableCell className="font-medium">INV001</TableCell>
-                      <TableCell>Paid</TableCell>
-                      <TableCell>Credit Card</TableCell>
-                      <TableCell className="text-right">$250.00</TableCell>
-                    </TableRow> */}
                       {purchaseDeliveryDetail.map((pdd, index) => (
                         <TableRow key={pdd.PURCHASEDELIVERYDETAILID}>
                           <TableCell>{pdd.ITEMCODE}</TableCell>
@@ -476,7 +454,6 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                   </Button>
                 </div>
               </form>
-              {/* form area end */}
             </div>
           </div>
         </DialogContent>
