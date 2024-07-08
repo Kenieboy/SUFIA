@@ -14,7 +14,11 @@ const PORT = 3001;
 // middlewares
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 
 // api request
 app.use("/", homeRoutes);
