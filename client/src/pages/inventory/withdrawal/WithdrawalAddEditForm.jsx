@@ -10,15 +10,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -26,16 +17,18 @@ import {
 
 import { CircleX } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WithdrawalItemList from "./WithdrawalItemList";
 
 function WithdrawalAddEditForm({ modalState, fnClose }) {
+  const [itemListModalState, setItemListModalState] = useState(false);
   return (
     <>
-      {/* {itemListModalState && (
-        <ReceivingItemList
+      {itemListModalState && (
+        <WithdrawalItemList
           modalState={itemListModalState}
-          fnRIClose={setItemListModalState}
+          fnWIClose={setItemListModalState}
         />
-      )} */}
+      )}
       <Dialog open={modalState}>
         <DialogContent className="max-w-[1300px] h-[80%]">
           <div className="relative">
@@ -44,7 +37,7 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
             </div>
             <Separator className="bg-gray-700" />
             <div>
-              <form className="mt-6">
+              <form className="mt-4">
                 <div>
                   <div className="text-xs">
                     <div className="flex gap-4">
@@ -226,7 +219,7 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                                   </p>
                                   <div className="flex items-center pt-2">
                                     <span className="text-xs text-muted-foreground">
-                                      July 8, 2024
+                                      July 9, 2024
                                     </span>
                                   </div>
                                 </div>
@@ -251,6 +244,7 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                           <p
                             className="bg-gray-700 inline-block text-white px-2  rounded-full cursor-pointer"
                             onClick={() => {
+                              setItemListModalState(true);
                               console.log("add item...");
                             }}
                           >
