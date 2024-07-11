@@ -8,12 +8,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { getItemData } from "@/query/itemRequest";
+import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
 import { useQuery } from "@tanstack/react-query";
 import { FixedSizeList as List } from "react-window";
+import { useDispatch, useSelector } from "react-redux";
+import { addPDDItem } from "@/redux/purchaseDDSlice";
+import { ShoppingBasket } from "lucide-react";
 
 function WithdrawalItemList({ modalState, fnWIClose }) {
   const [searchQuery, setSearchQuery] = useState("");
+
+  const { purchaseDeliveryDetail } = useSelector((state) => state?.pddData);
+
+  const action = useDispatch();
 
   const {
     isPending: isItemDataPending,
@@ -42,11 +49,13 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
       className={`grid grid-flow-col auto-cols-max text-xs gap-2 cursor-pointer hover:bg-gray-100 ${
         index % 2 !== 0 ? "bg-gray-50" : ""
       }`}
-      onClick={() => {
+      onClick={async () => {
+        const fetchItem = await getPurchaseDeliveryDetail(data[index].ID);
+        action(addPDDItem(fetchItem));
         console.log(data[index].ID);
       }}
     >
-      <div className="w-[50px] ">{data[index].ID}</div>
+      <div className="w-[50px] text-center">{data[index].ID}</div>
       <div className="w-[80px]">{data[index].CODE}</div>
       <div>{data[index].NAMEENG}</div>
     </div>
@@ -54,11 +63,22 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
 
   return (
     <Dialog open={modalState}>
-      <DialogContent className="max-w-[800px] h-[70%]">
+      <DialogContent className="max-w-[800px] h-[70%] overflow-y-scroll">
         <div className="relative">
-          <div>
-            <h1 className="text-xl font-bold">ITEM LIST</h1>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold">ITEM LIST</h1>
+            </div>
+            <div className="text-xs cursor-pointer">
+              <div className="flex items-center">
+                <ShoppingBasket />
+                <p className="bg-red-500 text-white px-1 py-1 rounded-full w-4 h-4 flex items-center justify-center ">
+                  {purchaseDeliveryDetail?.length}
+                </p>
+              </div>
+            </div>
           </div>
+
           <Separator className="bg-gray-700" />
 
           <div className="mt-4">
@@ -87,8 +107,8 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
           {/* LIST TABLE */}
           <div>
             <div className="grid grid-flow-col auto-cols-max text-xs gap-2 bg-gray-200 py-1 font-semibold">
-              <div className="w-[50px] ">
-                <p className="ml-1">ID</p>
+              <div className="w-[50px]">
+                <p className="ml-2">ID</p>
               </div>
               <div className="w-[80px]">
                 <p className="">CODE</p>

@@ -65,6 +65,20 @@ const pddSlice = createSlice({
         }
       }
     },
+    updateWithdrawalItem(state, action) {
+      const { id, field, value } = action.payload;
+
+      const item = state.purchaseDeliveryDetail.find(
+        (item) => item.PURCHASEDELIVERYDETAILID === id
+      );
+
+      if (item) {
+        item[field] = value;
+      } else {
+        console.log("Item not found");
+      }
+    },
+
     updatePDDItemvariationIdPrice(state, action) {
       const { itemId, ID, COST, ITEMUNITDESCRIPTION } = action.payload;
 
@@ -113,6 +127,7 @@ export const {
   addPDDItemEditMode,
   addPurchaseDelivery,
   updatePDDItem,
+  updateWithdrawalItem,
   updatePDDItemvariationIdPrice,
   removePurchaseDeliveryDetail,
   resetPurchaseDetailData,
