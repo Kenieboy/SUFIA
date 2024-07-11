@@ -14,15 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import ReceivingAddEditForm from "./ReceivingAddEditForm";
 import { Plus } from "lucide-react";
 
@@ -81,6 +72,13 @@ function Receiving() {
 
   const dispatch = useDispatch();
 
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <div>
       <div className="mt-6">
@@ -110,68 +108,83 @@ function Receiving() {
           </Button>
         </div>
 
-        <div className="mt-6 relative overflow-hidden">
-          <div className="w-full text-xs">
-            <div className="sticky top-0 bg-white z-10">
-              <Table className="w-full text-xs bg-gray-100">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[100px]">PurchaseNo.</TableHead>
-                    <TableHead className="w-[230px]">Supplier</TableHead>
-                    <TableHead>DateDelivered</TableHead>
-                    <TableHead>Note</TableHead>
-                    <TableHead>Total Amount</TableHead>
-                    <TableHead>Grand Total Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-              </Table>
-            </div>
-            <div className="overflow-auto max-h-[500px]">
-              <Table className="w-full text-xs">
-                <TableBody>
-                  {purchaseDeliveryData &&
-                    purchaseDeliveryData.map((pd, index) => (
-                      <TableRow
-                        key={index}
-                        onClick={async () => {
-                          const { ID } = pd;
-                          const formattedDate = format(
-                            pd.DATEDELIVERED,
-                            "yyyy-MM-dd"
-                          );
+        <div className="table-container-receiving">
+          <table className="min-w-full table-fixed-header text-[12px]">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                  PURCHASE NO.
+                </th>
+                <th className="px-4 py-2 border border-gray-300">SUPPLIER</th>
+                <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                  DATE DELIVERED
+                </th>
+                <th className="px-4 py-2 border border-gray-300 w-[300px]">
+                  NOTE
+                </th>
+                <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                  TOTAL
+                </th>
+                <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                  GRAND TOTAL
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white text-[10px]">
+              {purchaseDeliveryData &&
+                purchaseDeliveryData.map((pd, index) => (
+                  <tr
+                    onClick={async () => {
+                      const { ID } = pd;
+                      const formattedDate = format(
+                        pd.DATEDELIVERED,
+                        "yyyy-MM-dd"
+                      );
 
-                          const { purchaseDelivery, purchaseDeliveryDetail } =
-                            await getPurchaseDeliveryDetailData(ID);
+                      const { purchaseDelivery, purchaseDeliveryDetail } =
+                        await getPurchaseDeliveryDetailData(ID);
 
-                          dispatch(
-                            addPurchaseDelivery({
-                              ...purchaseDelivery[0],
-                              DATEDELIVERED: formattedDate,
-                            })
-                          );
-                          dispatch(addPDDItemEditMode(purchaseDeliveryDetail));
+                      dispatch(
+                        addPurchaseDelivery({
+                          ...purchaseDelivery[0],
+                          DATEDELIVERED: formattedDate,
+                        })
+                      );
+                      dispatch(addPDDItemEditMode(purchaseDeliveryDetail));
 
-                          setModalState({
-                            isVisible: true,
-                            isEditMode: true,
-                          });
-                        }}
-                        className="cursor-pointer"
-                      >
-                        <TableCell>{pd.PURCHASEDELIVERYNO}</TableCell>
-                        <TableCell className="w-[230px]">{pd.NAME}</TableCell>
-                        <TableCell>
-                          {format(pd.DATEDELIVERED, "yyyy-MM-dd")}
-                        </TableCell>
-                        <TableCell>{pd.NOTE}</TableCell>
-                        <TableCell>{pd.TOTALAMOUNT}</TableCell>
-                        <TableCell>Php {pd.GRANDTOTALAMOUNT}</TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
+                      setModalState({
+                        isVisible: true,
+                        isEditMode: true,
+                      });
+                    }}
+                    key={index}
+                    className={`hover:bg-gray-100 cursor-pointer ${
+                      index % 2 !== 0 ? "bg-gray-50" : ""
+                    }`}
+                  >
+                    <td className="px-4 py-2 border border-gray-300 text-center">
+                      {pd.PURCHASEDELIVERYNO}
+                    </td>
+                    <td className="px-4 py-1 border border-gray-300 font-bold">
+                      {pd.NAME}
+                    </td>
+                    <td className="px-4 py-1 border border-gray-300">
+                      {format(pd.DATEDELIVERED, "MM-dd-yyyy")}
+                    </td>
+                    <td className="px-4 py-1 border border-gray-300 ">
+                      {pd.NOTE}
+                    </td>
+                    <td className="px-4 py-1 border border-gray-300 ">
+                      {pd.TOTALAMOUNT}
+                    </td>
+                    <td className="px-4 py-1 border border-gray-300 font-bold">
+                      Php{" "}
+                      {formatNumberWithCommas(parseFloat(pd.GRANDTOTALAMOUNT))}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

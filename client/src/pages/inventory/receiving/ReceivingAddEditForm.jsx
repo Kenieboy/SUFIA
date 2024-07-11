@@ -147,6 +147,13 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
     }
   };
 
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   return (
     <>
       {itemListModalState && (
@@ -403,7 +410,7 @@ function ReceivingAddEditForm({ modalState, isVisible, fnClose, fnPDInsert }) {
                             />
                           </TableCell>
                           <TableCell className="text-right">
-                            Php {pdd.AMOUNT}
+                            Php {formatNumberWithCommas(parseFloat(pdd.AMOUNT))}
                           </TableCell>
                           <TableCell className="flex items-center justify-center">
                             <X

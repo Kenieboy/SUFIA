@@ -15,6 +15,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { addPDDItem } from "@/redux/purchaseDDSlice";
 import { ShoppingBasket } from "lucide-react";
 
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+
 function WithdrawalItemList({ modalState, fnWIClose }) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -52,6 +58,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
       onClick={async () => {
         const fetchItem = await getPurchaseDeliveryDetail(data[index].ID);
         action(addPDDItem(fetchItem));
+        setSearchQuery("");
       }}
     >
       <div className="w-[50px] text-center">{data[index].ID}</div>
@@ -64,16 +71,32 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
     <Dialog open={modalState}>
       <DialogContent className="max-w-[800px] h-[70%] overflow-y-scroll">
         <div className="relative">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <div>
               <h1 className="text-xl font-bold">ITEM LIST</h1>
             </div>
             <div className="text-xs cursor-pointer">
-              <div className="flex items-center">
-                <ShoppingBasket />
-                <p className="bg-red-500 text-white px-1 py-1 rounded-full w-4 h-4 flex items-center justify-center ">
-                  {purchaseDeliveryDetail?.length}
-                </p>
+              <div
+                className="flex items-center relative"
+                onClick={() => {
+                  fnWIClose(false);
+                }}
+              >
+                <div>
+                  <ShoppingBasket />
+                </div>
+                <div>
+                  <HoverCard openDelay={100}>
+                    <HoverCardTrigger>
+                      <p className="bg-red-500 text-white px-1 py-1 rounded-full w-4 h-4 flex items-center justify-center absolute -top-1 -right-3 text-[11px]">
+                        {purchaseDeliveryDetail?.length}
+                      </p>
+                    </HoverCardTrigger>
+                    <HoverCardContent>
+                      View your withdrawal item basket.
+                    </HoverCardContent>
+                  </HoverCard>
+                </div>
               </div>
             </div>
           </div>
@@ -84,18 +107,19 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
             <div className="text-xs">
               <div className="flex gap-4">
                 {/* right side */}
-                <div className="w-1/4 mr-4">
-                  <div className="mb-2">
-                    <label htmlFor="search" className="block text-gray-700">
-                      Search
+                <div className="w-1/2 mr-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <label htmlFor="search" className="block text-gray-700 ">
+                      SEARCH:
                     </label>
                     <input
+                      placeholder="Search product name..."
                       type="text"
                       id="search"
                       name="search"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full p-1 px-2 border border-gray-500 rounded-full text-red-500 uppercase font-bold"
+                      className="w-full p-1 px-2 border border-gray-500 rounded-full  uppercase "
                     />
                   </div>
                 </div>
@@ -117,7 +141,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
               </div>
             </div>
             <List
-              height={350}
+              height={420}
               itemCount={filteredData.length}
               itemSize={20}
               width={750}
@@ -130,7 +154,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
 
           <div>
             {/* BUTTON */}
-            <div className="text-xs flex gap-1 mt-6 font-semibold">
+            {/* <div className="text-xs flex gap-1 mt-6 font-semibold">
               <div>
                 <button
                   type="button"
@@ -142,7 +166,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
                   Close
                 </button>
               </div>
-            </div>
+            </div> */}
             {/* BUTTON END */}
           </div>
         </div>

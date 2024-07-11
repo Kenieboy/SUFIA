@@ -220,7 +220,9 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                         purchaseDeliveryDetail.map((item, index) => (
                           <tr
                             key={item.PURCHASEDELIVERYDETAILID}
-                            className="hover:bg-gray-50 cursor-pointer"
+                            className={`hover:bg-gray-50 cursor-pointer ${
+                              index % 2 !== 0 ? "bg-gray-100" : ""
+                            }`}
                           >
                             <td className="px-4 py-0 border border-gray-300 text-center">
                               {item.ITEMCODE}
@@ -318,20 +320,27 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                         ))}
                       <tr>
                         <td className="px-4 py-1 border border-gray-300 font-bold text-center">
-                          <p
-                            className="bg-gray-700 inline-block text-white px-2 rounded-full cursor-pointer"
-                            onClick={() => {
-                              setItemListModalState(true);
-                            }}
-                          >
-                            ...
-                          </p>
+                          <HoverCard openDelay={100}>
+                            <HoverCardTrigger>
+                              <p
+                                className="bg-gray-700 inline-block text-white px-2 rounded-full cursor-pointer"
+                                onClick={() => {
+                                  setItemListModalState(true);
+                                }}
+                              >
+                                ...
+                              </p>
+                            </HoverCardTrigger>
+                            <HoverCardContent className="ml-4">
+                              Click here to add new item.
+                            </HoverCardContent>
+                          </HoverCard>
                         </td>
-                        <td className="px-4 py-1 border border-gray-300"></td>
-                        <td className="px-4 py-1 border border-gray-300"></td>
-                        <td className="px-4 py-1 border border-gray-300"></td>
-                        <td className="px-4 py-1 border border-gray-300"></td>
-                        <td className="px-4 py-1 border border-gray-300"></td>
+                        <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                        <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                        <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                        <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                        <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
                       </tr>
                     </tbody>
                   </table>
