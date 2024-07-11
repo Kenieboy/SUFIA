@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -21,7 +21,21 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
   const [itemListModalState, setItemListModalState] = useState(false);
   const { purchaseDeliveryDetail } = useSelector((state) => state?.pddData);
   const dispatch = useDispatch();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      WITHDRAWALDETAIL: [],
+    },
+  });
+
+  useEffect(() => {
+    setValue(
+      "WITHDRAWALDETAIL",
+      purchaseDeliveryDetail.map(({ ITEMVARIATIONID, QTY }) => ({
+        ITEMVARIATIONID,
+        QTY,
+      }))
+    );
+  }, [purchaseDeliveryDetail]);
 
   const onSubmit = (data) => {
     fnClose();
@@ -30,6 +44,7 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
 
   const handleInputChange = (e, id, field) => {
     const { value } = e.target;
+
     dispatch(updateWithdrawalItem({ id, field, value: parseFloat(value) }));
   };
 
@@ -56,16 +71,16 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                     <div className="w-1/6 ml-4">
                       <div className="mb-2 mt-[51px]">
                         <label
-                          htmlFor="department"
+                          htmlFor="DEPARTMENTID"
                           className="block text-gray-700"
                         >
                           Department
                         </label>
                         <select
-                          id="department"
-                          name="department"
+                          id="DEPARTMENTID"
+                          name="DEPARTMENTID"
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("department", { required: true })}
+                          {...register("DEPARTMENTID", { required: true })}
                         >
                           <option value="HR">HR</option>
                           <option value="Finance">Finance</option>
@@ -75,16 +90,16 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                       </div>
                       <div className="mb-2">
                         <label
-                          htmlFor="section"
+                          htmlFor="SECTIONID"
                           className="block text-gray-700"
                         >
                           Section
                         </label>
                         <select
-                          id="section"
-                          name="section"
+                          id="SECTIONID"
+                          name="SECTIONID"
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("section", { required: true })}
+                          {...register("SECTIONID", { required: true })}
                         >
                           <option value="A">A</option>
                           <option value="B">B</option>
@@ -94,17 +109,17 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                       </div>
                       <div className="mb-2">
                         <label
-                          htmlFor="receivedBy"
+                          htmlFor="RECEIVEBY"
                           className="block text-gray-700"
                         >
                           Received By
                         </label>
                         <input
                           type="text"
-                          id="receivedBy"
-                          name="receivedBy"
+                          id="RECEIVEBY"
+                          name="RECEIVEBY"
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("receivedBy", { required: true })}
+                          {...register("RECEIVEBY", { required: true })}
                         />
                       </div>
                     </div>
@@ -113,61 +128,61 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
 
                     <div className="w-1/6 mr-4">
                       <div className="mb-2">
-                        <label htmlFor="refNo" className="block text-gray-700">
+                        <label htmlFor="REFNO" className="block text-gray-700">
                           Ref No.
                         </label>
                         <input
                           type="text"
-                          id="refNo"
-                          name="refNo"
+                          id="REFNO"
+                          name="REFNO"
                           className="w-full p-1 border border-gray-500 rounded-full text-red-500 uppercase font-bold"
-                          {...register("refNo", { required: true })}
+                          {...register("REFNO", { required: true })}
                         />
                       </div>
                       <div className="mb-2">
                         <label
-                          htmlFor="dateRequest"
+                          htmlFor="DATEREQUEST"
                           className="block text-gray-700"
                         >
                           Date Request
                         </label>
                         <input
                           type="date"
-                          id="dateRequest"
-                          name="dateRequest"
+                          id="DATEREQUEST"
+                          name="DATEREQUEST"
                           defaultValue={new Date().toISOString().substr(0, 10)}
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("dateRequest", { required: true })}
+                          {...register("DATEREQUEST", { required: true })}
                         />
                       </div>
                       <div className="mb-2">
                         <label
-                          htmlFor="product"
+                          htmlFor="PRODUCT"
                           className="block text-gray-700"
                         >
                           Project
                         </label>
                         <input
                           type="text"
-                          id="product"
-                          name="product"
+                          id="PRODUCT"
+                          name="PRODUCT"
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("product", { required: true })}
+                          {...register("PRODUCT", { required: true })}
                         />
                       </div>
                       <div className="mb-2">
                         <label
-                          htmlFor="issuedBy"
+                          htmlFor="ISSUEDBY"
                           className="block text-gray-700"
                         >
                           Issued By
                         </label>
                         <input
                           type="text"
-                          id="issuedBy"
-                          name="issuedBy"
+                          id="ISSUEDBY"
+                          name="ISSUEDBY"
                           className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("issuedBy", { required: true })}
+                          {...register("ISSUEDBY", { required: true })}
                         />
                       </div>
                     </div>
@@ -215,19 +230,9 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                             </td>
                             <td className="px-4 py-0 border border-gray-300">
                               <input
-                                type="hidden"
-                                name={`withdrawalDetail[${index}].ITEMVARIATIONID`}
-                                defaultValue={item?.ITEMVARIATIONID || 0}
-                                {...register(
-                                  `withdrawalDetail[${index}].ITEMVARIATIONID`
-                                )}
-                              />
-
-                              <input
-                                name={`withdrawalDetail[${index}].QTY`}
                                 type="number"
                                 min={0}
-                                defaultValue={item?.QTY || 0}
+                                defaultValue={item?.QTY}
                                 className="w-full text-m font-bold p-2 rounded focus:outline-none bg-transparent"
                                 onChange={(e) => {
                                   const value =
@@ -238,7 +243,6 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                                     "QTY"
                                   );
                                 }}
-                                {...register(`withdrawalDetail[${index}].QTY`)}
                               />
                             </td>
                             <td className="px-4 py-0 border border-gray-300">

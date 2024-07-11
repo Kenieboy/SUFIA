@@ -52,7 +52,6 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
       onClick={async () => {
         const fetchItem = await getPurchaseDeliveryDetail(data[index].ID);
         action(addPDDItem(fetchItem));
-        console.log(data[index].ID);
       }}
     >
       <div className="w-[50px] text-center">{data[index].ID}</div>
