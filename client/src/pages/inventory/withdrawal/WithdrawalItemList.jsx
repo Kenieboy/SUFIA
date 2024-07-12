@@ -12,7 +12,7 @@ import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
 import { useQuery } from "@tanstack/react-query";
 import { FixedSizeList as List } from "react-window";
 import { useDispatch, useSelector } from "react-redux";
-import { addPDDItem } from "@/redux/purchaseDDSlice";
+import { addWDItem } from "@/redux/purchaseDDSlice";
 import { ShoppingBasket } from "lucide-react";
 
 import {
@@ -57,7 +57,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
       }`}
       onClick={async () => {
         const fetchItem = await getPurchaseDeliveryDetail(data[index].ID);
-        action(addPDDItem(fetchItem));
+        action(addWDItem(fetchItem));
         setSearchQuery("");
       }}
     >

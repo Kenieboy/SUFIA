@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ReceivingAddEditForm from "./ReceivingAddEditForm";
-import { Plus } from "lucide-react";
+import { CirclePlus, Plus } from "lucide-react";
 
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -97,13 +97,14 @@ function Receiving() {
 
         <div className="mb-4">
           <Button
-            className="bg-green-500 hover:bg-green-400 flex gap-1"
+            className="bg-green-500 hover:bg-green-400 flex gap-1 text-xs"
             type="button"
             onClick={() => {
               setModalState({ isVisible: true });
             }}
           >
-            <Plus />
+            {/* <Plus /> */}
+            <CirclePlus />
             New
           </Button>
         </div>
@@ -112,11 +113,11 @@ function Receiving() {
           <table className="min-w-full table-fixed-header text-[12px]">
             <thead>
               <tr>
-                <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                <th className="px-4 py-2 border border-gray-300 w-[150px]">
                   PURCHASE NO.
                 </th>
                 <th className="px-4 py-2 border border-gray-300">SUPPLIER</th>
-                <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                <th className="px-4 py-2 border border-gray-300 w-[150px]">
                   DATE DELIVERED
                 </th>
                 <th className="px-4 py-2 border border-gray-300 w-[300px]">
@@ -178,7 +179,7 @@ function Receiving() {
                       {pd.TOTALAMOUNT}
                     </td>
                     <td className="px-4 py-1 border border-gray-300 font-bold">
-                      Php{" "}
+                      Php{" - "}
                       {formatNumberWithCommas(parseFloat(pd.GRANDTOTALAMOUNT))}
                     </td>
                   </tr>

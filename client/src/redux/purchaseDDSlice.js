@@ -21,6 +21,7 @@ const initialState = {
   lastUsedId: 0,
   purchaseDeliveryDetail: [],
   purchaseDelivery: [],
+  withdrawal: {},
 };
 
 const pddSlice = createSlice({
@@ -42,6 +43,21 @@ const pddSlice = createSlice({
         state.purchaseDeliveryDetail.push(updatedPayload);
       }
     },
+    addWDItem(state, action) {
+      if (Array.isArray(action.payload)) {
+        const updatedPayload = action.payload.map((item) => ({
+          ...item,
+          WITHDRAWALDETAILID: --state.lastUsedId, // Decrementing the last used ID
+        }));
+        state.purchaseDeliveryDetail.push(...updatedPayload);
+      } else {
+        const updatedPayload = {
+          ...action.payload,
+          WITHDRAWALDETAILID: --state.lastUsedId, // Decrementing the last used ID
+        };
+        state.purchaseDeliveryDetail.push(updatedPayload);
+      }
+    },
     addPDDItemEditMode(state, action) {
       return {
         ...state,
@@ -50,6 +66,9 @@ const pddSlice = createSlice({
           ...action.payload,
         ],
       };
+    },
+    addSingleWithdrawalData(state, action) {
+      return { ...state, withdrawal: { ...action.payload } };
     },
     updatePDDItem(state, action) {
       const { itemId, field, value } = action.payload;
@@ -69,7 +88,7 @@ const pddSlice = createSlice({
       const { id, field, value } = action.payload;
 
       const item = state.purchaseDeliveryDetail.find(
-        (item) => item.PURCHASEDELIVERYDETAILID === id
+        (item) => item.WITHDRAWALDETAILID === id
       );
 
       if (item) {
@@ -105,9 +124,18 @@ const pddSlice = createSlice({
         ),
       };
     },
+    removeWithdrawalDetail(state, action) {
+      return {
+        ...state,
+        purchaseDeliveryDetail: state.purchaseDeliveryDetail.filter(
+          (detail) => detail.WITHDRAWALDETAILID !== action.payload
+        ),
+      };
+    },
     resetPurchaseDetailData(state, action) {
       state.purchaseDeliveryDetail = [];
       state.purchaseDelivery = [];
+      state.withdrawal = {};
       state.lastUsedId = 0;
     },
   },
@@ -124,12 +152,15 @@ const pddSlice = createSlice({
 
 export const {
   addPDDItem,
+  addWDItem,
   addPDDItemEditMode,
   addPurchaseDelivery,
+  addSingleWithdrawalData,
   updatePDDItem,
   updateWithdrawalItem,
   updatePDDItemvariationIdPrice,
   removePurchaseDeliveryDetail,
+  removeWithdrawalDetail,
   resetPurchaseDetailData,
 } = pddSlice.actions;
 export default pddSlice.reducer;

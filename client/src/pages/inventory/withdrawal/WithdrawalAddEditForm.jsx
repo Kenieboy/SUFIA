@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -11,19 +11,25 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
   removePurchaseDeliveryDetail,
+  removeWithdrawalDetail,
   resetPurchaseDetailData,
   updateWithdrawalItem,
 } from "@/redux/purchaseDDSlice";
 import { format } from "date-fns";
 import WithdrawalItemList from "./WithdrawalItemList";
 import { useQuery } from "@tanstack/react-query";
-import { getDepartmentAndSectionData } from "@/query/withdrawalRequest";
+import {
+  deleteWithdrawalDetailData,
+  getDepartmentAndSectionData,
+} from "@/query/withdrawalRequest";
 
 function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
   const [itemListModalState, setItemListModalState] = useState(false);
-  const { purchaseDeliveryDetail } = useSelector((state) => state?.pddData);
+  const { purchaseDeliveryDetail, withdrawal } = useSelector(
+    (state) => state?.pddData
+  );
   const dispatch = useDispatch();
-  const { register, handleSubmit, setValue } = useForm({
+  const { register, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       DEPARTMENTID: null,
       SECTIONID: null,
@@ -34,10 +40,13 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
   useEffect(() => {
     setValue(
       "WITHDRAWALDETAIL",
-      purchaseDeliveryDetail.map(({ ITEMVARIATIONID, QTY }) => ({
-        ITEMVARIATIONID,
-        QTY,
-      }))
+      purchaseDeliveryDetail.map(
+        ({ WITHDRAWALDETAILID, ITEMVARIATIONID, QTY }) => ({
+          WITHDRAWALDETAILID,
+          ITEMVARIATIONID,
+          QTY,
+        })
+      )
     );
   }, [purchaseDeliveryDetail, setValue]);
 
@@ -65,6 +74,38 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
     queryFn: getDepartmentAndSectionData,
   });
 
+  const departmentId = watch("DEPARTMENTID");
+  const sectionId = watch("SECTIONID");
+
+  useEffect(() => {
+    if (modalState.isEditMode) {
+      if (withdrawal.DEPARTMENTID) {
+        setValue("DEPARTMENTID", withdrawal.DEPARTMENTID);
+      }
+      if (withdrawal.SECTIONID) {
+        setValue("SECTIONID", withdrawal.SECTIONID);
+      }
+      if (withdrawal.DATEREQUEST) {
+        setValue("DATEREQUEST", withdrawal.DATEREQUEST);
+      }
+    }
+  }, [modalState.isEditMode, withdrawal, setValue]);
+
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  const handleDeleteWithDrawalDetail = async (id) => {
+    try {
+      const removeDetail = await deleteWithdrawalDetailData(id);
+    } catch (error) {
+      console.error("Error deleting withdrawal detail:", error);
+    }
+  };
+
   return (
     <>
       {itemListModalState && (
@@ -82,6 +123,16 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
             <Separator className="bg-gray-700" />
             <div>
               <form className="mt-4" onSubmit={handleSubmit(onSubmit)}>
+                {modalState.isEditMode ? (
+                  <input
+                    id="WITHDRAWALID"
+                    type="hidden"
+                    defaultValue={withdrawal?.WITHDRAWALID || ""}
+                    {...register("WITHDRAWALID", { valueAsNumber: true })}
+                  />
+                ) : (
+                  ""
+                )}
                 <div className="text-xs">
                   <div className="flex gap-4">
                     {/* left side */}
@@ -105,14 +156,14 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                                 message:
                                   "Please enter a valid department ID (numeric).",
                               },
-                              setValueAs: (value) => Number(value), // Ensure values are stored as numbers
+                              setValueAs: (value) => Number(value),
                             })}
+                            value={departmentId || ""}
                             onChange={(e) => {
-                              setValue("DEPARTMENTID", e.target.value); // Set value directly from event
+                              setValue("DEPARTMENTID", e.target.value);
                             }}
                           >
                             <option value="">Select Department</option>
-                            {/* Map over departments and render options */}
                             {departmentAndSectionDataQuery.departments.map(
                               (item) => (
                                 <option value={item.ID} key={item.ID}>
@@ -142,14 +193,15 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                                 message:
                                   "Please enter a valid department ID (numeric).",
                               },
-                              setValueAs: (value) => Number(value), // Ensure values are stored as numbers
+                              setValueAs: (value) => Number(value),
                             })}
                             onChange={(e) => {
-                              setValue("SECTIONID", e.target.value); // Set value directly from event
+                              setValue("SECTIONID", e.target.value);
                             }}
+                            value={sectionId || ""}
                           >
-                            <option value="">Select Department</option>
-                            {/* Map over departments and render options */}
+                            <option value="">Select Section</option>
+
                             {departmentAndSectionDataQuery.sections.map(
                               (item) => (
                                 <option value={item.ID} key={item.ID}>
@@ -168,6 +220,11 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                           Received By
                         </label>
                         <input
+                          defaultValue={
+                            (modalState.isEditMode
+                              ? withdrawal.RECEIVEDBY
+                              : "") || ""
+                          }
                           type="text"
                           id="RECEIVEBY"
                           name="RECEIVEBY"
@@ -185,6 +242,10 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                           Ref No.
                         </label>
                         <input
+                          defaultValue={
+                            (modalState.isEditMode ? withdrawal.REFNO : "") ||
+                            ""
+                          }
                           type="text"
                           id="REFNO"
                           name="REFNO"
@@ -203,9 +264,16 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                           type="date"
                           id="DATEREQUEST"
                           name="DATEREQUEST"
-                          defaultValue={new Date().toISOString().substr(0, 10)}
-                          className="w-full p-1 border border-gray-500 rounded-full"
+                          className="w-full p-1 border border-gray-500 rounded-full mt-2"
                           {...register("DATEREQUEST", { required: true })}
+                          defaultValue={
+                            modalState.isEditMode && withdrawal.DATEREQUEST
+                              ? withdrawal.DATEREQUEST
+                              : new Date().toISOString().substr(0, 10)
+                          }
+                          onChange={(e) => {
+                            setValue("DATEREQUEST", e.target.value);
+                          }}
                         />
                       </div>
                       <div className="mb-2">
@@ -216,6 +284,10 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                           Project
                         </label>
                         <input
+                          defaultValue={
+                            (modalState.isEditMode ? withdrawal.PRODUCT : "") ||
+                            ""
+                          }
                           type="text"
                           id="PRODUCT"
                           name="PRODUCT"
@@ -231,6 +303,11 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                           Issued By
                         </label>
                         <input
+                          defaultValue={
+                            (modalState.isEditMode
+                              ? withdrawal.ISSUEDBY
+                              : "") || ""
+                          }
                           type="text"
                           id="ISSUEDBY"
                           name="ISSUEDBY"
@@ -272,7 +349,7 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                       {purchaseDeliveryDetail &&
                         purchaseDeliveryDetail.map((item, index) => (
                           <tr
-                            key={item.PURCHASEDELIVERYDETAILID}
+                            key={index}
                             className={`hover:bg-gray-50 cursor-pointer ${
                               index % 2 !== 0 ? "bg-gray-100" : ""
                             }`}
@@ -287,21 +364,23 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                               <input
                                 type="number"
                                 min={0}
-                                defaultValue={item?.QTY}
+                                defaultValue={formatNumberWithCommas(
+                                  parseFloat(item?.QTY)
+                                )}
                                 className="w-full text-m font-bold p-2 rounded focus:outline-none bg-transparent"
                                 onChange={(e) => {
                                   const value =
                                     e.target.value === "" ? 0 : e.target.value;
                                   handleInputQTY(
                                     { target: { value } },
-                                    item.PURCHASEDELIVERYDETAILID,
+                                    item.WITHDRAWALDETAILID,
                                     "QTY"
                                   );
                                 }}
                               />
                             </td>
-                            <td className="px-4 py-0 border border-gray-300">
-                              {item.itemVariations && (
+                            <td className="px-4 py-0 border border-gray-300 text-center">
+                              {/* {item.itemVariations && (
                                 <HoverCard openDelay={100}>
                                   <HoverCardTrigger asChild>
                                     <p className="">
@@ -351,7 +430,8 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                                     </div>
                                   </HoverCardContent>
                                 </HoverCard>
-                              )}
+                              )} */}
+                              {item.CODE}
                             </td>
                             <td className="px-4 py-0 border border-gray-300"></td>
                             <td className="px-4 py-0 border border-gray-300 ">
@@ -361,11 +441,22 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                                 width={20}
                                 color="#fb8500"
                                 onClick={() => {
-                                  dispatch(
-                                    removePurchaseDeliveryDetail(
-                                      item.PURCHASEDELIVERYDETAILID
-                                    )
-                                  );
+                                  if (modalState.isEditMode) {
+                                    handleDeleteWithDrawalDetail(
+                                      item.WITHDRAWALDETAILID
+                                    );
+                                    dispatch(
+                                      removeWithdrawalDetail(
+                                        item.WITHDRAWALDETAILID
+                                      )
+                                    );
+                                  } else {
+                                    dispatch(
+                                      removeWithdrawalDetail(
+                                        item.WITHDRAWALDETAILID
+                                      )
+                                    );
+                                  }
                                 }}
                               />
                             </td>

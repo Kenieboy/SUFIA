@@ -1,15 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { CirclePlus, Plus } from "lucide-react";
 import React, { useState } from "react";
 import WithdrawalAddEditForm from "./WithdrawalAddEditForm";
 
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
+  getSingleWithdrawalData,
   getWithdrawalData,
   insertWithdrawalData,
+  updateWithdrawalData,
 } from "@/query/withdrawalRequest";
 import { format } from "date-fns";
+import { useDispatch } from "react-redux";
+import {
+  addPDDItemEditMode,
+  addSingleWithdrawalData,
+} from "@/redux/purchaseDDSlice";
 
 function Withdrawal() {
   const [modalState, setModalState] = useState({
@@ -35,9 +42,19 @@ function Withdrawal() {
     },
   });
 
+  // update withdrawal data
+  const mutationUpdateWithdrawalData = useMutation({
+    mutationFn: updateWithdrawalData,
+    onSuccess: () => {
+      refetchWithdrawalData();
+    },
+  });
+
   const handleModalStateAction = () => {
     setModalState((prev) => !prev);
   };
+
+  const dispatch = useDispatch();
 
   return (
     <div>
@@ -46,19 +63,24 @@ function Withdrawal() {
           <WithdrawalAddEditForm
             modalState={modalState}
             fnClose={handleModalStateAction}
-            fnWDInsert={mutationInsertWithdrawalData.mutate}
+            fnWDInsert={
+              modalState.isEditMode
+                ? mutationUpdateWithdrawalData.mutate
+                : mutationInsertWithdrawalData.mutate
+            }
           />
         )}
 
         <div className="mb-4">
           <Button
-            className="bg-green-500 hover:bg-green-400 flex gap-1"
+            className="bg-green-500 hover:bg-green-400 flex gap-1 text-xs"
             type="button"
             onClick={() => {
               setModalState({ isVisible: true });
             }}
           >
-            <Plus />
+            <CirclePlus />
+            {/* <Plus /> */}
             New
           </Button>
         </div>
@@ -88,13 +110,31 @@ function Withdrawal() {
               {withdrawalData &&
                 withdrawalData.map((item, index) => (
                   <tr
+                    onDoubleClick={async () => {
+                      // const { DATEREQUEST, ...others } =
+                      //   await getSingleWithdrawalData(item.ID);
+                      // const convertedDate = format(DATEREQUEST, "yyyy-MM-d");
+                      // // console.log({ ...others, DATEREQUEST: convertedDate });
+                      // dispatch(
+                      //   addSingleWithdrawalData({
+                      //     ...others,
+                      //     DATEREQUEST: convertedDate,
+                      //   })
+                      // );
+                      // setModalState({ isVisible: true, isEditMode: true });
+
+                      const { withdrawal, withdrawalDetail } =
+                        await getSingleWithdrawalData(item.ID);
+
+                      dispatch(addSingleWithdrawalData(withdrawal));
+                      dispatch(addPDDItemEditMode(withdrawalDetail));
+
+                      setModalState({ isVisible: true, isEditMode: true });
+                    }}
                     key={index}
                     className={`hover:bg-gray-100 cursor-pointer ${
                       index % 2 !== 0 ? "bg-gray-50" : ""
                     }`}
-                    onClick={() => {
-                      console.log(item.ID);
-                    }}
                   >
                     <td className="px-4 py-2 border border-gray-300 font-bold">
                       {item.REFNO}
