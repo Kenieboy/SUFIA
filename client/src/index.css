@@ -84,6 +84,14 @@
     @apply overflow-auto h-[600px] border border-gray-300;
   }
 
+  .table-container-withdrawal {
+    @apply overflow-auto h-[600px] border border-gray-300;
+  }
+
+  .table-container-report {
+    @apply overflow-auto h-[680px] border border-gray-300;
+  }
+
   .table-fixed-header thead th {
     @apply sticky top-0 bg-gray-200;
     z-index: 1; /* Custom CSS, no Tailwind equivalent */

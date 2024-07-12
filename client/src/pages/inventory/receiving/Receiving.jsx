@@ -95,7 +95,7 @@ function Receiving() {
           />
         )}
 
-        <div className="p-2">
+        <div className="mb-4">
           <Button
             className="bg-green-500 hover:bg-green-400 flex gap-1"
             type="button"

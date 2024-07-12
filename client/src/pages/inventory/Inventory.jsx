@@ -27,10 +27,10 @@ function Inventory() {
             <TabsTrigger value="receiving">Receiving</TabsTrigger>
             <TabsTrigger value="withdrawal">Withdrawal</TabsTrigger>
           </TabsList>
-          <TabsContent className="w-[1000px]" value="receiving">
+          <TabsContent className="w-[1380px]" value="receiving">
             <Receiving />
           </TabsContent>
-          <TabsContent value="withdrawal">
+          <TabsContent className="w-[1380px]" value="withdrawal">
             <Withdrawal />
           </TabsContent>
         </Tabs>

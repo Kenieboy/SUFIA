@@ -7,6 +7,8 @@ import homeRoutes from "./routes/homeRoutes.js";
 import firmRoutes from "./routes/firmRoutes.js";
 import itemRoutes from "./routes/itemRoutes.js";
 import purchaseDeliveryRoutes from "./routes/purchaseDeliveryRoute.js";
+import withdrawalRoutes from "./routes/withdrawalRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 const app = express();
 const PORT = 3001;
@@ -31,6 +33,12 @@ app.use("/api/items", itemRoutes);
 
 // purchasedelivery table
 app.use("/api/purchasedelivery", purchaseDeliveryRoutes);
+
+// withdrawal table
+app.use("/api/withdrawal", withdrawalRoutes);
+
+// reports
+app.use("/api/report", reportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

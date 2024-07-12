@@ -16,13 +16,17 @@ import {
 } from "@/redux/purchaseDDSlice";
 import { format } from "date-fns";
 import WithdrawalItemList from "./WithdrawalItemList";
+import { useQuery } from "@tanstack/react-query";
+import { getDepartmentAndSectionData } from "@/query/withdrawalRequest";
 
-function WithdrawalAddEditForm({ modalState, fnClose }) {
+function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
   const [itemListModalState, setItemListModalState] = useState(false);
   const { purchaseDeliveryDetail } = useSelector((state) => state?.pddData);
   const dispatch = useDispatch();
   const { register, handleSubmit, setValue } = useForm({
     defaultValues: {
+      DEPARTMENTID: null,
+      SECTIONID: null,
       WITHDRAWALDETAIL: [],
     },
   });
@@ -35,18 +39,31 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
         QTY,
       }))
     );
-  }, [purchaseDeliveryDetail]);
+  }, [purchaseDeliveryDetail, setValue]);
 
   const onSubmit = (data) => {
-    fnClose();
-    console.log(data);
+    if (purchaseDeliveryDetail.length === 0) {
+      alert("Material basket is empty!");
+    } else {
+      fnClose();
+      fnWDInsert(data);
+      dispatch(resetPurchaseDetailData());
+    }
   };
 
-  const handleInputChange = (e, id, field) => {
+  const handleInputQTY = (e, id, field) => {
     const { value } = e.target;
-
     dispatch(updateWithdrawalItem({ id, field, value: parseFloat(value) }));
   };
+
+  const {
+    isPending: isDepartmentDataPending,
+    error: isDepartmentDataError,
+    data: departmentAndSectionDataQuery,
+  } = useQuery({
+    queryKey: ["departmentandsection"],
+    queryFn: getDepartmentAndSectionData,
+  });
 
   return (
     <>
@@ -76,17 +93,35 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                         >
                           Department
                         </label>
-                        <select
-                          id="DEPARTMENTID"
-                          name="DEPARTMENTID"
-                          className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("DEPARTMENTID", { required: true })}
-                        >
-                          <option value="HR">HR</option>
-                          <option value="Finance">Finance</option>
-                          <option value="IT">IT</option>
-                          <option value="Marketing">Marketing</option>
-                        </select>
+                        {departmentAndSectionDataQuery && (
+                          <select
+                            id="DEPARTMENTID"
+                            name="DEPARTMENTID"
+                            className="w-full p-1 border border-gray-500 rounded-full"
+                            {...register("DEPARTMENTID", {
+                              required: true,
+                              pattern: {
+                                value: /^[0-9]*$/,
+                                message:
+                                  "Please enter a valid department ID (numeric).",
+                              },
+                              setValueAs: (value) => Number(value), // Ensure values are stored as numbers
+                            })}
+                            onChange={(e) => {
+                              setValue("DEPARTMENTID", e.target.value); // Set value directly from event
+                            }}
+                          >
+                            <option value="">Select Department</option>
+                            {/* Map over departments and render options */}
+                            {departmentAndSectionDataQuery.departments.map(
+                              (item) => (
+                                <option value={item.ID} key={item.ID}>
+                                  {item.NAME}
+                                </option>
+                              )
+                            )}
+                          </select>
+                        )}
                       </div>
                       <div className="mb-2">
                         <label
@@ -95,17 +130,35 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                         >
                           Section
                         </label>
-                        <select
-                          id="SECTIONID"
-                          name="SECTIONID"
-                          className="w-full p-1 border border-gray-500 rounded-full"
-                          {...register("SECTIONID", { required: true })}
-                        >
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="C">C</option>
-                          <option value="D">D</option>
-                        </select>
+                        {departmentAndSectionDataQuery && (
+                          <select
+                            id="SECTIONID"
+                            name="SECTIONID"
+                            className="w-full p-1 border border-gray-500 rounded-full"
+                            {...register("SECTIONID", {
+                              required: true,
+                              pattern: {
+                                value: /^[0-9]*$/,
+                                message:
+                                  "Please enter a valid department ID (numeric).",
+                              },
+                              setValueAs: (value) => Number(value), // Ensure values are stored as numbers
+                            })}
+                            onChange={(e) => {
+                              setValue("SECTIONID", e.target.value); // Set value directly from event
+                            }}
+                          >
+                            <option value="">Select Department</option>
+                            {/* Map over departments and render options */}
+                            {departmentAndSectionDataQuery.sections.map(
+                              (item) => (
+                                <option value={item.ID} key={item.ID}>
+                                  {item.NAME}
+                                </option>
+                              )
+                            )}
+                          </select>
+                        )}
                       </div>
                       <div className="mb-2">
                         <label
@@ -239,7 +292,7 @@ function WithdrawalAddEditForm({ modalState, fnClose }) {
                                 onChange={(e) => {
                                   const value =
                                     e.target.value === "" ? 0 : e.target.value;
-                                  handleInputChange(
+                                  handleInputQTY(
                                     { target: { value } },
                                     item.PURCHASEDELIVERYDETAILID,
                                     "QTY"

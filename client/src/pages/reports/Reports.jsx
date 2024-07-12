@@ -1,86 +1,86 @@
-import { useState } from "react";
-import { getItemData } from "@/query/itemRequest";
+import React from "react";
+
 import { useQuery } from "@tanstack/react-query";
-import { FixedSizeList as List } from "react-window";
+import { getPurchaseDeliveryDetailReport } from "@/query/reportRequest";
+import { format } from "date-fns";
 
 function Reports() {
-  const [searchInput, setSearchInput] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
-
   const {
-    isLoading: isItemLoading,
-    error: itemError,
-    data: itemData,
-    refetch: refetchItem,
+    isPending: isPurchaseDeliveryPending,
+    error: purchaseDeliveryError,
+    data: purchaseDeliveryData,
+    refetch: refetchPurchaseDeliveryData,
   } = useQuery({
-    queryKey: ["items"],
-    queryFn: getItemData,
-    onSuccess: (data) => {
-      setFilteredData(data); // Initialize filteredData with itemData
-    },
+    queryKey: ["purchasedeliverydetailreport"],
+    queryFn: getPurchaseDeliveryDetailReport,
   });
 
-  const handleSearchChange = (event) => {
-    const inputValue = event.target.value;
-    setSearchInput(inputValue);
-
-    if (inputValue.trim() === "") {
-      setFilteredData(itemData); // Reset filteredData to itemData when search input is empty
-    } else {
-      const filtered = itemData.filter((item) =>
-        item.NAMEENG.toLowerCase().includes(inputValue.toLowerCase())
-      );
-      setFilteredData(filtered);
-    }
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
   };
 
-  const Row = ({ index, style }) => (
-    <tr
-      key={`${filteredData[index].ID}`}
-      style={{ ...style, height: "30px" }} // Override height here
-      className={`${index % 2 === 0 ? "bg-gray-100" : ""}`}
-      onClick={() => {
-        console.log(filteredData[index].ID);
-      }}
-    >
-      <td className="border border-gray-200 px-2 py-1 text-xs font-bold">
-        {`${filteredData[index].NAMEENG}`}
-      </td>
-      <td className="border border-gray-200 px-2 py-1 text-xs text-gray-500">
-        {filteredData[index].NAMEJP}
-      </td>
-    </tr>
-  );
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Reports</h1>
-      <div className="mb-4">
-        <input
-          id="search"
-          name="search"
-          type="text"
-          value={searchInput}
-          onChange={handleSearchChange}
-          placeholder="Search by NAMEENG"
-          className="px-4 py-2 border border-gray-300 rounded-md mb-4"
-        />
+    <div>
+      <div className="mb-6 ">
+        <h1 className="text-xl font-bold">Reports</h1>
       </div>
 
-      <div style={{ maxHeight: 700, overflowY: "auto" }}>
-        <table className="table-auto w-full shadow-md border border-gray-300 rounded-md">
-          <thead className="sticky top-0 bg-gray-200 z-10">
+      <div className="table-container-report">
+        <table className="min-w-full table-fixed-header text-[12px]">
+          <thead>
             <tr>
-              <th className="border border-gray-300 px-2 py-1 w-[200px]">
-                NAMEENG
+              <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                DATE DELIVERED
               </th>
-              <th className="border border-gray-300 px-2 py-1">NAMEJP</th>
+              <th className="px-4 py-2 border border-gray-300 w-[50px]">
+                PURCHASEDELIVERY NO.
+              </th>
+              <th className="px-4 py-2 border border-gray-300 w-[50px]">
+                ITEM CODE
+              </th>
+              <th className="px-4 py-2 border border-gray-300 w-[300px]">
+                MATERIAL NAME
+              </th>
+              <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                QUANTITY
+              </th>
+              <th className="px-4 py-2 border border-gray-300 w-[100px]">
+                UNIT
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {filteredData.map((item, index) => (
-              <Row key={item.ID} index={index} style={{ height: "30px" }} />
-            ))}
+          <tbody className="bg-white text-[10px]">
+            {purchaseDeliveryData &&
+              purchaseDeliveryData.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`hover:bg-gray-100 cursor-pointer ${
+                    index % 2 !== 0 ? "bg-gray-50" : ""
+                  }`}
+                >
+                  <td className="px-4 py-2 border border-gray-300 text-center">
+                    {format(item.DATEDELIVERED, "MM-dd-yyyy")}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300 ">
+                    {item.PURCHASEDELIVERYNO}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300 text-center">
+                    {item.ITEMCODE}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300 font-bold">
+                    {item.MATERIALNAME}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300 text-center font-bold ">
+                    <p> {formatNumberWithCommas(parseFloat(item.QTY))}</p>
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300  text-center">
+                    {item.UNIT}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
