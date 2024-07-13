@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Receiving from "./receiving/Receiving";
 import Withdrawal from "./withdrawal/Withdrawal";
+import { PackageMinus, PackagePlus } from "lucide-react";
 
 function Inventory() {
   return (
@@ -23,9 +24,21 @@ function Inventory() {
 
       <div>
         <Tabs defaultValue="receiving" className="w-[400px]">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="receiving">Receiving</TabsTrigger>
-            <TabsTrigger value="withdrawal">Withdrawal</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 ">
+            <TabsTrigger
+              value="receiving"
+              className="text-xs flex gap-1 items-center"
+            >
+              <PackagePlus width={20} height={20} />
+              Receiving
+            </TabsTrigger>
+            <TabsTrigger
+              value="withdrawal"
+              className="text-xs flex gap-1 items-center"
+            >
+              <PackageMinus width={20} height={20} />
+              Withdrawal
+            </TabsTrigger>
           </TabsList>
           <TabsContent className="w-[1380px]" value="receiving">
             <Receiving />

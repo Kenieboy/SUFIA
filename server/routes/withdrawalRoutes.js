@@ -135,6 +135,8 @@ router.post("/", async (req, res) => {
     ISSUEDBY,
   } = req.body;
 
+  const upperCaseREFNO = REFNO.toUpperCase();
+
   const withdrawalSQL = `INSERT INTO WITHDRAWAL 
                   (DEPARTMENTID, SECTIONID, RECEIVEDBY, REFNO, DATEREQUEST, PRODUCT, ISSUEDBY)
                VALUES 
@@ -142,7 +144,15 @@ router.post("/", async (req, res) => {
 
   dbConnection.query(
     withdrawalSQL,
-    [DEPARTMENTID, SECTIONID, RECEIVEBY, REFNO, DATEREQUEST, PRODUCT, ISSUEDBY],
+    [
+      DEPARTMENTID,
+      SECTIONID,
+      RECEIVEBY,
+      upperCaseREFNO,
+      DATEREQUEST,
+      PRODUCT,
+      ISSUEDBY,
+    ],
     (error, result) => {
       const withdrawalId = result.insertId;
 
@@ -171,6 +181,55 @@ router.post("/", async (req, res) => {
     }
   );
 });
+
+// router.post("/", async (req, res) => {
+//   const {
+//     WITHDRAWALDETAIL,
+//     DEPARTMENTID,
+//     SECTIONID,
+//     RECEIVEBY,
+//     REFNO,
+//     DATEREQUEST,
+//     PRODUCT,
+//     ISSUEDBY,
+//   } = req.body;
+
+//   const withdrawalSQL = `INSERT INTO WITHDRAWAL
+//                   (DEPARTMENTID, SECTIONID, RECEIVEDBY, REFNO, DATEREQUEST, PRODUCT, ISSUEDBY)
+//                VALUES
+//                   (?, ?, ?, ?, ?, ?, ?)`;
+
+//   dbConnection.query(
+//     withdrawalSQL,
+//     [DEPARTMENTID, SECTIONID, RECEIVEBY, REFNO, DATEREQUEST, PRODUCT, ISSUEDBY],
+//     (error, result) => {
+//       const withdrawalId = result.insertId;
+
+//       if (WITHDRAWALDETAIL && WITHDRAWALDETAIL.length > 0) {
+//         const withdrawaDetailSQL = `INSERT INTO WITHDRAWALDETAIL (WITHDRAWALID, ITEMVARIATIONID, QTY)
+//                    VALUES (?, ?, ?)`;
+
+//         for (const detail of WITHDRAWALDETAIL) {
+//           const { ITEMVARIATIONID, QTY } = detail;
+//           dbConnection.query(withdrawaDetailSQL, [
+//             withdrawalId,
+//             ITEMVARIATIONID,
+//             QTY,
+//           ]);
+//         }
+//       }
+
+//       if (error) {
+//         res.status(500).json({ message: "Error creating withdrawal", error });
+//         return;
+//       }
+
+//       res
+//         .status(200)
+//         .json({ message: "Withdrawal created successfully", withdrawalId });
+//     }
+//   );
+// });
 
 // UPDATE OR PUT
 router.put("/", async (req, res) => {

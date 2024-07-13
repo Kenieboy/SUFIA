@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ReceivingAddEditForm from "./ReceivingAddEditForm";
-import { CirclePlus, Plus } from "lucide-react";
+import { CalendarDays, CirclePlus, Plus } from "lucide-react";
 
 // data fetching tanstack component
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -104,7 +104,7 @@ function Receiving() {
             }}
           >
             {/* <Plus /> */}
-            <CirclePlus />
+            <CirclePlus width={20} height={20} />
             New
           </Button>
         </div>
@@ -169,7 +169,7 @@ function Receiving() {
                     <td className="px-4 py-1 border border-gray-300 font-bold">
                       {pd.NAME}
                     </td>
-                    <td className="px-4 py-1 border border-gray-300">
+                    <td className="px-4 py-1 border border-gray-300 text-center ">
                       {format(pd.DATEDELIVERED, "MM-dd-yyyy")}
                     </td>
                     <td className="px-4 py-1 border border-gray-300 ">

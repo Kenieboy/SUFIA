@@ -79,7 +79,7 @@ function Withdrawal() {
               setModalState({ isVisible: true });
             }}
           >
-            <CirclePlus />
+            <CirclePlus width={20} height={20} />
             {/* <Plus /> */}
             New
           </Button>
