@@ -1,0 +1,83 @@
+import React, { useState } from 'react';
+
+const App = () => {
+  const [item, setItem] = useState([
+    { id: 1, forSO: 0, forPO: 0 }
+  ]);
+
+  function addItem(value) {
+    const uniqueId = item.length;
+    const newObj = { id: uniqueId + 1, ...value };
+    setItem(prev => [...prev, newObj]);
+  }
+
+  const handleChange = (id, field, value) => {
+    const existingItem = item.find(i => i[field] === 1);
+
+    if (existingItem && value === 1) {
+      alert(`An object with ${field} value 1 already exists. ID: ${existingItem.id}`);
+    } else {
+      setItem(prev =>
+        prev.map(i =>
+          i.id === id ? { ...i, [field]: value } : i
+        )
+           
+      );
+        
+    }
+  };
+
+  return (
+    <>
+      <div>
+        <h1>TEST</h1>
+      </div>
+
+      <div>
+        <button onClick={() => addItem({ forSO: 0, forPO: 0 })}>
+          Add Item
+        </button>
+      </div>
+
+      <div>
+        {item.map(i => (
+          <div key={i.id}>
+            <h1>{i.id}</h1>
+            <div>
+              <label>
+                FOR SO
+              </label>
+              <input
+                checked={i.forSO === 1}
+                type="checkbox"
+                id={i.id}
+                name="forSO"
+                value="forSO"
+                onChange={(e) =>
+                   handleChange(i.id, e.target.value, e.target.checked ? 1 : 0)
+                }
+              />
+            </div>
+            <div>
+              <label>
+                FOR PO
+              </label>
+              <input
+                checked={i.forPO === 1}
+                type="checkbox"
+                id={i.id}
+                name="forPO"
+                value="forPO"
+                onChange={(e) =>
+                  handleChange(i.id, e.target.value, e.target.checked ? 1 : 0)
+                }
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default App;
