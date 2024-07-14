@@ -1,10 +1,12 @@
-import React from "react";
-
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getPurchaseDeliveryDetailReport } from "@/query/reportRequest";
 import { format } from "date-fns";
 
 function Reports() {
+  const [startDate, setStartDate] = useState("2024-06-01");
+  const [endDate, setEndDate] = useState("2024-06-30");
+
   const {
     isPending: isPurchaseDeliveryPending,
     error: purchaseDeliveryError,
@@ -22,13 +24,47 @@ function Reports() {
     });
   };
 
+  const filterByDateDelivered = (array, startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return array.filter((item) => {
+      const dateDelivered = new Date(item.DATEDELIVERED);
+      return dateDelivered >= start && dateDelivered <= end;
+    });
+  };
+
+  const filteredData =
+    purchaseDeliveryData &&
+    filterByDateDelivered(purchaseDeliveryData, startDate, endDate);
+
   return (
     <div>
-      <div className="mb-6 ">
+      <div className="mb-6">
         <h1 className="text-xl font-bold">Reports</h1>
       </div>
 
-      <div className="table-container-report">
+      <div className="flex gap-4">
+        <label>
+          Start Date:
+          <input
+            className="w-full p-1 border border-gray-500 rounded-full mt-2"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </label>
+        <label>
+          End Date:
+          <input
+            className="w-full p-1 border border-gray-500 rounded-full mt-2"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </label>
+      </div>
+
+      <div className="table-container-report mt-4">
         <table className="min-w-full table-fixed-header text-[12px]">
           <thead>
             <tr>
@@ -53,8 +89,8 @@ function Reports() {
             </tr>
           </thead>
           <tbody className="bg-white text-[10px]">
-            {purchaseDeliveryData &&
-              purchaseDeliveryData.map((item, index) => (
+            {filteredData &&
+              filteredData.map((item, index) => (
                 <tr
                   key={index}
                   className={`hover:bg-gray-100 cursor-pointer ${
@@ -62,7 +98,7 @@ function Reports() {
                   }`}
                 >
                   <td className="px-4 py-2 border border-gray-300 text-center">
-                    {format(item.DATEDELIVERED, "MM-dd-yyyy")}
+                    {format(new Date(item.DATEDELIVERED), "MM-dd-yyyy")}
                   </td>
                   <td className="px-4 py-1 border border-gray-300 ">
                     {item.PURCHASEDELIVERYNO}

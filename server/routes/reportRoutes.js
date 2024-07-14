@@ -1,5 +1,6 @@
 import express from "express";
 import { dbConnection } from "../config/db.js";
+import { format as formatDate } from "date-fns";
 
 const router = express.Router();
 
@@ -37,7 +38,12 @@ ORDER BY
       }
     }
 
-    res.json(result);
+    const newResult = result.map((item) => ({
+      ...item,
+      DATEDELIVERED: formatDate(new Date(item.DATEDELIVERED), "yyyy-MM-dd"),
+    }));
+
+    res.json(newResult);
   });
 });
 
