@@ -494,7 +494,7 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                   <div>
                     <button
                       type="submit"
-                      className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded-full"
+                      className="border border-2 border-green-500 text-green-500 px-4 py-1 rounded-full"
                     >
                       Save
                     </button>
@@ -502,7 +502,7 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                   <div>
                     <button
                       type="button"
-                      className="bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-full"
+                      className="border border-2 border-red-400 text-red-500 px-4 py-1 rounded-full"
                       onClick={() => {
                         fnClose();
                         dispatch(resetPurchaseDetailData());
