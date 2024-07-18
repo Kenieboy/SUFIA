@@ -2,6 +2,7 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReceivingReport from "./ReceivingReport";
 import WithdrawalReport from "./WithdrawalReport";
+import { FileText } from "lucide-react";
 
 function Reports() {
   return (
@@ -18,6 +19,7 @@ function Reports() {
               className="text-xs flex gap-1 items-center"
             >
               {/* <PackagePlus width={20} height={20} /> */}
+              <FileText width={20} height={20} />
               Receiving
             </TabsTrigger>
             <TabsTrigger
@@ -25,6 +27,7 @@ function Reports() {
               className="text-xs flex gap-1 items-center"
             >
               {/* <PackageMinus width={20} height={20} /> */}
+              <FileText width={20} height={20} />
               Withdrawal
             </TabsTrigger>
           </TabsList>
