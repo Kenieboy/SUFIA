@@ -64,7 +64,7 @@ function ReceivingReport() {
         </label>
       </div>
 
-      <div className="table-container-report mt-4">
+      <div className="table-container-receiving-report mt-4">
         <table className="min-w-full table-fixed-header text-[12px]">
           <thead>
             <tr>

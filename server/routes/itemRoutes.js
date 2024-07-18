@@ -377,12 +377,97 @@ router.delete("/itemvariation/:Id", (req, res) => {
 
 //================================ ITEM DETAILS =======================
 
+// router.get("/itemdetail/:Id", (req, res) => {
+//   const { Id } = req.params;
+
+//   const q = `
+//     SELECT
+//     i.ID AS ITEMID,
+//       i.CODE AS ITEMCODE,
+//       i.NAMEENG,
+//       i.NAMEJP,
+//       IFNULL(
+//         JSON_ARRAYAGG(
+//           JSON_OBJECT(
+//             'ID', iv.ID,
+//             'ITEMUNITID', iv.ITEMUNITID,
+//             'ITEMUNITDESCRIPTION', iu.DESCRIPTIONEN,
+//             'SPECIFICATIONS', iv.SPECIFICATIONS,
+//             'COST', iv.COST,
+//             'PRICE', iv.PRICE,
+//             'FORPO', iv.FORPO,
+//             'RATIO', iv.RATIO
+//           )
+//         ),
+//         JSON_ARRAY()
+//       ) AS itemVariations
+//     FROM
+//       kis.ITEM i
+//     LEFT JOIN kis.ITEMVARIATION iv ON i.ID = iv.ITEMID
+//     LEFT JOIN kis.ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
+//     WHERE i.ID = ?
+//     GROUP BY i.ID, i.CODE, i.NAMEENG, i.NAMEJP
+//   `;
+
+//   dbConnection.query(q, [Id], (error, result) => {
+//     if (error) {
+//       console.error("Database query error:", error);
+//       return res.status(500).json({ error: error.message });
+//     }
+
+//     if (result.length === 0) {
+//       return res.status(404).json({ error: "Item not found" });
+//     }
+
+//     const transformedResult = result.map((row) => {
+//       try {
+//         const itemVariations =
+//           row.itemVariations && row.itemVariations.length > 0
+//             ? row.itemVariations
+//             : [];
+
+//         //look for the index of FORPO === 1 is the dafualt COST below
+//         const priceIndexDefaultFORPO = row.itemVariations.findIndex(
+//           (fp) => fp.FORPO === 1
+//         );
+//         const ITEMVARIATIONID = row.itemVariations[priceIndexDefaultFORPO].ID;
+//         const QTY = 1;
+//         const CODE =
+//           itemVariations.length > 0
+//             ? itemVariations[priceIndexDefaultFORPO].ITEMUNITDESCRIPTION
+//             : "";
+//         const PRICE =
+//           itemVariations.length > 0
+//             ? itemVariations[priceIndexDefaultFORPO].COST
+//             : 0;
+//         const AMOUNT = QTY * PRICE;
+
+//         return {
+//           ...row,
+//           itemVariations: itemVariations,
+//           ITEMVARIATIONID,
+//           QTY,
+//           CODE,
+//           PRICE,
+//           AMOUNT,
+//         };
+//       } catch (parseError) {
+//         console.error("JSON parse error:", parseError);
+//         console.error("Offending JSON string:", row.itemVariations);
+//         return res.status(500).json({ error: "Error parsing item variations" });
+//       }
+//     });
+
+//     res.json(transformedResult[0]);
+//   });
+// });
+
 router.get("/itemdetail/:Id", (req, res) => {
   const { Id } = req.params;
 
   const q = `
     SELECT 
-    i.ID AS ITEMID,
+      i.ID AS ITEMID,
       i.CODE AS ITEMCODE, 
       i.NAMEENG, 
       i.NAMEJP, 
@@ -421,30 +506,38 @@ router.get("/itemdetail/:Id", (req, res) => {
 
     const transformedResult = result.map((row) => {
       try {
-        const itemVariations =
-          row.itemVariations && row.itemVariations.length > 0
-            ? row.itemVariations
-            : [];
+        const itemVariations = row.itemVariations || [];
 
-        //look for the index of FORPO === 1 is the dafualt COST below
-        const priceIndexDefaultFORPO = row.itemVariations.findIndex(
-          (fp) => fp.FORPO === 1
+        const validVariations = itemVariations.filter(
+          (variation) => variation.FORPO !== null
         );
-        const ITEMVARIATIONID = row.itemVariations[priceIndexDefaultFORPO].ID;
-        const QTY = 1;
-        const CODE =
-          itemVariations.length > 0
-            ? itemVariations[priceIndexDefaultFORPO].ITEMUNITDESCRIPTION
-            : "";
-        const PRICE =
-          itemVariations.length > 0
-            ? itemVariations[priceIndexDefaultFORPO].COST
-            : 0;
-        const AMOUNT = QTY * PRICE;
+
+        let ITEMVARIATIONID = null;
+        let QTY = 1;
+        let CODE = "";
+        let PRICE = 0;
+        let AMOUNT = 0;
+
+        if (validVariations.length > 0) {
+          const priceIndexDefaultFORPO = validVariations.findIndex(
+            (fp) => fp.FORPO === 1
+          );
+
+          if (
+            priceIndexDefaultFORPO !== -1 &&
+            validVariations[priceIndexDefaultFORPO]
+          ) {
+            ITEMVARIATIONID = validVariations[priceIndexDefaultFORPO].ID || 0;
+            CODE =
+              validVariations[priceIndexDefaultFORPO].ITEMUNITDESCRIPTION || "";
+            PRICE = validVariations[priceIndexDefaultFORPO].COST || 0;
+            AMOUNT = QTY * PRICE;
+          }
+        }
 
         return {
           ...row,
-          itemVariations: itemVariations,
+          itemVariations: validVariations,
           ITEMVARIATIONID,
           QTY,
           CODE,
@@ -454,7 +547,15 @@ router.get("/itemdetail/:Id", (req, res) => {
       } catch (parseError) {
         console.error("JSON parse error:", parseError);
         console.error("Offending JSON string:", row.itemVariations);
-        return res.status(500).json({ error: "Error parsing item variations" });
+        return {
+          ...row,
+          itemVariations: [],
+          ITEMVARIATIONID: null,
+          QTY: 0,
+          CODE: "",
+          PRICE: 0,
+          AMOUNT: 0,
+        };
       }
     });
 

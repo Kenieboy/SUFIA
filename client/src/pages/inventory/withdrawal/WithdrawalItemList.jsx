@@ -57,6 +57,13 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
       }`}
       onClick={async () => {
         const fetchItem = await getPurchaseDeliveryDetail(data[index].ID);
+
+        if (fetchItem.itemVariations.length === 0) {
+          return alert(
+            `Please provide equivalent item variation ID: # ${fetchItem.ITEMID} - MATERIAL: ${fetchItem.NAMEENG}`
+          );
+        }
+
         action(addWDItem(fetchItem));
         setSearchQuery("");
       }}
