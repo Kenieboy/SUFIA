@@ -60,7 +60,7 @@ function WithdrawalItemList({ modalState, fnWIClose }) {
 
         if (fetchItem.itemVariations.length === 0) {
           return alert(
-            `Please provide equivalent item variation ID: # ${fetchItem.ITEMID} - MATERIAL: ${fetchItem.NAMEENG}`
+            `Please provide equivalent item variation ID: #${fetchItem.ITEMID} - MATERIAL: ${fetchItem.NAMEENG}`
           );
         }
 
