@@ -6,4 +6,11 @@ async function getPurchaseDeliveryDetailReport() {
   return data;
 }
 
-export { getPurchaseDeliveryDetailReport };
+async function getWithdrawalDetailReport() {
+  const res = await axios.get(
+    `http://localhost:3001/api/report/withdrawalReport`
+  );
+  const data = res.data;
+  return data;
+}
+export { getPurchaseDeliveryDetailReport, getWithdrawalDetailReport };

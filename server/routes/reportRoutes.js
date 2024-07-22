@@ -47,4 +47,44 @@ ORDER BY
   });
 });
 
+router.get("/withdrawalReport", (req, res) => {
+  const withrdrawalReportSQL = `SELECT
+      w.DATEREQUEST,
+      w.REFNO,
+      i.CODE AS ITEMCODE,
+      i.NAMEENG AS MATERIALNAME,
+      wd.QTY,
+      iu.DESCRIPTIONEN AS UNIT
+  FROM
+      WITHDRAWALDETAIL wd
+  LEFT JOIN
+      WITHDRAWAL w ON w.ID = wd.WITHDRAWALID
+  LEFT JOIN
+      ITEMVARIATION iv ON wd.ITEMVARIATIONID = iv.ID
+  LEFT JOIN
+      ITEM i ON iv.ITEMID = i.ID
+  LEFT JOIN
+      ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
+  ORDER BY
+      w.DATEREQUEST DESC;
+  `;
+
+  dbConnection.query(withrdrawalReportSQL, (error, result) => {
+    if (error) {
+      if (error) {
+        console.error("Error getting withdrawaldetail:", error);
+        res.status(500).json({ error: "WITHDRAWAL Internal Server Error" });
+        return;
+      }
+    }
+
+    const newResult = result.map((item) => ({
+      ...item,
+      DATEREQUEST: formatDate(new Date(item.DATEREQUEST), "yyyy-MM-dd"),
+    }));
+
+    res.json(newResult);
+  });
+});
+
 export default router;
