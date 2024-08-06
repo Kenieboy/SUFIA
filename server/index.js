@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://192.168.1.10:5173",
   })
 );
 

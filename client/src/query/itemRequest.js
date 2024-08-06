@@ -1,51 +1,46 @@
 import axios from "axios";
+import { BASEURL } from "./URL";
 
 async function getItemData() {
-  const res = await axios.get("http://localhost:3001/api/items");
+  const res = await axios.get(`${BASEURL}/items`);
   const data = res.data;
   return data;
 }
 
 async function getItemUnitData() {
-  const res = await axios.get(
-    "http://localhost:3001/api/items/metadata/itemunit"
-  );
+  const res = await axios.get(`${BASEURL}/items/metadata/itemunit`);
   const data = res.data;
   return data;
 }
 
 async function getItemClassData() {
-  const res = await axios.get(
-    "http://localhost:3001/api/items/metadata/itemclass"
-  );
+  const res = await axios.get(`${BASEURL}/items/metadata/itemclass`);
   const data = res.data;
   return data;
 }
 
 async function getItemCategoryData() {
-  const res = await axios.get(
-    "http://localhost:3001/api/items/metadata/itemcategory"
-  );
+  const res = await axios.get(`${BASEURL}/items/metadata/itemcategory`);
   const data = res.data;
   return data;
 }
 
 async function insertItemData(value) {
-  const res = await axios.post(`http://localhost:3001/api/items/`, value);
+  const res = await axios.post(`${BASEURL}/items/`, value);
   const data = res.data;
   return data.message;
 }
 
 async function updateItemData(value) {
-  //console.log(`http://localhost:3001/api/items/`, value);
-  const res = await axios.put(`http://localhost:3001/api/items/`, value);
+  //console.log(`${BASEURL}/items/`, value);
+  const res = await axios.put(`${BASEURL}/items/`, value);
   const data = res.data;
   return data.message;
 }
 
 async function getItemVariation(value) {
   try {
-    const res = await axios.get(`http://localhost:3001/api/items/${value}`);
+    const res = await axios.get(`${BASEURL}/items/${value}`);
     return res.data;
   } catch (error) {
     console.error("Error fetching item variation:", error);
@@ -54,17 +49,13 @@ async function getItemVariation(value) {
 }
 
 async function deleteFromItemVariationId(value) {
-  const res = await axios.delete(
-    `http://localhost:3001/api/items/itemvariation/${value}`
-  );
+  const res = await axios.delete(`${BASEURL}/items/itemvariation/${value}`);
   const data = res.data;
   return data.message;
 }
 
 async function getPurchaseDeliveryDetail(value) {
-  const res = await axios.get(
-    `http://localhost:3001/api/items/itemdetail/${value}`
-  );
+  const res = await axios.get(`${BASEURL}/items/itemdetail/${value}`);
   const data = res.data;
   return data;
 }

@@ -33,6 +33,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Suppliers from "./pages/setting/suppliers/Suppliers";
 import Items from "./pages/setting/items/Items";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import SettingsMain from "./pages/setting-v2/SettingsLayout";
+import SettingsLayout from "./pages/setting-v2/SettingsLayout";
 
 function App() {
   const currentUser = true;
@@ -106,6 +108,16 @@ function App() {
               >
                 <Settings /> Settings
               </NavLink>
+              <NavLink
+                to="/settings-v2"
+                className={({ isActive }) =>
+                  isActive
+                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
+                    : `flex items-center gap-2`
+                }
+              >
+                <Settings /> SettingsV2
+              </NavLink>
             </div>
           </div>
 
@@ -164,6 +176,10 @@ function App() {
         {
           path: "reports",
           element: <Reports />,
+        },
+        {
+          path: "settings-v2",
+          element: <SettingsLayout />,
         },
         {
           path: "settings",
