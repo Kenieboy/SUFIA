@@ -1,8 +1,10 @@
 // shadcn components
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// routing component
-import { Link, Outlet } from "react-router-dom";
+import Department from "./department/Department";
+import Section from "./section/Section";
+import ItemClass from "./itemclass/ItemClass";
+import ItemCategory from "./itemcategory/ItemCategory";
+import Unit from "./unit/Unit";
 
 function SettingLayout() {
   return (
@@ -12,34 +14,47 @@ function SettingLayout() {
           <h1 className="text-xl font-bold">Settings</h1>
         </div>
         <div>
-          <Tabs defaultValue="customers" className="w-full">
+          <Tabs defaultValue="department" className="max-w-full">
             <TabsList>
-              <TabsTrigger value="customers">
-                <Link to="/settings/customers">Customers</Link>
+              <TabsTrigger value="department" className="text-xs">
+                Department
               </TabsTrigger>
-              <TabsTrigger value="suppliers">
-                <Link to="/settings/suppliers">Suppliers</Link>
+              <TabsTrigger value="section" className="text-xs">
+                Section
               </TabsTrigger>
-              <TabsTrigger value="items">
-                <Link to="/settings/items">Items</Link>
+              <TabsTrigger value="itemclass" className="text-xs">
+                Item Class
               </TabsTrigger>
-              <TabsTrigger value="account-setup">
-                <Link to="/settings/account-setup">Account Setup</Link>
+              <TabsTrigger value="itemcategory" className="text-xs">
+                Item Category
+              </TabsTrigger>
+              <TabsTrigger value="unit" className="text-xs">
+                Unit
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="account">
-              Make changes to your account here.
+
+            <TabsContent value="department">
+              <Department />
             </TabsContent>
-            <TabsContent value="password">
-              Change your password here.
+            <TabsContent value="section">
+              <Section />
+            </TabsContent>
+            <TabsContent value="itemclass">
+              <ItemClass />
+            </TabsContent>
+            <TabsContent value="itemcategory">
+              <ItemCategory />
+            </TabsContent>
+            <TabsContent value="unit">
+              <Unit />
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <Outlet />
-      </div>
+      </div> */}
     </div>
   );
 }

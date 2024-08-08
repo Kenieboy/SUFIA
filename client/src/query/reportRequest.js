@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASEURL } from "./URL";
+import { BASEURL } from "./API";
 
 async function getPurchaseDeliveryDetailReport() {
   const res = await axios.get(`${BASEURL}/report`);

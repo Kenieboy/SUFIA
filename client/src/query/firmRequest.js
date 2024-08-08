@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASEURL } from "./URL";
+import { BASEURL } from "./API";
 
 async function getFirmData() {
   const req = await axios.get(`${BASEURL}/firm`);

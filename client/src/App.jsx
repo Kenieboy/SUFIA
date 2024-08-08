@@ -108,16 +108,6 @@ function App() {
               >
                 <Settings /> Settings
               </NavLink>
-              <NavLink
-                to="/settings-v2"
-                className={({ isActive }) =>
-                  isActive
-                    ? `flex items-center gap-2 border-solid border-2 border-green-500 rounded-full px-4 py-1`
-                    : `flex items-center gap-2`
-                }
-              >
-                <Settings /> SettingsV2
-              </NavLink>
             </div>
           </div>
 
@@ -178,35 +168,31 @@ function App() {
           element: <Reports />,
         },
         {
-          path: "settings-v2",
-          element: <SettingsLayout />,
-        },
-        {
           path: "settings",
           element: <SettingLayout />,
-          children: [
-            {
-              path: "customers",
-              element: <Customers />,
-            },
+          // children: [
+          //   {
+          //     path: "customers",
+          //     element: <Customers />,
+          //   },
 
-            {
-              path: "suppliers",
-              element: <Suppliers />,
-            },
-            {
-              path: "items",
-              element: <Items />,
-            },
-            {
-              path: "account-setup",
-              element: (
-                <div>
-                  <h1>Account Setup</h1>
-                </div>
-              ),
-            },
-          ],
+          //   {
+          //     path: "suppliers",
+          //     element: <Suppliers />,
+          //   },
+          //   {
+          //     path: "items",
+          //     element: <Items />,
+          //   },
+          //   {
+          //     path: "account-setup",
+          //     element: (
+          //       <div>
+          //         <h1>Account Setup</h1>
+          //       </div>
+          //     ),
+          //   },
+          // ],
         },
       ],
     },
