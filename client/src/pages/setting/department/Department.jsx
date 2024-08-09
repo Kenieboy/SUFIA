@@ -1,6 +1,19 @@
 import { CirclePlus } from "lucide-react";
+
 import React, { useState } from "react";
+
 import AddEditDept from "./AddEditDept";
+
+// data fetching tanstack component
+import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  getDepartmentData,
+  getDepartmentId,
+  insertDepartmentData,
+  updateDepartmentData,
+} from "@/query/settingsRequest";
+import { useDispatch } from "react-redux";
+import { addData } from "@/redux/itemSlice";
 
 function Department() {
   const [modalState, setModalState] = useState({
@@ -12,13 +25,56 @@ function Department() {
     setModalState({ isVisible: false });
   };
 
+  const {
+    isPending: isDepartmentPending,
+    error: departmentError,
+    data: departmentData,
+    refetch: refetchDepartmentData,
+  } = useQuery({
+    queryKey: ["department"],
+    queryFn: getDepartmentData,
+  });
+
+  // insert department data
+  const mutationInsertDepartmentData = useMutation({
+    mutationFn: insertDepartmentData,
+    onSuccess: () => {
+      refetchDepartmentData();
+    },
+  });
+
+  // update department data
+  const mutationUpdateDepartmentData = useMutation({
+    mutationFn: updateDepartmentData,
+    onSuccess: () => {
+      refetchDepartmentData();
+    },
+  });
+
+  const handleOpenModal = (visible, edit) => {
+    setModalState((prevState) => ({
+      ...prevState,
+      isVisible: visible,
+      isEditMode: edit,
+    }));
+  };
+
+  const dispatch = useDispatch();
+
   return (
     <div>
       {/* form area */}
       {modalState.isVisible && (
-        <AddEditDept modalState={modalState.isVisible} fnClose={fnClose} />
+        <AddEditDept
+          modalState={modalState}
+          fnClose={fnClose}
+          fnDPInsert={
+            modalState.isEditMode
+              ? mutationUpdateDepartmentData.mutate
+              : mutationInsertDepartmentData.mutate
+          }
+        />
       )}
-
       {/* form are end */}
 
       <div className="mt-2">
@@ -26,7 +82,7 @@ function Department() {
           className="bg-green-500 hover:bg-green-400 flex gap-1 items-center text-xs px-4 py-1 text-white rounded-full"
           type="button"
           onClick={() => {
-            setModalState({ isVisible: true });
+            handleOpenModal(true, false);
           }}
         >
           {/* <Plus /> */}
@@ -35,8 +91,8 @@ function Department() {
         </button>
       </div>
 
-      {/* table */}
-      <div className="table-container-department mt-2">
+      {/* table  'TABLE COMPONENT'*/}
+      <div className="table-container-department mt-2 w-1/3">
         <table className="min-w-full table-fixed-header text-[12px]">
           <thead>
             <tr>
@@ -49,42 +105,27 @@ function Department() {
             </tr>
           </thead>
           <tbody className="bg-white text-[10px]">
-            {/* {filteredData &&
-              filteredData.map((item, index) => (
+            {departmentData &&
+              departmentData.map((item, index) => (
                 <tr
                   key={index}
                   className={`hover:bg-gray-100 cursor-pointer ${
                     index % 2 !== 0 ? "bg-gray-50" : ""
                   }`}
+                  onDoubleClick={async () => {
+                    const [first] = await getDepartmentId(item.ID);
+                    dispatch(addData(first));
+                    handleOpenModal(true, true);
+                  }}
                 >
-                  <td className="px-4 py-2 border border-gray-300 text-center">
-                    {format(new Date(item.DATEDELIVERED), "MM-dd-yyyy")}
+                  <td className="px-4 py-2 border border-gray-300 text-left">
+                    {item.CODE}
                   </td>
-                  <td className="px-4 py-1 border border-gray-300 ">
-                    {item.PURCHASEDELIVERYNO}
-                  </td>
-                  <td className="px-4 py-1 border border-gray-300 text-center">
-                    {item.ITEMCODE}
-                  </td>
-                  <td className="px-4 py-1 border border-gray-300 font-bold">
-                    {item.MATERIALNAME}
-                  </td>
-                  <td className="px-4 py-1 border border-gray-300 text-center font-bold ">
-                    <p> {formatNumberWithCommas(parseFloat(item.QTY))}</p>
-                  </td>
-                  <td className="px-4 py-1 border border-gray-300  text-center">
-                    {item.UNIT}
+                  <td className="px-4 py-2 border border-gray-300 text-left">
+                    {item.DESCRIPTION}
                   </td>
                 </tr>
-              ))} */}
-            <tr>
-              <td className="px-4 py-2 border border-gray-300 text-center">
-                FCPC
-              </td>
-              <td className="px-4 py-2 border border-gray-300 text-center">
-                FIRST COMMERCIAL PRODUCTION DEPT.
-              </td>
-            </tr>
+              ))}
           </tbody>
         </table>
       </div>

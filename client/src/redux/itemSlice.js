@@ -41,12 +41,19 @@ const initialState = {
   defaultCustomer: [],
   defaultSupplier: [],
   itemVariation: [],
+  data: [],
 };
 
 const itemSlice = createSlice({
   name: "itemData",
   initialState,
   reducers: {
+    addData(state, action) {
+      state.data.push(action.payload);
+    },
+    resetDataArr(state) {
+      state.data = [];
+    },
     addItem(state, action) {
       const { item, arrayType } = action.payload;
 
@@ -282,6 +289,8 @@ export const addItemAction = (item, arrayType) => ({
 export const {
   resetAllArray,
   resetItemVariation,
+  addData,
+  resetDataArr,
   addItemVariation,
   addItemVariationNegativeId,
   toggleItemVariationSelection,

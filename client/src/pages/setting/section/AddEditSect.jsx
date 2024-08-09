@@ -13,8 +13,15 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { resetDataArr } from "@/redux/itemSlice";
 
-function AddEditDept({ modalState, fnClose, fnDPInsert }) {
-  const { register, setValue, handleSubmit } = useForm();
+import { useQuery } from "@tanstack/react-query";
+import { getDepartmentData } from "@/query/settingsRequest";
+
+function AddEditSect({ modalState, fnClose, fnSCInsert }) {
+  const { register, setValue, handleSubmit, watch } = useForm({
+    defaultValues: {
+      DEPARTMENTID: "",
+    },
+  });
 
   const handleUppercase = (event) => {
     const { name, value } = event.target;
@@ -26,17 +33,29 @@ function AddEditDept({ modalState, fnClose, fnDPInsert }) {
   const dispatch = useDispatch();
 
   const onSubmit = (data) => {
-    fnDPInsert(data);
+    fnSCInsert(data);
     fnClose();
     dispatch(resetDataArr());
   };
+
+  const {
+    isPending: isDepartmentPending,
+    error: departmentError,
+    data: departmentData,
+    refetch: refetchDepartmentData,
+  } = useQuery({
+    queryKey: ["department"],
+    queryFn: getDepartmentData,
+  });
+
+  const departmentId = watch("DEPARTMENTID");
 
   return (
     <div>
       <Dialog open={modalState.isVisible}>
         <DialogContent className="w-96 overflow-hidden">
           <DialogHeader>
-            <DialogTitle>DEPARTMENT</DialogTitle>
+            <DialogTitle>SECTION</DialogTitle>
             <Separator className="" />
             <DialogDescription></DialogDescription>
           </DialogHeader>
@@ -47,13 +66,16 @@ function AddEditDept({ modalState, fnClose, fnDPInsert }) {
                   <div>
                     <label htmlFor="CODE">Code:</label>
                   </div>
-                  <input
-                    id="ID"
-                    name="ID"
-                    type="hidden"
-                    defaultValue={modalState.isEditMode ? data[0].ID : ""}
-                    {...register("ID")}
-                  />
+                  {modalState.isEditMode && (
+                    <input
+                      id="ID"
+                      name="ID"
+                      type="hidden"
+                      defaultValue={modalState.isEditMode ? data[0].ID : ""}
+                      {...register("ID")}
+                    />
+                  )}
+
                   <input
                     id="CODE"
                     name="CODE"
@@ -61,7 +83,6 @@ function AddEditDept({ modalState, fnClose, fnDPInsert }) {
                     defaultValue={modalState.isEditMode ? data[0].CODE : ""}
                     className="w-40 p-1 px-2 border border-gray-500 rounded-full uppercase"
                     {...register("CODE", {
-                      required: true,
                       onChange: handleUppercase,
                     })}
                   />
@@ -84,6 +105,39 @@ function AddEditDept({ modalState, fnClose, fnDPInsert }) {
                       onChange: handleUppercase,
                     })}
                   />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <div>
+                    <label htmlFor="DEPARTMENT">Department:</label>
+                  </div>
+                  {departmentData && (
+                    <select
+                      id="DEPARTMENTID"
+                      name="DEPARTMENTID"
+                      className="w-full p-1 border border-gray-500 rounded-full"
+                      {...register("DEPARTMENTID", {
+                        required: true,
+                        pattern: {
+                          value: /^[0-9]*$/,
+                          message:
+                            "Please enter a valid department ID (numeric).",
+                        },
+                        setValueAs: (value) => Number(value),
+                      })}
+                      value={departmentId || ""}
+                      onChange={(e) => {
+                        setValue("DEPARTMENTID", e.target.value);
+                      }}
+                    >
+                      <option value="">Select Department</option>
+                      {departmentData.map((item) => (
+                        <option value={item.ID} key={item.ID}>
+                          {item.DESCRIPTION}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
 
@@ -120,4 +174,4 @@ function AddEditDept({ modalState, fnClose, fnDPInsert }) {
   );
 }
 
-export default AddEditDept;
+export default AddEditSect;

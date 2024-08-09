@@ -9,6 +9,7 @@ import itemRoutes from "./routes/itemRoutes.js";
 import purchaseDeliveryRoutes from "./routes/purchaseDeliveryRoute.js";
 import withdrawalRoutes from "./routes/withdrawalRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
 
 const app = express();
 const PORT = 3001;
@@ -39,6 +40,9 @@ app.use("/api/withdrawal", withdrawalRoutes);
 
 // reports
 app.use("/api/report", reportRoutes);
+
+//settings
+app.use("/api/settings", settingsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
