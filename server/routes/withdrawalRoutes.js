@@ -313,8 +313,8 @@ router.put("/", async (req, res) => {
 
 // GET DEPARTMENT & SECTION
 router.get("/departments-sections", (req, res) => {
-  const sqlDepartments = `SELECT ID, CODE, NAME, ISACTIVE FROM DEPARTMENT ORDER BY ID DESC`;
-  const sqlSections = `SELECT ID, CODE, NAME, ISACTIVE FROM SECTION ORDER BY ID DESC`;
+  const sqlDepartments = `SELECT ID, CODE, DESCRIPTION FROM DEPARTMENT ORDER BY ID DESC`;
+  const sqlSections = `SELECT ID, CODE, DESCRIPTION FROM SECTION ORDER BY ID DESC`;
 
   dbConnection.query(sqlDepartments, (errorDepartments, resultDepartments) => {
     if (errorDepartments) {

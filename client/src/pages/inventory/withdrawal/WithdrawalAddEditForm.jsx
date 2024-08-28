@@ -167,7 +167,7 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                             {departmentAndSectionDataQuery.departments.map(
                               (item) => (
                                 <option value={item.ID} key={item.ID}>
-                                  {item.NAME}
+                                  {item.DESCRIPTION}
                                 </option>
                               )
                             )}
@@ -205,7 +205,7 @@ function WithdrawalAddEditForm({ modalState, fnClose, fnWDInsert }) {
                             {departmentAndSectionDataQuery.sections.map(
                               (item) => (
                                 <option value={item.ID} key={item.ID}>
-                                  {item.NAME}
+                                  {item.DESCRIPTION}
                                 </option>
                               )
                             )}
