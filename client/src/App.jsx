@@ -37,7 +37,7 @@ import SettingsMain from "./pages/setting-v2/SettingsLayout";
 import SettingsLayout from "./pages/setting-v2/SettingsLayout";
 
 function App() {
-  const currentUser = true;
+  const currentUser = false;
 
   const queryClient = new QueryClient();
 

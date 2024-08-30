@@ -92,6 +92,10 @@
     @apply overflow-auto h-[400px] border border-gray-300;
   }
 
+  .table-container-supplier {
+    @apply overflow-auto h-[580px] border border-gray-300;
+  }
+
   .table-container-receiving-report {
     @apply overflow-auto h-[580px] border border-gray-300;
   }

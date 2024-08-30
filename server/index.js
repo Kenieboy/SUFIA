@@ -10,6 +10,8 @@ import purchaseDeliveryRoutes from "./routes/purchaseDeliveryRoute.js";
 import withdrawalRoutes from "./routes/withdrawalRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import auth from "./routes/auth.js";
 
 const app = express();
 const PORT = 3001;
@@ -25,6 +27,12 @@ app.use(
 
 // api request
 app.use("/", homeRoutes);
+
+// auth
+app.use("/api/auth", auth);
+
+// user
+app.use("/api/user", userRoutes);
 
 // firm table
 app.use("/api/firm", firmRoutes);
