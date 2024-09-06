@@ -43,6 +43,10 @@ export default function Login() {
     }
   };
 
+  const handlRegister = () => {
+    alert("Please contact SUFIA Developer!");
+  };
+
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-md space-y-8">
@@ -56,6 +60,7 @@ export default function Login() {
               to="#"
               className="font-medium text-primary hover:underline"
               prefetch={false ? "true" : undefined} // Use a string or undefined
+              onClick={handlRegister}
             >
               Register
             </Link>

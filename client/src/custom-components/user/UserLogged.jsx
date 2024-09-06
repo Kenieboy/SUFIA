@@ -29,7 +29,7 @@ function UserLogged() {
       </Avatar>
       <div>
         <p className="text-[10px]">
-          Hi <span className="font-bold">{currentUser?.USERNAME},</span> Good
+          Hi <span className="font-bold">{currentUser?.NAME},</span> Good
           morning!
         </p>
         <p className="text-[10px] cursor-pointer" onClick={handleLogout}>
