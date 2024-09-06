@@ -37,9 +37,13 @@ export const login = (req, res) => {
   const loginSQL = "SELECT * FROM USERS WHERE USERNAME = ?";
 
   dbConnection.query(loginSQL, [req.body.username], (err, data) => {
-    if (err) return res.status(500).json(err);
+    if (err)
+      return res
+        .status(500)
+        .json({ error: "Internal server error", details: err });
 
-    if (data.length === 0) return res.status(404).json("User not found!");
+    if (data.length === 0)
+      return res.status(404).json({ error: "User not found" });
 
     const checkPassword = bcryptjs.compareSync(
       req.body.password,
@@ -47,11 +51,11 @@ export const login = (req, res) => {
     );
 
     if (!checkPassword)
-      return res.status(400).json("Wrong password or username!");
+      return res.status(400).json({ error: "Wrong password or username" });
 
     const token = jwt.sign({ id: data[0].id }, "secretkey");
 
-    const { password, ...others } = data[0];
+    const { PASSWORD, ...others } = data[0];
 
     res
       .cookie("accessToken", token, {

@@ -18,6 +18,10 @@ const PORT = 3001;
 
 // middlewares
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", true);
+  next();
+});
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(

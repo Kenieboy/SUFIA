@@ -36,8 +36,11 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import SettingsMain from "./pages/setting-v2/SettingsLayout";
 import SettingsLayout from "./pages/setting-v2/SettingsLayout";
 
+import { useSelector } from "react-redux";
+import Login from "./pages/login/Login";
+
 function App() {
-  const currentUser = true;
+  const currentUser = useSelector((state) => state.auth.currentUser);
 
   const queryClient = new QueryClient();
 
@@ -198,17 +201,7 @@ function App() {
     },
     {
       path: "/login",
-      element: (
-        <div>
-          <h1>Login Page!</h1>
-          <div>
-            <span>
-              don't have an account yet,{" "}
-              <Link to="/register">register here!</Link>
-            </span>
-          </div>
-        </div>
-      ),
+      element: <Login />,
     },
     {
       path: "/register",
