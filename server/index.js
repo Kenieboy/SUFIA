@@ -17,6 +17,7 @@ const app = express();
 const PORT = 3001;
 
 // middlewares
+
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(
