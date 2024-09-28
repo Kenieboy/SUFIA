@@ -179,7 +179,7 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                 </div>
                 {/* ===================================== */}
                 <div className="flex gap-2 mt-2">
-                  <Input
+                  {/* <Input
                     id="NETWEIGHT"
                     type="number"
                     placeholder="NET WT"
@@ -198,9 +198,29 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                         e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
-                  />
-                  {errors.NETWEIGHT && <p>{errors.NETWEIGHT.message}</p>}
+                  /> */}
                   <Input
+                    id="NETWEIGHT"
+                    type="number"
+                    placeholder="NET WT"
+                    defaultValue={selectedItem?.NETWEIGHT ?? 0} // Default to 0
+                    step="0.01"
+                    {...register("NETWEIGHT", {
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
+                    })}
+                    aria-invalid={errors.NETWEIGHT ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Reset value if negative
+                      }
+                    }}
+                  />
+
+                  {errors.NETWEIGHT && <p>{errors.NETWEIGHT.message}</p>}
+                  {/* <Input
                     id="GROSSWEIGHT"
                     type="number"
                     placeholder="GROSS WT"
@@ -219,9 +239,29 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                         e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
-                  />
-                  {errors.GROSSWEIGHT && <p>{errors.GROSSWEIGHT.message}</p>}
+                  /> */}
                   <Input
+                    id="GROSSWEIGHT"
+                    type="number"
+                    placeholder="GROSS WT"
+                    defaultValue={selectedItem?.GROSSWEIGHT ?? 0} // Default to 0
+                    step="0.01"
+                    {...register("GROSSWEIGHT", {
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Gross WT must be a non-negative number",
+                    })}
+                    aria-invalid={errors.GROSSWEIGHT ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Reset value if negative
+                      }
+                    }}
+                  />
+
+                  {errors.GROSSWEIGHT && <p>{errors.GROSSWEIGHT.message}</p>}
+                  {/* <Input
                     id="VOLUME"
                     type="number"
                     placeholder="VOLUME"
@@ -240,13 +280,33 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                         e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
+                  /> */}
+                  <Input
+                    id="VOLUME"
+                    type="number"
+                    placeholder="VOLUME"
+                    defaultValue={selectedItem?.VOLUME ?? 0} // Default to 0
+                    step="0.01"
+                    {...register("VOLUME", {
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Volume must be a non-negative number",
+                    })}
+                    aria-invalid={errors.VOLUME ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Reset value if negative
+                      }
+                    }}
                   />
+
                   {errors.VOLUME && <p>{errors.COST.message}</p>}
                 </div>
 
                 {/* ===================================== */}
                 <div className="flex gap-2 mt-2">
-                  <Input
+                  {/* <Input
                     id="COST"
                     type="number"
                     placeholder="Cost"
@@ -265,10 +325,30 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                         e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
+                  /> */}
+                  <Input
+                    id="COST"
+                    type="number"
+                    placeholder="Cost"
+                    defaultValue={selectedItem?.COST ?? 0} // Default to 0
+                    step="0.01"
+                    {...register("COST", {
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Cost must be a non-negative number",
+                    })}
+                    aria-invalid={errors.COST ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Reset value if negative
+                      }
+                    }}
                   />
+
                   {errors.COST && <p>{errors.COST.message}</p>}
 
-                  <Input
+                  {/* <Input
                     id="PRICE"
                     type="number"
                     placeholder="Price"
@@ -287,7 +367,27 @@ function ItemVariationForm({ fnClose, selectedItem, fmMode }) {
                         e.target.value = ""; // Set to empty string if negative value
                       }
                     }}
+                  /> */}
+                  <Input
+                    id="PRICE"
+                    type="number"
+                    placeholder="Price"
+                    defaultValue={selectedItem?.PRICE ?? 0} // Default to 0
+                    step="0.01"
+                    {...register("PRICE", {
+                      valueAsNumber: true,
+                      validate: (value) =>
+                        value >= 0 || "Price must be a non-negative number",
+                    })}
+                    aria-invalid={errors.PRICE ? "true" : "false"}
+                    onInput={(e) => {
+                      const inputValue = e.target.valueAsNumber;
+                      if (inputValue < 0) {
+                        e.target.value = ""; // Reset value if negative
+                      }
+                    }}
                   />
+
                   {errors.PRICE && <p>{errors.PRICE.message}</p>}
                 </div>
               </div>

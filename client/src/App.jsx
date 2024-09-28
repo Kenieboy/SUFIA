@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 // routing components
 import {
   createBrowserRouter,
@@ -41,6 +43,19 @@ import Login from "./pages/login/Login";
 
 function App() {
   const currentUser = useSelector((state) => state.auth.currentUser);
+
+  // clear local storage on closing app
+  useEffect(() => {
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
+  const handleBeforeUnload = () => {
+    localStorage.clear();
+  };
 
   const queryClient = new QueryClient();
 
