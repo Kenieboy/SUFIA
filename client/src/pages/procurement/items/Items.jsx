@@ -165,7 +165,8 @@ function Item() {
     >
       <div className="w-[50px] text-center">{data[index].ID}</div>
       <div className="w-[80px]">{data[index].CODE}</div>
-      <div>{data[index].NAMEENG}</div>
+      <div className="w-[650px]">{data[index].NAMEENG}</div>
+      <div className="">{data[index].CATEGORY}</div>
     </div>
   );
 
@@ -223,6 +224,9 @@ function Item() {
           </div>
           <div>
             <p className="">MATERIAL</p>
+          </div>
+          <div>
+            <p className="ml-[580px]">CATEGORY</p>
           </div>
         </div>
         {itemData && (

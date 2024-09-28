@@ -4,7 +4,10 @@ import { dbConnection } from "../config/db.js";
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  const itemSQL = `SELECT * FROM ITEM ORDER BY ID DESC`;
+  const itemSQL = `select ITEM.ID, ITEM.CODE, ITEM.NAMEENG, ITEM.NAMEJP, ITEM.ITEMCLASSID, ITEM.ITEMCATEGORYID, ITEM.DEFAULTCUSTOMERID, ITEM.DEFAULTSUPPLIERID,
+ITEM.NOTE, ITEMCATEGORY.DESCRIPTION AS CATEGORY FROM ITEM
+LEFT JOIN  ITEMCATEGORY ON ITEMCATEGORY.ID = ITEM.ITEMCATEGORYID
+ORDER BY ID DESC`;
 
   dbConnection.query(itemSQL, (err, result) => {
     if (err) {
