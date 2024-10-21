@@ -180,6 +180,30 @@ function App() {
         {
           path: "production",
           element: <Production />,
+          children: [
+            {
+              path: "newproduction",
+              element: <h1>TEST ROUTE</h1>,
+            },
+          ],
+        },
+        {
+          path: "newproduction",
+          element: (
+            <div>
+              <h1>NEW PRODUCTION</h1>
+              <Link to="/production">to production</Link>
+            </div>
+          ),
+        },
+        {
+          path: "newdailyconsumption",
+          element: (
+            <div>
+              <h1>NEW PDC</h1>
+              <Link to="/production">to production</Link>
+            </div>
+          ),
         },
         {
           path: "reports",

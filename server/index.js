@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import { dbConnection } from "./config/db.js";
 
 //import api routes request
 import homeRoutes from "./routes/homeRoutes.js";
@@ -56,6 +57,11 @@ app.use("/api/report", reportRoutes);
 
 //settings
 app.use("/api/settings", settingsRoutes);
+
+// Global MySQL error handler
+dbConnection.on("error", (err) => {
+  console.error("MySQL Pool Error:", err);
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
