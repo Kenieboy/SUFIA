@@ -19,7 +19,7 @@ export const dbConnection = mysql.createPool({
   queueLimit: 0, // Unlimited requests in queue
 });
 
-pool.getConnection((err, connection) => {
+dbConnection.getConnection((err, connection) => {
   if (err) {
     console.error("Error getting connection:", err);
     return;
