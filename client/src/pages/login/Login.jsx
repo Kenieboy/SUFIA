@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "@/redux/authSlice";
 import axios from "axios";
+import { BASEURL } from "@/query/API";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -20,13 +21,9 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post(
-        "http://localhost:3001/api/auth/login",
-        data,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await axios.post(`${BASEURL}/auth/login`, data, {
+        withCredentials: true,
+      });
 
       dispatch(login(res.data));
       navigate("/");
