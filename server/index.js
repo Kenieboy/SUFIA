@@ -13,6 +13,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import auth from "./routes/auth.js";
+import productionRoutes from "./routes/productionRouts.js";
 
 const app = express();
 const PORT = 3001;
@@ -57,6 +58,8 @@ app.use("/api/report", reportRoutes);
 
 //settings
 app.use("/api/settings", settingsRoutes);
+
+app.use("/api/production", productionRoutes);
 
 // Global MySQL error handler
 dbConnection.on("error", (err) => {
