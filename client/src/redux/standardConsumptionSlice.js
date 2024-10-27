@@ -21,11 +21,11 @@ const scSlice = createSlice({
     setSelectedSection: (state, action) => {
       const { ID, DESCRIPTION } = action.payload;
 
-      const idSectionExist = state.selectedProduct.sections?.some(
+      const isSectionExist = state.selectedProduct.sections?.some(
         (secId) => secId.ID === ID
       );
 
-      if (idSectionExist) {
+      if (isSectionExist) {
         alert(`${DESCRIPTION} already exist!`);
       } else {
         state.selectedProduct.sections = [
