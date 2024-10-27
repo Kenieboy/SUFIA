@@ -2,9 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   lastUsedId: 0,
-
-  standardConsumptionDetail: [],
-  selectedProduct: {},
+  selectedProduct: {
+    sections: [],
+  },
 };
 
 const scSlice = createSlice({
@@ -12,24 +12,19 @@ const scSlice = createSlice({
   initialState,
   reducers: {
     setSelectedProduct: (state, action) => {
-      state.selectedProduct = action.payload;
-    },
-    clearSelectedProduct: (state) => {
-      state.selectedProduct = {};
-    },
-
-    setSelectedProductSections: (state, action) => {
       state.selectedProduct = {
         ...state.selectedProduct,
-        sections: [...(state.selectedProduct.sections || []), action.payload],
+        ...action.payload,
+      };
+    },
+    clearSelectedProduct: (state) => {
+      state.selectedProduct = {
+        sections: [],
       };
     },
   },
 });
 
-export const {
-  setSelectedProduct,
-  clearSelectedProduct,
-  setSelectedProductSections,
-} = scSlice.actions;
+export const { setSelectedProduct, clearSelectedProduct } = scSlice.actions;
+
 export default scSlice.reducer;

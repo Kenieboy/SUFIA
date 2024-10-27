@@ -1,7 +1,4 @@
-import {
-  clearSelectedProduct,
-  setSelectedProductSections,
-} from "@/redux/standardConsumptionSlice";
+import { clearSelectedProduct } from "@/redux/standardConsumptionSlice";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -76,20 +73,6 @@ function StandardConsumptionEntry() {
     queryKey: ["productionsection"],
     queryFn: getProductSection,
   });
-
-  useEffect(() => {
-    if (sectionData) {
-      // Transform the sectionData into the desired format
-      const transformedSections = sectionData.map((section) => ({
-        id: section.ID, // Use the ID field from the data
-        description: section.DESCRIPTION, // Use the DESCRIPTION field
-        items: [], // Initialize items as an empty array
-      }));
-
-      // Dispatch the action with the transformed section data
-      dispatch(setSelectedProductSections(transformedSections));
-    }
-  }, [sectionData, dispatch]);
 
   return (
     <div>
