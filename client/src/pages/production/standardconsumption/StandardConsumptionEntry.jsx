@@ -1,4 +1,7 @@
-import { clearSelectedProduct } from "@/redux/standardConsumptionSlice";
+import {
+  clearSelectedProduct,
+  setSelectedSection,
+} from "@/redux/standardConsumptionSlice";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +24,7 @@ import {
   getProductSection,
   insertProductSection,
 } from "@/query/productionRequest";
+import { Plus } from "lucide-react";
 
 function StandardConsumptionEntry() {
   const [modalState, setModalState] = useState({
@@ -46,24 +50,6 @@ function StandardConsumptionEntry() {
     setFrmSection((prev) => !prev);
   };
 
-  // insert section data
-  const mutationInsertSectionData = useMutation({
-    mutationFn: insertProductSection,
-    onSuccess: () => {
-      refetchSectionData();
-      reset();
-      handleFrmSectionModal();
-    },
-    onError: (error) => {
-      alert(error.message); // Alert the error message correctly
-    },
-  });
-
-  const onSubmitSection = (data) => {
-    console.log("Submitting Data:", data);
-    mutationInsertSectionData.mutate(data); // Trigger the mutation
-  };
-
   const {
     isPending: isSectionPending,
     error: SectionError,
@@ -73,6 +59,10 @@ function StandardConsumptionEntry() {
     queryKey: ["productionsection"],
     queryFn: getProductSection,
   });
+
+  const fileredSectionData = sectionData?.filter(
+    (section) => section.DEPARTMENT === "PRODUCTION"
+  );
 
   return (
     <div>
@@ -103,45 +93,43 @@ function StandardConsumptionEntry() {
       {/* tab section area */}
       <div className="mt-4">
         <Tabs defaultValue="supplier" className="max-w-full">
-          {sectionData?.length > 0 ? (
-            <>
-              <TabsList>
-                {sectionData.map((sec) => (
+          <TabsList>
+            {selectedProduct.sections ? (
+              <>
+                {selectedProduct.sections.map((section) => (
                   <TabsTrigger
-                    key={sec.ID}
-                    value={sec.DESCRIPTION}
                     className="text-xs"
-                    onClick={() => {
-                      console.log(sec.ID);
-                    }}
+                    key={section.ID}
+                    value={`${section.DESCRIPTION}`}
                   >
-                    {sec.DESCRIPTION}
+                    {section.DESCRIPTION}
                   </TabsTrigger>
                 ))}
                 <div
                   className="px-4 cursor-pointer underline"
                   onClick={handleFrmSectionModal}
                 >
-                  <span className="">Add New Section</span>
+                  <span className="flex">
+                    <Plus className="w-4 h-4" /> Add Section
+                  </span>
                 </div>
-              </TabsList>
-              {sectionData.map((sec) => (
-                <TabsContent key={sec.ID} value={sec.DESCRIPTION}>
-                  <h2>{sec.DESCRIPTION}</h2>
-                  {/* Additional content specific to each section can go here */}
-                </TabsContent>
-              ))}
-            </>
-          ) : (
-            <TabsList>
+              </>
+            ) : (
               <div
                 className="px-4 cursor-pointer underline"
                 onClick={handleFrmSectionModal}
               >
-                <span className="">Add New Section</span>
+                <span className="flex">
+                  <Plus className="w-4 h-4" /> Add Section
+                </span>
               </div>
-            </TabsList>
-          )}
+            )}
+          </TabsList>
+          {selectedProduct.sections.map((content) => (
+            <TabsContent value={content.DESCRIPTION}>
+              {content.DESCRIPTION}
+            </TabsContent>
+          ))}
         </Tabs>
       </div>
 
@@ -150,67 +138,84 @@ function StandardConsumptionEntry() {
         <Dialog open={frmSection}>
           <DialogContent className="w-96 overflow-hidden">
             <DialogHeader>
-              <DialogTitle>SECTION</DialogTitle>
-              <Separator className="" />
+              <DialogTitle className="font-normal flex  items-center justify-between">
+                <span>Section for product:</span>
+
+                <span className="bg-green-400 px-4 py-1 rounded-full text-white text-sm">
+                  {selectedProduct.PRODUCTNAME}
+                </span>
+              </DialogTitle>
+
               <DialogDescription></DialogDescription>
             </DialogHeader>
+
+            <div className="table-container-receiving">
+              <table className="min-w-full table-fixed-header text-[12px]">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 border border-gray-300 w-[80px]">
+                      ID
+                    </th>
+                    <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                      CODE
+                    </th>
+
+                    <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                      DESCRIPTION
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white text-[10px]">
+                  {fileredSectionData &&
+                    fileredSectionData.map((pd, index) => (
+                      <tr
+                        key={index}
+                        className={`hover:bg-gray-100 cursor-pointer ${
+                          index % 2 !== 0 ? "bg-gray-50" : ""
+                        }`}
+                        onClick={() => {
+                          console.log(
+                            `Section selected:${pd.ID} ${pd.DESCRIPTION}`
+                          );
+                          dispatch(
+                            setSelectedSection({
+                              ID: pd.ID,
+                              DESCRIPTION: pd.DESCRIPTION,
+                              ITEMS: [],
+                            })
+                          );
+                        }}
+                      >
+                        <td className="px-4 py-2 border border-gray-300 text-center">
+                          {pd.ID}
+                        </td>
+                        <td className="px-4 py-1 border border-gray-300 font-bold">
+                          {pd.CODE}
+                        </td>
+
+                        <td className="px-4 py-1 border border-gray-300 ">
+                          {pd.DESCRIPTION}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+
             <div>
-              <form onSubmit={handleSubmit(onSubmitSection)}>
-                <div className="text-xs flex flex-col gap-1">
-                  <div className="flex flex-col gap-1">
-                    <div>
-                      <label htmlFor="CODE">Code:</label>
-                    </div>
-                    <input
-                      id="CODE"
-                      name="CODE"
-                      type="text"
-                      className="w-40 p-1 px-2 border border-gray-500 rounded-full uppercase"
-                      {...register("CODE", {
-                        onChange: handleUppercase,
-                      })}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div>
-                      <label htmlFor="DESCRIPTION">Discription:</label>
-                    </div>
-                    <input
-                      id="DESCRIPTION"
-                      name="DESCRIPTION"
-                      type="text"
-                      className="w-full p-1 px-2 border border-gray-500 rounded-full uppercase"
-                      {...register("DESCRIPTION", {
-                        required: true,
-                        onChange: handleUppercase,
-                      })}
-                    />
-                  </div>
+              {/* BUTTON */}
+              <div className="text-xs flex gap-1 mt-6 font-semibold">
+                <div>
+                  <button
+                    type="button"
+                    className="bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-full"
+                    onClick={handleFrmSectionModal}
+                  >
+                    Close
+                  </button>
                 </div>
-
-                <div className="text-xs mt-4">
-                  <div className="flex gap-1">
-                    <div>
-                      <button
-                        type="submit"
-                        className=" border-2 border-green-500 text-green-500 px-4 py-1 rounded-full"
-                      >
-                        Save
-                      </button>
-                    </div>
-                    <div>
-                      <button
-                        type="button"
-                        className=" border-2 border-red-400 text-red-500 px-4 py-1 rounded-full"
-                        onClick={handleFrmSectionModal}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </form>
+              </div>
+              {/* BUTTON END */}
             </div>
           </DialogContent>
         </Dialog>

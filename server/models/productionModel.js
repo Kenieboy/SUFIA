@@ -19,7 +19,8 @@ export const getProduct = (req, res) => {
 
 //select section
 export const getSection = (req, res) => {
-  const sectionSQL = `SELECT * FROM STANDARDCONSUMPTIONSECTION`;
+  const sectionSQL = `SELECT SECTION.ID, SECTION.CODE, SECTION.DESCRIPTION, DEPARTMENT.DESCRIPTION AS DEPARTMENT FROM SECTION
+LEFT JOIN DEPARTMENT ON DEPARTMENT.ID = SECTION.DEPARTMENTID`;
 
   dbConnection.query(sectionSQL, (error, sectionSQLResult) => {
     if (error) throw new Error();

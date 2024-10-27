@@ -17,6 +17,23 @@ const scSlice = createSlice({
         ...action.payload,
       };
     },
+
+    setSelectedSection: (state, action) => {
+      const { ID, DESCRIPTION } = action.payload;
+
+      const idSectionExist = state.selectedProduct.sections?.some(
+        (secId) => secId.ID === ID
+      );
+
+      if (idSectionExist) {
+        alert(`${DESCRIPTION} already exist!`);
+      } else {
+        state.selectedProduct.sections = [
+          ...state.selectedProduct.sections,
+          action.payload,
+        ];
+      }
+    },
     clearSelectedProduct: (state) => {
       state.selectedProduct = {
         sections: [],
@@ -25,6 +42,7 @@ const scSlice = createSlice({
   },
 });
 
-export const { setSelectedProduct, clearSelectedProduct } = scSlice.actions;
+export const { setSelectedProduct, clearSelectedProduct, setSelectedSection } =
+  scSlice.actions;
 
 export default scSlice.reducer;
