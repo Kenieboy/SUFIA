@@ -40,6 +40,7 @@ import SettingsLayout from "./pages/setting-v2/SettingsLayout";
 
 import { useSelector } from "react-redux";
 import Login from "./pages/login/Login";
+import StandardConsumptionEntry from "./pages/production/standardconsumption/StandardConsumptionEntry";
 
 function App() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -188,13 +189,8 @@ function App() {
           ],
         },
         {
-          path: "newproduction",
-          element: (
-            <div>
-              <h1>NEW PRODUCTION</h1>
-              <Link to="/production">to production</Link>
-            </div>
-          ),
+          path: "newstandardconsumption",
+          element: <StandardConsumptionEntry />,
         },
         {
           path: "newdailyconsumption",

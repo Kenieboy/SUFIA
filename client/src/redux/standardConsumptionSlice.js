@@ -2,15 +2,34 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   lastUsedId: 0,
-  production: {},
+
   standardConsumptionDetail: [],
+  selectedProduct: {},
 };
 
 const scSlice = createSlice({
   name: "sc",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedProduct: (state, action) => {
+      state.selectedProduct = action.payload;
+    },
+    clearSelectedProduct: (state) => {
+      state.selectedProduct = {};
+    },
+
+    setSelectedProductSections: (state, action) => {
+      state.selectedProduct = {
+        ...state.selectedProduct,
+        sections: [...(state.selectedProduct.sections || []), action.payload],
+      };
+    },
+  },
 });
 
-export const {} = scSlice.actions;
+export const {
+  setSelectedProduct,
+  clearSelectedProduct,
+  setSelectedProductSections,
+} = scSlice.actions;
 export default scSlice.reducer;

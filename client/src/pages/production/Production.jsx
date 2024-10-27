@@ -1,9 +1,29 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
+// data fetching tanstack component
+import { useQuery } from "@tanstack/react-query";
+import { getProductItem } from "@/query/productionRequest";
+import { useDispatch } from "react-redux";
+import { setSelectedProduct } from "@/redux/standardConsumptionSlice";
+
 function Production() {
   const [modalState, setModalState] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Query for product item data
+  const {
+    isPending: isProductItemDataPending,
+    error: productItemDataError,
+    data: productItemData,
+    refetch: refetchProductItemData,
+  } = useQuery({
+    queryKey: ["product"],
+    queryFn: getProductItem, // Ensure you update the query function name if necessary
+  });
 
   const handleModalStateAction = () => {
     setModalState((prev) => !prev);
@@ -33,6 +53,65 @@ function Production() {
         <DialogContent className="">
           <div>
             <h1 className="text-xl font-bold">PRODUCT LIST</h1>
+          </div>
+
+          <div className="table-container-receiving">
+            <table className="min-w-full table-fixed-header text-[12px]">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                    ID
+                  </th>
+                  <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                    CODE
+                  </th>
+
+                  <th className="px-4 py-2 border border-gray-300 w-[150px]">
+                    PRODUCT NAME
+                  </th>
+                  <th className="px-4 py-2 border border-gray-300 w-[300px]">
+                    NOTE
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white text-[10px]">
+                {productItemData &&
+                  productItemData.map((pd, index) => (
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-100 cursor-pointer ${
+                        index % 2 !== 0 ? "bg-gray-50" : ""
+                      }`}
+                      onClick={() => {
+                        console.log(
+                          `Prodcut description: ${pd.ID}, ${pd.NAMEENG}`
+                        );
+                        dispatch(
+                          setSelectedProduct({
+                            ID: pd.ID,
+                            PRODUCTNAME: pd.NAMEENG,
+                          })
+                        );
+                        navigate("/newstandardconsumption");
+                      }}
+                    >
+                      <td className="px-4 py-2 border border-gray-300 text-center">
+                        {pd.ID}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300 font-bold">
+                        {pd.CODE}
+                      </td>
+
+                      <td className="px-4 py-1 border border-gray-300 ">
+                        {pd.NAMEENG}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300 ">
+                        {pd.NOTE}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
 
           <div>
