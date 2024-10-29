@@ -1,4 +1,5 @@
 import {
+  addItemToSection,
   clearSelectedProduct,
   setSelectedSection,
 } from "@/redux/standardConsumptionSlice";
@@ -24,7 +25,15 @@ import {
   getProductSection,
   insertProductSection,
 } from "@/query/productionRequest";
-import { Plus } from "lucide-react";
+import { FastForward, Plus } from "lucide-react";
+import { getItemData } from "@/query/itemRequest";
+import { FixedSizeList as List } from "react-window";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { ShoppingBasket } from "lucide-react";
 
 function StandardConsumptionEntry() {
   const [modalState, setModalState] = useState({
@@ -33,6 +42,9 @@ function StandardConsumptionEntry() {
   });
 
   const [frmSection, setFrmSection] = useState(false);
+  const [frmItem, setFrmItem] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentSection, setCurrentSection] = useState(0);
 
   const selectedProduct = useSelector((state) => state.scData.selectedProduct);
   const dispatch = useDispatch();
@@ -64,6 +76,50 @@ function StandardConsumptionEntry() {
     (section) => section.DEPARTMENT === "PRODUCTION"
   );
 
+  const {
+    isPending: isItemDataPending,
+    error: isItemDataError,
+    data: itemDataQuery,
+  } = useQuery({
+    queryKey: ["item"],
+    queryFn: getItemData,
+  });
+
+  const Row = ({ index, style, data }) => (
+    <div
+      style={style}
+      className={`grid grid-flow-col auto-cols-max text-xs gap-2 cursor-pointer hover:bg-gray-100 ${
+        index % 2 !== 0 ? "bg-gray-50" : ""
+      }`}
+      onClick={() => {
+        console.log(
+          `Insert to section index # ${currentSection} value ${data[index].ID}`
+        );
+
+        dispatch(
+          addItemToSection({
+            sectionActive: currentSection,
+            item: {
+              ID: data[index].ID,
+              CODE: data[index].CODE,
+              MATERIAL: data[index].NAMEENG,
+            },
+          })
+        );
+      }}
+    >
+      <div className="w-[50px] text-center">{data[index].ID}</div>
+      <div className="w-[80px]">{data[index].CODE}</div>
+      <div>{data[index].NAMEENG}</div>
+    </div>
+  );
+
+  const filteredData = itemDataQuery?.filter((item) =>
+    item.NAMEENG.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  console.log("Current section # active:" + currentSection);
+
   return (
     <div>
       <h1 className="text-xl font-bold">New Standard Consumption Product</h1>
@@ -94,40 +150,99 @@ function StandardConsumptionEntry() {
       <div className="mt-4">
         <Tabs defaultValue="supplier" className="max-w-full">
           <TabsList>
-            {selectedProduct.sections ? (
-              <>
-                {selectedProduct.sections.map((section) => (
+            {selectedProduct.sections && selectedProduct.sections.length > 0
+              ? selectedProduct.sections.map((section, index) => (
                   <TabsTrigger
                     className="text-xs"
                     key={section.ID}
-                    value={`${section.DESCRIPTION}`}
+                    value={section.DESCRIPTION}
+                    onClick={() => {
+                      console.log("section index:" + index);
+                      setCurrentSection(index);
+                    }}
                   >
                     {section.DESCRIPTION}
                   </TabsTrigger>
-                ))}
-                <div
-                  className="px-4 cursor-pointer underline"
-                  onClick={handleFrmSectionModal}
-                >
-                  <span className="flex">
-                    <Plus className="w-4 h-4" /> Add Section
-                  </span>
-                </div>
-              </>
-            ) : (
-              <div
-                className="px-4 cursor-pointer underline"
-                onClick={handleFrmSectionModal}
-              >
-                <span className="flex">
-                  <Plus className="w-4 h-4" /> Add Section
-                </span>
-              </div>
-            )}
+                ))
+              : null}
+            <div
+              className="px-4 cursor-pointer underline"
+              onClick={handleFrmSectionModal}
+            >
+              <span className="flex">
+                <Plus className="w-4 h-4" /> Add Section
+              </span>
+            </div>
           </TabsList>
-          {selectedProduct.sections.map((content) => (
-            <TabsContent value={content.DESCRIPTION}>
-              {content.DESCRIPTION}
+          {selectedProduct.sections.map((section, index) => (
+            <TabsContent key={section.ID} value={section.DESCRIPTION}>
+              <div className="table-container">
+                <table className="min-w-full table-fixed-header text-[12px]">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                        CODE
+                      </th>
+                      <th className="px-4 py-1 border border-gray-300">
+                        MATERIAL
+                      </th>
+                      <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                        QTY
+                      </th>
+                      <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                        UNIT
+                      </th>
+                      <th className="px-4 py-1 border border-gray-300 w-[200px]">
+                        LOT NO.
+                      </th>
+                      <th className="px-4 py-1 border border-gray-300 w-[150px]">
+                        ACTION
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white text-[10px]">
+                    {selectedProduct.sections[currentSection]?.ITEMS?.map(
+                      (item, index) => (
+                        <tr
+                          key={`${currentSection}-${index}`}
+                          className={`hover:bg-gray-50 cursor-pointer ${
+                            index % 2 !== 0 ? "bg-gray-100" : ""
+                          }`}
+                        >
+                          <td className="px-4 py-1 border border-gray-300">
+                            {item.CODE}
+                          </td>
+                          <td className="px-4 py-1 border border-gray-300">
+                            {item.MATERIAL}
+                          </td>
+                          <td className="px-4 py-1 border border-gray-300"></td>
+                          <td className="px-4 py-1 border border-gray-300"></td>
+                          <td className="px-4 py-1 border border-gray-300"></td>
+                          <td className="px-4 py-1 border border-gray-300"></td>
+                        </tr>
+                      )
+                    )}
+                    <tr>
+                      <td className="px-4 py-1 border border-gray-300 font-bold text-center">
+                        <p
+                          className="bg-gray-700 inline-block text-white px-2 rounded-full cursor-pointer"
+                          onClick={() => {
+                            console.log("open frm!" + index + "," + section.ID);
+                            setFrmItem(true);
+                          }}
+                        >
+                          ...
+                        </p>
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                      <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                      <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                      <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                      <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </TabsContent>
           ))}
         </Tabs>
@@ -216,6 +331,104 @@ function StandardConsumptionEntry() {
                 </div>
               </div>
               {/* BUTTON END */}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* dialog item */}
+      <div>
+        <Dialog open={frmItem}>
+          <DialogContent className="max-w-[800px] h-[70%] overflow-y-scroll">
+            <div className="relative">
+              <div className="flex items-center gap-2">
+                <div>
+                  <h1 className="text-xl font-bold">ITEM LIST</h1>
+                </div>
+                <div className="text-xs cursor-pointer">
+                  <div
+                    className="flex items-center relative"
+                    onClick={() => {
+                      setFrmItem(false);
+                    }}
+                  >
+                    <div>
+                      <ShoppingBasket />
+                    </div>
+                    <div>
+                      <HoverCard openDelay={100}>
+                        <HoverCardTrigger>
+                          <p className="bg-red-500 text-white px-1 py-1 rounded-full w-4 h-4 flex items-center justify-center absolute -top-1 -right-3 text-[11px]">
+                            {
+                              selectedProduct.sections[currentSection]?.ITEMS
+                                ?.length
+                            }
+                          </p>
+                        </HoverCardTrigger>
+                        <HoverCardContent>
+                          View your withdrawal item basket.
+                        </HoverCardContent>
+                      </HoverCard>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator className="bg-gray-700" />
+
+              <div className="mt-4">
+                <div className="text-xs">
+                  <div className="flex gap-4">
+                    {/* right side */}
+                    <div className="w-1/2 mr-4">
+                      <div className="mb-2 flex items-center gap-2">
+                        <label
+                          htmlFor="search"
+                          className="block text-gray-700 "
+                        >
+                          SEARCH:
+                        </label>
+                        <input
+                          placeholder="Search product name..."
+                          type="text"
+                          id="search"
+                          name="search"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full p-1 px-2 border border-gray-500 rounded-full  uppercase "
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* LIST TABLE */}
+              <div>
+                <div className="grid grid-flow-col auto-cols-max text-xs gap-2 bg-gray-200 py-1 font-semibold">
+                  <div className="w-[50px]">
+                    <p className="ml-2">ID</p>
+                  </div>
+                  <div className="w-[80px]">
+                    <p className="">CODE</p>
+                  </div>
+                  <div>
+                    <p className="">MATERIAL</p>
+                  </div>
+                </div>
+                <List
+                  height={420}
+                  itemCount={filteredData?.length}
+                  itemSize={20}
+                  width={750}
+                  itemData={filteredData}
+                >
+                  {Row}
+                </List>
+              </div>
+              {/* LIST TABLE END */}
+
+              <div></div>
             </div>
           </DialogContent>
         </Dialog>

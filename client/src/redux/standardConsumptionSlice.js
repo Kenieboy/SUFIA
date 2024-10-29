@@ -34,6 +34,11 @@ const scSlice = createSlice({
         ];
       }
     },
+    addItemToSection: (state, action) => {
+      const { sectionActive, item } = action.payload;
+      console.log(action.payload);
+      state.selectedProduct.sections[sectionActive].ITEMS.push(item);
+    },
     clearSelectedProduct: (state) => {
       state.selectedProduct = {
         sections: [],
@@ -42,7 +47,11 @@ const scSlice = createSlice({
   },
 });
 
-export const { setSelectedProduct, clearSelectedProduct, setSelectedSection } =
-  scSlice.actions;
+export const {
+  setSelectedProduct,
+  clearSelectedProduct,
+  setSelectedSection,
+  addItemToSection,
+} = scSlice.actions;
 
 export default scSlice.reducer;
