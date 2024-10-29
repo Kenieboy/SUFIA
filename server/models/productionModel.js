@@ -84,3 +84,57 @@ LEFT JOIN DEPARTMENT ON STANDARDCONSUMPTIONSECTION.ID = DEPARTMENT.ID WHERE STAN
     res.json(sectionSQLResult);
   });
 };
+
+export const insertStandardConsumption = (req, res) => {
+  const { sections, PRODUCTITEMID } = req.body;
+
+  const sql = `INSERT INTO STANDARDCONSUMPTION (REFNO, PRODUCTITEMID, DATE, NOTE, INPUTBY) 
+               VALUES (?, ?, NOW(), ?, ?)`;
+
+  dbConnection.query(
+    sql,
+    ["kenneth", PRODUCTITEMID, "kenneth", "kenneth"],
+    (err, result) => {
+      if (err) {
+        return res.status(404).json({ message: "Error inserting data." });
+      }
+
+      const standardConsumptionId = result.insertId;
+      let queriesCompleted = 0; // Track completed queries
+      const totalQueries = sections.reduce(
+        (acc, section) => acc + section.ITEMS.length,
+        0
+      );
+
+      for (const section of sections) {
+        for (const item of section.ITEMS) {
+          dbConnection.query(
+            `INSERT INTO STANDARDCONSUMPTIONDETAIL (STANDARDCONSUMPTIONID, SECTIONID, ITEMVARIATIONID, QTY) 
+             VALUES (?, ?, ?, ?)`,
+            [
+              standardConsumptionId,
+              section.SECTIONID,
+              item.ITEMVARIATIONID,
+              item.QTY,
+            ],
+            (err) => {
+              if (err) {
+                return res
+                  .status(500)
+                  .json({ message: "Error inserting details." });
+              }
+
+              // Increment completed queries counter
+              queriesCompleted += 1;
+
+              // If all queries are completed, send the response
+              if (queriesCompleted === totalQueries) {
+                res.status(201).json({ message: "Data inserted successfully" });
+              }
+            }
+          );
+        }
+      }
+    }
+  );
+};

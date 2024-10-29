@@ -19,10 +19,10 @@ const scSlice = createSlice({
     },
 
     setSelectedSection: (state, action) => {
-      const { ID, DESCRIPTION } = action.payload;
+      const { SECTIONID, DESCRIPTION } = action.payload;
 
       const isSectionExist = state.selectedProduct.sections?.some(
-        (secId) => secId.ID === ID
+        (secId) => secId.SECTIONID === SECTIONID
       );
 
       if (isSectionExist) {
@@ -36,8 +36,34 @@ const scSlice = createSlice({
     },
     addItemToSection: (state, action) => {
       const { sectionActive, item } = action.payload;
-      console.log(action.payload);
-      state.selectedProduct.sections[sectionActive].ITEMS.push(item);
+
+      const isItemExist = state.selectedProduct.sections[
+        sectionActive
+      ].ITEMS.some((rItem) => rItem.ID === item.ID);
+
+      if (isItemExist) {
+        alert(`Item ${item.NAMEENG} already exist!`);
+      } else {
+        state.selectedProduct.sections[sectionActive].ITEMS.push(item);
+      }
+    },
+    removeItemSection: (state, action) => {
+      const { currentSection, selectedId } = action.payload;
+
+      state.selectedProduct.sections[currentSection].ITEMS =
+        state.selectedProduct.sections[currentSection].ITEMS.filter(
+          (item) => item.ID !== selectedId
+        );
+    },
+    updateItemQty: (state, action) => {
+      const { currentSection, items } = action.payload;
+
+      const newItem = state.selectedProduct.sections[currentSection].ITEMS.map(
+        (item) =>
+          item.ID === items.itemId ? { ...item, QTY: items.value } : item
+      );
+
+      state.selectedProduct.sections[currentSection].ITEMS = newItem;
     },
     clearSelectedProduct: (state) => {
       state.selectedProduct = {
@@ -52,6 +78,8 @@ export const {
   clearSelectedProduct,
   setSelectedSection,
   addItemToSection,
+  updateItemQty,
+  removeItemSection,
 } = scSlice.actions;
 
 export default scSlice.reducer;

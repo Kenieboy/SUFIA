@@ -1,7 +1,9 @@
 import {
   addItemToSection,
   clearSelectedProduct,
+  removeItemSection,
   setSelectedSection,
+  updateItemQty,
 } from "@/redux/standardConsumptionSlice";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -25,8 +27,8 @@ import {
   getProductSection,
   insertProductSection,
 } from "@/query/productionRequest";
-import { FastForward, Plus } from "lucide-react";
-import { getItemData } from "@/query/itemRequest";
+import { CircleX, FastForward, Plus } from "lucide-react";
+import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
 import { FixedSizeList as List } from "react-window";
 import {
   HoverCard,
@@ -91,21 +93,24 @@ function StandardConsumptionEntry() {
       className={`grid grid-flow-col auto-cols-max text-xs gap-2 cursor-pointer hover:bg-gray-100 ${
         index % 2 !== 0 ? "bg-gray-50" : ""
       }`}
-      onClick={() => {
-        console.log(
-          `Insert to section index # ${currentSection} value ${data[index].ID}`
-        );
+      onClick={async () => {
+        const {
+          ITEMID: ID,
+          PRICE,
+          itemVariations,
+          ...others
+        } = await getPurchaseDeliveryDetail(data[index].ID);
 
-        dispatch(
-          addItemToSection({
-            sectionActive: currentSection,
-            item: {
-              ID: data[index].ID,
-              CODE: data[index].CODE,
-              MATERIAL: data[index].NAMEENG,
-            },
-          })
-        );
+        if (itemVariations.length === 0) {
+          alert(`Please select variation unit for "${others.NAMEENG}" item. `);
+        } else {
+          dispatch(
+            addItemToSection({
+              sectionActive: currentSection,
+              item: { ID, ...others },
+            })
+          );
+        }
       }}
     >
       <div className="w-[50px] text-center">{data[index].ID}</div>
@@ -118,7 +123,14 @@ function StandardConsumptionEntry() {
     item.NAMEENG.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  console.log("Current section # active:" + currentSection);
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  console.log(selectedProduct);
 
   return (
     <div>
@@ -157,7 +169,6 @@ function StandardConsumptionEntry() {
                     key={section.ID}
                     value={section.DESCRIPTION}
                     onClick={() => {
-                      console.log("section index:" + index);
                       setCurrentSection(index);
                     }}
                   >
@@ -210,15 +221,53 @@ function StandardConsumptionEntry() {
                           }`}
                         >
                           <td className="px-4 py-1 border border-gray-300">
-                            {item.CODE}
+                            {item.ITEMCODE}
                           </td>
                           <td className="px-4 py-1 border border-gray-300">
-                            {item.MATERIAL}
+                            {item.NAMEENG}
+                          </td>
+                          <td className="px-4 py-1 border border-gray-300">
+                            <input
+                              type="number"
+                              min={0}
+                              defaultValue={formatNumberWithCommas(
+                                parseFloat(item?.QTY)
+                              )}
+                              className="w-full text-m font-bold p-2 rounded focus:outline-none bg-transparent"
+                              onChange={(e) => {
+                                const newQty =
+                                  e.target.value === ""
+                                    ? 0
+                                    : parseFloat(e.target.value);
+                                dispatch(
+                                  updateItemQty({
+                                    currentSection,
+                                    items: { itemId: item.ID, value: newQty },
+                                  })
+                                );
+                              }}
+                            />
+                          </td>
+                          <td className="px-4 py-1 border border-gray-300">
+                            {item.CODE}
                           </td>
                           <td className="px-4 py-1 border border-gray-300"></td>
-                          <td className="px-4 py-1 border border-gray-300"></td>
-                          <td className="px-4 py-1 border border-gray-300"></td>
-                          <td className="px-4 py-1 border border-gray-300"></td>
+                          <td className="px-4 py-1 border border-gray-300">
+                            <CircleX
+                              className="cursor-pointer m-auto"
+                              height={20}
+                              width={20}
+                              color="#fb8500"
+                              onClick={() => {
+                                dispatch(
+                                  removeItemSection({
+                                    currentSection,
+                                    selectedId: item.ID,
+                                  })
+                                );
+                              }}
+                            />
+                          </td>
                         </tr>
                       )
                     )}
@@ -227,7 +276,6 @@ function StandardConsumptionEntry() {
                         <p
                           className="bg-gray-700 inline-block text-white px-2 rounded-full cursor-pointer"
                           onClick={() => {
-                            console.log("open frm!" + index + "," + section.ID);
                             setFrmItem(true);
                           }}
                         >
@@ -289,16 +337,15 @@ function StandardConsumptionEntry() {
                           index % 2 !== 0 ? "bg-gray-50" : ""
                         }`}
                         onClick={() => {
-                          console.log(
-                            `Section selected:${pd.ID} ${pd.DESCRIPTION}`
-                          );
                           dispatch(
                             setSelectedSection({
-                              ID: pd.ID,
+                              SECTIONID: pd.ID,
                               DESCRIPTION: pd.DESCRIPTION,
                               ITEMS: [],
                             })
                           );
+
+                          handleFrmSectionModal();
                         }}
                       >
                         <td className="px-4 py-2 border border-gray-300 text-center">
@@ -366,7 +413,7 @@ function StandardConsumptionEntry() {
                           </p>
                         </HoverCardTrigger>
                         <HoverCardContent>
-                          View your withdrawal item basket.
+                          View your item basket.
                         </HoverCardContent>
                       </HoverCard>
                     </div>
