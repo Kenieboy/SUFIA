@@ -131,6 +131,7 @@ function StandardConsumptionEntry() {
   };
 
   console.log(selectedProduct);
+  console.log(selectedProduct?.sections[currentSection]?.ITEMS === 0);
 
   return (
     <div>
@@ -166,7 +167,7 @@ function StandardConsumptionEntry() {
               ? selectedProduct.sections.map((section, index) => (
                   <TabsTrigger
                     className="text-xs"
-                    key={section.ID}
+                    key={`${section.SECTIONID}-${section.DESCRIPTION}`}
                     value={section.DESCRIPTION}
                     onClick={() => {
                       setCurrentSection(index);
@@ -186,7 +187,7 @@ function StandardConsumptionEntry() {
             </div>
           </TabsList>
           {selectedProduct.sections.map((section, index) => (
-            <TabsContent key={section.ID} value={section.DESCRIPTION}>
+            <TabsContent key={section.SECTIONID} value={section.DESCRIPTION}>
               <div className="table-container">
                 <table className="min-w-full table-fixed-header text-[12px]">
                   <thead>
@@ -489,6 +490,10 @@ function StandardConsumptionEntry() {
             <button
               type="button"
               className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded-full"
+              disabled={selectedProduct?.sections[currentSection]?.ITEMS === 0}
+              onClick={() => {
+                console.log("save");
+              }}
             >
               Save
             </button>
