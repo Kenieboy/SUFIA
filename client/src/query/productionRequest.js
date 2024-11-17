@@ -26,4 +26,25 @@ async function insertProductSection(value) {
   }
 }
 
-export { getProductItem, getProductSection, insertProductSection };
+async function insertProductStandardConsumption(value) {
+  try {
+    const res = await axios.post(
+      `${BASEURL}/production/standard-consumption`,
+      value
+    );
+    return res.data;
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
+  }
+}
+
+export {
+  getProductItem,
+  getProductSection,
+  insertProductSection,
+  insertProductStandardConsumption,
+};

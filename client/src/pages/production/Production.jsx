@@ -88,7 +88,7 @@ function Production() {
                         );
                         dispatch(
                           setSelectedProduct({
-                            ID: pd.ID,
+                            PRODUCTITEMID: pd.ID,
                             PRODUCTNAME: pd.NAMEENG,
                           })
                         );

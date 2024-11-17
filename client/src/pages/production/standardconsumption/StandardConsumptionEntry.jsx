@@ -26,6 +26,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getProductSection,
   insertProductSection,
+  insertProductStandardConsumption,
 } from "@/query/productionRequest";
 import { CircleX, FastForward, Plus } from "lucide-react";
 import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
@@ -131,19 +132,18 @@ function StandardConsumptionEntry() {
   };
 
   console.log(selectedProduct);
-  console.log(selectedProduct?.sections[currentSection]?.ITEMS === 0);
 
   return (
     <div>
       <h1 className="text-xl font-bold">New Standard Consumption Product</h1>
       <div className="mt-6">
         <h2 className="text-xl">Selected Product:</h2>
-        {selectedProduct.ID ? (
+        {selectedProduct.PRODUCTITEMID ? (
           <div className="mt-2 flex space-x-2 text-xs">
             <p>
               ID:{" "}
               <span className="bg-orange-400 px-4 py-1 rounded-full text-white">
-                {selectedProduct.ID}
+                {selectedProduct.PRODUCTITEMID}
               </span>
             </p>
             <p>
@@ -490,9 +490,16 @@ function StandardConsumptionEntry() {
             <button
               type="button"
               className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded-full"
-              disabled={selectedProduct?.sections[currentSection]?.ITEMS === 0}
+              disabled={
+                selectedProduct?.sections.length === 0 ||
+                selectedProduct.sections.some(
+                  (section) => section.ITEMS.length === 0
+                )
+              }
               onClick={() => {
-                console.log("save");
+                insertProductStandardConsumption(selectedProduct);
+                dispatch(clearSelectedProduct());
+                navigate("/production");
               }}
             >
               Save
