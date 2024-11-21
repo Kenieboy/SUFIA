@@ -8,6 +8,8 @@ import { getProductItem } from "@/query/productionRequest";
 import { useDispatch } from "react-redux";
 import { setSelectedProduct } from "@/redux/standardConsumptionSlice";
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 function Production() {
   const [modalState, setModalState] = useState(false);
 
@@ -38,15 +40,31 @@ function Production() {
         <Link to="/newdailyconsumption">New PCS</Link> */}
       </div>
 
-      <div className="space-x-2">
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400"
-          onClick={handleModalStateAction}
-        >
-          Create Standard Consuption
-        </button>
-        <button>Daily Standard Consuption</button>
-      </div>
+      <Tabs defaultValue="standard-consumption" className="w-[400px]">
+        <TabsList>
+          <TabsTrigger value="standard-consumption">
+            Standar Consumption
+          </TabsTrigger>
+          <TabsTrigger value="daily-consumption">Daily Consumption</TabsTrigger>
+        </TabsList>
+        <TabsContent value="standard-consumption">
+          <div className="space-x-2">
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400"
+              onClick={handleModalStateAction}
+            >
+              Create Standard Consuption
+            </button>
+          </div>
+        </TabsContent>
+        <TabsContent value="daily-consumption">
+          <div className="space-x-2">
+            <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400">
+              Create Daily Consuption
+            </button>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={modalState}>
         {/* max-w-[800px] h-[70%] overflow-y-scroll */}
