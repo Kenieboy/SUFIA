@@ -141,7 +141,7 @@ export const insertStandardConsumption = (req, res) => {
 
 export const requestStandartConsumptionDetail = (req, res) => {
   // Extract query parameters
-  const { productItemId, sectionId } = req.body;
+  const { productItemId, sectionId } = req.query;
 
   // Validate query parameters
   if (!productItemId || !sectionId) {

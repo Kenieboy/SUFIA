@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Separator } from "@/components/ui/separator";
 
@@ -25,36 +25,41 @@ function DailyConsumptionEntry() {
   });
 
   const {
-    data: consumptionDetailData,
-    isLoading: isConsumptionLoading,
-    refetch: refetchConsumptionDetail,
+    data: anotherDetailData,
+    isLoading: isAnotherDetailLoading,
+    refetch: refetchAnotherDetail,
   } = useQuery({
-    queryKey: ["standardConsumptionDetail", selectedSection],
+    queryKey: ["anotherDetail", selectedSection], // Unique key
     queryFn: () =>
       getProductStandardConsumptionDetail({
         productItemId: selectedProduct.PRODUCTITEMID,
         sectionId: selectedSection?.sectionId,
       }),
-    enabled: false, // Disabled by default
+    enabled: false, // Disable auto-fetch
   });
 
-  console.log(consumptionDetailData);
+  useEffect(() => {
+    if (selectedSection && selectedSection.sectionId) {
+      refetchAnotherDetail();
+    }
+  }, [selectedSection]);
 
-  const handleSectionChange = async (e) => {
+  const handleSectionChange = (e) => {
     const selectedSectionId = Number(e.target.value);
 
-    // Update selected section state
-    const section = {
+    setSelectedSection({ sectionId: selectedSectionId });
+
+    console.log({
       productItemId: selectedProduct.PRODUCTITEMID,
       sectionId: selectedSectionId,
-    };
-    setSelectedSection(section);
+    });
 
-    // Trigger the query manually
-    await refetchConsumptionDetail();
+    setTimeout(() => {
+      refetchAnotherDetail();
+      console.log(anotherDetailData);
+    }, 0);
   };
 
-  console.log(sectionData);
   return (
     <div>
       <h1 className="text-xl font-bold">Daily Product Consumption</h1>

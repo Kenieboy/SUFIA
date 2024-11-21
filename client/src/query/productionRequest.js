@@ -43,11 +43,11 @@ async function insertProductStandardConsumption(value) {
 }
 
 const getProductStandardConsumptionDetail = async (value) => {
-  console.log("Request body:", value);
+  console.log("Request params:", value);
   try {
-    const res = await axios.post(
+    const res = await axios.get(
       `${BASEURL}/production/standard-consumption-detail`,
-      value // Pass `value` as the body
+      { params: value }
     );
     return res.data;
   } catch (error) {

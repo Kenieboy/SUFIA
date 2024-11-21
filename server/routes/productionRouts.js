@@ -24,6 +24,6 @@ router.post("/section", insertSection);
 
 router.post("/standard-consumption", insertStandardConsumption);
 
-router.post("/standard-consumption-detail", requestStandartConsumptionDetail);
+router.get("/standard-consumption-detail", requestStandartConsumptionDetail);
 
 export default router;
