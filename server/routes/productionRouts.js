@@ -5,6 +5,7 @@ import {
   getSection,
   insertSection,
   insertStandardConsumption,
+  requestStandartConsumptionDetail,
 } from "../models/productionModel.js";
 
 // ==============================================
@@ -22,5 +23,7 @@ router.post("/section", insertSection);
 // router.put("/production/section", updateSection);
 
 router.post("/standard-consumption", insertStandardConsumption);
+
+router.post("/standard-consumption-detail", requestStandartConsumptionDetail);
 
 export default router;

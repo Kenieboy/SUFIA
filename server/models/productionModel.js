@@ -138,3 +138,45 @@ export const insertStandardConsumption = (req, res) => {
     }
   );
 };
+
+export const requestStandartConsumptionDetail = (req, res) => {
+  // Extract query parameters
+  const { productItemId, sectionId } = req.body;
+
+  // Validate query parameters
+  if (!productItemId || !sectionId) {
+    return res.status(400).json({
+      error: "Missing required query parameters: productItemId, sectionId",
+    });
+  }
+
+  // SQL query
+  const query = `
+        SELECT
+            STANDARDCONSUMPTION.PRODUCTITEMID,
+            ITEM.NAMEENG,
+            ITEMUNIT.DESCRIPTIONEN AS UNITDESCRIPTION,
+            SECTION.DESCRIPTION,
+            STANDARDCONSUMPTIONDETAIL.*
+        FROM STANDARDCONSUMPTIONDETAIL
+        LEFT JOIN STANDARDCONSUMPTION ON STANDARDCONSUMPTIONDETAIL.STANDARDCONSUMPTIONID = STANDARDCONSUMPTION.ID
+        LEFT JOIN SECTION ON SECTION.ID = STANDARDCONSUMPTIONDETAIL.SECTIONID
+        LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = STANDARDCONSUMPTIONDETAIL.ITEMVARIATIONID
+        LEFT JOIN ITEM ON ITEM.ID = ITEMVARIATION.ITEMID
+        LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+        WHERE STANDARDCONSUMPTION.PRODUCTITEMID = ? AND STANDARDCONSUMPTIONDETAIL.SECTIONID = ?;
+    `;
+
+  // Execute query
+  dbConnection.query(query, [productItemId, sectionId], (error, results) => {
+    if (error) {
+      console.error("Error fetching standard consumption details:", error);
+      return res
+        .status(500)
+        .json({ error: "An error occurred while fetching the data." });
+    }
+
+    // Return results (empty array if no data)
+    res.json(results.length ? results : []);
+  });
+};

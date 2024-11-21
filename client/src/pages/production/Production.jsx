@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function Production() {
   const [modalState, setModalState] = useState(false);
+  const [path, setPath] = useState(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -24,7 +25,7 @@ function Production() {
     refetch: refetchProductItemData,
   } = useQuery({
     queryKey: ["product"],
-    queryFn: getProductItem, // Ensure you update the query function name if necessary
+    queryFn: getProductItem,
   });
 
   const handleModalStateAction = () => {
@@ -51,7 +52,10 @@ function Production() {
           <div className="space-x-2">
             <button
               className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400"
-              onClick={handleModalStateAction}
+              onClick={() => {
+                handleModalStateAction();
+                setPath("/newstandardconsumption");
+              }}
             >
               Create Standard Consuption
             </button>
@@ -59,7 +63,13 @@ function Production() {
         </TabsContent>
         <TabsContent value="daily-consumption">
           <div className="space-x-2">
-            <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400">
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400"
+              onClick={() => {
+                handleModalStateAction();
+                setPath("/newdailyconsumption");
+              }}
+            >
               Create Daily Consuption
             </button>
           </div>
@@ -110,7 +120,7 @@ function Production() {
                             PRODUCTNAME: pd.NAMEENG,
                           })
                         );
-                        navigate("/newstandardconsumption");
+                        navigate(path);
                       }}
                     >
                       <td className="px-4 py-2 border border-gray-300 text-center">
