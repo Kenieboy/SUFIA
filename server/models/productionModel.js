@@ -154,6 +154,7 @@ export const requestStandartConsumptionDetail = (req, res) => {
   const query = `
         SELECT
             STANDARDCONSUMPTION.PRODUCTITEMID,
+            ITEM.CODE,
             ITEM.NAMEENG,
             ITEMUNIT.DESCRIPTIONEN AS UNITDESCRIPTION,
             SECTION.DESCRIPTION,

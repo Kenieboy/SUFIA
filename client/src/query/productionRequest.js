@@ -43,7 +43,6 @@ async function insertProductStandardConsumption(value) {
 }
 
 const getProductStandardConsumptionDetail = async (value) => {
-  console.log("Request params:", value);
   try {
     const res = await axios.get(
       `${BASEURL}/production/standard-consumption-detail`,

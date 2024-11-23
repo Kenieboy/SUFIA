@@ -111,9 +111,6 @@ function Production() {
                         index % 2 !== 0 ? "bg-gray-50" : ""
                       }`}
                       onClick={() => {
-                        console.log(
-                          `Prodcut description: ${pd.ID}, ${pd.NAMEENG}`
-                        );
                         dispatch(
                           setSelectedProduct({
                             PRODUCTITEMID: pd.ID,

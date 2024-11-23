@@ -8,9 +8,14 @@ import {
   getProductSection,
   getProductStandardConsumptionDetail,
 } from "@/query/productionRequest";
+import { CircleX } from "lucide-react";
+import { loadDailyConsumptionData } from "@/redux/standardConsumptionSlice";
 
 function DailyConsumptionEntry() {
-  const selectedProduct = useSelector((state) => state.scData.selectedProduct);
+  const { selectedProduct, dailyConsumption } = useSelector(
+    (state) => state.scData
+  );
+  const dispatch = useDispatch();
 
   const [selectedSection, setSelectedSection] = useState(null);
 
@@ -29,13 +34,13 @@ function DailyConsumptionEntry() {
     isLoading: isAnotherDetailLoading,
     refetch: refetchAnotherDetail,
   } = useQuery({
-    queryKey: ["anotherDetail", selectedSection], // Unique key
+    queryKey: ["anotherDetail", selectedSection],
     queryFn: () =>
       getProductStandardConsumptionDetail({
         productItemId: selectedProduct.PRODUCTITEMID,
         sectionId: selectedSection?.sectionId,
       }),
-    enabled: false, // Disable auto-fetch
+    enabled: false,
   });
 
   useEffect(() => {
@@ -44,21 +49,27 @@ function DailyConsumptionEntry() {
     }
   }, [selectedSection]);
 
+  useEffect(() => {
+    if (
+      anotherDetailData && // Ensure data exists
+      Array.isArray(anotherDetailData)
+    ) {
+      // Dispatch the action to update Redux state
+      dispatch(loadDailyConsumptionData(anotherDetailData));
+    }
+  }, [anotherDetailData, dispatch]);
+
   const handleSectionChange = (e) => {
     const selectedSectionId = Number(e.target.value);
 
     setSelectedSection({ sectionId: selectedSectionId });
 
-    console.log({
-      productItemId: selectedProduct.PRODUCTITEMID,
-      sectionId: selectedSectionId,
-    });
-
     setTimeout(() => {
       refetchAnotherDetail();
-      console.log(anotherDetailData);
     }, 0);
   };
+
+  console.log(anotherDetailData);
 
   return (
     <div>
@@ -87,7 +98,7 @@ function DailyConsumptionEntry() {
       <Separator className="mt-4" />
 
       <div className="mt-2">
-        <label for="section">Choose a section:</label>
+        <label htmlFor="section">Choose a section:</label>
 
         <select name="section" id="section" onChange={handleSectionChange}>
           {sectionData &&

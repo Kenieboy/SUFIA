@@ -5,12 +5,20 @@ const initialState = {
   selectedProduct: {
     sections: [],
   },
+  dailyConsumption: [],
 };
 
 const scSlice = createSlice({
   name: "sc",
   initialState,
   reducers: {
+    loadDailyConsumptionData: (state, action) => {
+      if (action.payload.length === 0) {
+        state.dailyConsumption = [];
+      } else {
+        state.dailyConsumption = [...action.payload];
+      }
+    },
     setSelectedProduct: (state, action) => {
       state.selectedProduct = {
         ...state.selectedProduct,
@@ -74,6 +82,7 @@ const scSlice = createSlice({
 });
 
 export const {
+  loadDailyConsumptionData,
   setSelectedProduct,
   clearSelectedProduct,
   setSelectedSection,
