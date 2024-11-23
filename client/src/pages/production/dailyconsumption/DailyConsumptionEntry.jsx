@@ -9,7 +9,10 @@ import {
   getProductStandardConsumptionDetail,
 } from "@/query/productionRequest";
 import { CircleX } from "lucide-react";
-import { loadDailyConsumptionData } from "@/redux/standardConsumptionSlice";
+import {
+  loadDailyConsumptionData,
+  updateDialyConsumptionItemQty,
+} from "@/redux/standardConsumptionSlice";
 
 function DailyConsumptionEntry() {
   const { selectedProduct, dailyConsumption } = useSelector(
@@ -69,6 +72,13 @@ function DailyConsumptionEntry() {
     }, 0);
   };
 
+  const formatNumberWithCommas = (number) => {
+    return number.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
+
   console.log(anotherDetailData);
 
   return (
@@ -108,6 +118,103 @@ function DailyConsumptionEntry() {
               </option>
             ))}
         </select>
+      </div>
+
+      <div className="table-container mt-2">
+        <table className="min-w-full table-fixed-header text-[12px]">
+          <thead>
+            <tr>
+              <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                CODE
+              </th>
+              <th className="px-4 py-1 border border-gray-300">MATERIAL</th>
+              <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                QTY
+              </th>
+              <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                UNIT
+              </th>
+              <th className="px-4 py-1 border border-gray-300 w-[200px]">
+                LOT NO.
+              </th>
+              <th className="px-4 py-1 border border-gray-300 w-[150px]">
+                ACTION
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white text-[10px]">
+            {dailyConsumption.length === 0 ? (
+              <tr>
+                <td className="px-4 py-1 border border-gray-300 font-bold text-center">
+                  <p className="bg-gray-700 inline-block text-white px-2 rounded-full cursor-pointer">
+                    ...
+                  </p>
+                </td>
+                <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+                <td className="px-4 py-1 border border-gray-300 bg-gray-100"></td>
+              </tr>
+            ) : (
+              dailyConsumption?.map((daily, index) => (
+                <tr
+                  key={`${index}`}
+                  className={`hover:bg-gray-50 cursor-pointer ${
+                    index % 2 !== 0 ? "bg-gray-100" : ""
+                  }`}
+                >
+                  <td className="px-4 py-1 border border-gray-300">
+                    {daily.CODE}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300">
+                    {daily.NAMEENG}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300">
+                    <input
+                      type="number"
+                      min={0}
+                      value={daily.QTY || 0}
+                      className="w-full text-m font-bold p-2 rounded focus:outline-none bg-transparent"
+                      onChange={(e) => {
+                        const newQty =
+                          e.target.value === ""
+                            ? 0
+                            : parseFloat(e.target.value);
+                        dispatch(
+                          updateDialyConsumptionItemQty({
+                            currentSection: daily.SECTIONID,
+                            items: { itemId: daily.ID, value: newQty },
+                          })
+                        );
+                      }}
+                    />
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300">
+                    {daily.UNITDESCRIPTION}
+                  </td>
+                  <td className="px-4 py-1 border border-gray-300"></td>
+                  <td className="px-4 py-1 border border-gray-300">
+                    <CircleX
+                      className="cursor-pointer m-auto"
+                      height={20}
+                      width={20}
+                      color="#fb8500"
+                      onClick={() => {
+                        dispatch(
+                          removeItemSection({
+                            currentSection,
+                            selectedId: item.ID,
+                          })
+                        );
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

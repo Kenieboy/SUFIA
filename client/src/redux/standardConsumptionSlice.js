@@ -13,12 +13,25 @@ const scSlice = createSlice({
   initialState,
   reducers: {
     loadDailyConsumptionData: (state, action) => {
-      if (action.payload.length === 0) {
-        state.dailyConsumption = [];
-      } else {
+      state.dailyConsumption = [];
+
+      if (Array.isArray(action.payload) && action.payload.length > 0) {
         state.dailyConsumption = [...action.payload];
       }
     },
+
+    updateDialyConsumptionItemQty: (state, action) => {
+      const { currentSection, items } = action.payload;
+
+      const newItem = state.dailyConsumption.map((item) =>
+        item.ID === items.itemId && item.SECTIONID === currentSection
+          ? { ...item, QTY: items.value }
+          : item
+      );
+
+      state.dailyConsumption = newItem;
+    },
+
     setSelectedProduct: (state, action) => {
       state.selectedProduct = {
         ...state.selectedProduct,
@@ -87,6 +100,7 @@ export const {
   clearSelectedProduct,
   setSelectedSection,
   addItemToSection,
+  updateDialyConsumptionItemQty,
   updateItemQty,
   removeItemSection,
 } = scSlice.actions;
