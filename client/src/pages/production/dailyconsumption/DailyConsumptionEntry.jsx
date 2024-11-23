@@ -216,6 +216,42 @@ function DailyConsumptionEntry() {
           </tbody>
         </table>
       </div>
+
+      <div>
+        {/* BUTTON */}
+        <div className="text-xs flex gap-1 mt-6 font-semibold">
+          <div>
+            <button
+              type="button"
+              className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded-full"
+              disabled={dailyConsumption.length === 0}
+              onClick={() => {
+                const extractedDailyConsumption = dailyConsumption.map(
+                  ({ ITEMVARIATIONID, QTY }) => ({ ITEMVARIATIONID, QTY })
+                );
+
+                console.log({
+                  PRODUCTID: selectedProduct.PRODUCTITEMID,
+                  SECTIONID: selectedSection.sectionId,
+                  ITEMS: extractedDailyConsumption,
+                });
+              }}
+            >
+              Save
+            </button>
+          </div>
+          <div>
+            <button
+              type="button"
+              className="bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-full"
+              onClick={() => {}}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+        {/* BUTTON END */}
+      </div>
     </div>
   );
 }

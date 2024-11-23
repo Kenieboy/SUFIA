@@ -181,3 +181,92 @@ export const requestStandartConsumptionDetail = (req, res) => {
     res.json(results.length ? results : []);
   });
 };
+
+export const insertDailyConsumptionData = (req, res) => {
+  const { PRODUCTID, SECTIONID, ITEMS } = req.body;
+
+  if (!PRODUCTID || !SECTIONID || !Array.isArray(ITEMS) || ITEMS.length === 0) {
+    return res.status(400).json({ error: "Invalid input data" });
+  }
+
+  dbConnection.getConnection((err, connection) => {
+    if (err) {
+      console.error("Error getting database connection:", err);
+      return res.status(500).json({ error: "Database connection failed" });
+    }
+
+    // Start a transaction
+    connection.beginTransaction((transactionErr) => {
+      if (transactionErr) {
+        connection.release();
+        console.error("Transaction start failed:", transactionErr);
+        return res.status(500).json({ error: "Transaction failed to start" });
+      }
+
+      // Insert into DAILYCONSUMPTION
+      const insertDailyConsumptionQuery = `
+        INSERT INTO DAILYCONSUMPTION (REFNO, PRODUCTITEMID, SECTIONID, DATE, NOTE, INPUTBY)
+        VALUES (?, ?, ?, CURDATE(), NULL, 'SYSTEM')
+      `;
+
+      connection.query(
+        insertDailyConsumptionQuery,
+        [null, PRODUCTID, SECTIONID],
+        (insertErr, result) => {
+          if (insertErr) {
+            connection.rollback(() => connection.release());
+            console.error("Error inserting into DAILYCONSUMPTION:", insertErr);
+            return res
+              .status(500)
+              .json({ error: "Failed to record daily consumption" });
+          }
+
+          const DAILYCONSUMPTIONID = result.insertId;
+
+          // Prepare data for DAILYCONSUMPTIONDETAIL
+          const detailsData = ITEMS.map((item) => [
+            DAILYCONSUMPTIONID,
+            item.ITEMVARIATIONID,
+            item.QTY,
+          ]);
+
+          // Insert into DAILYCONSUMPTIONDETAIL
+          const insertDetailsQuery = `
+            INSERT INTO DAILYCONSUMPTIONDETAIL (DAILYCONSUMPTIONID, ITEMVARIATIONID, ACTUALQTY)
+            VALUES ?
+          `;
+
+          connection.query(insertDetailsQuery, [detailsData], (detailsErr) => {
+            if (detailsErr) {
+              connection.rollback(() => connection.release());
+              console.error(
+                "Error inserting into DAILYCONSUMPTIONDETAIL:",
+                detailsErr
+              );
+              return res
+                .status(500)
+                .json({ error: "Failed to record daily consumption details" });
+            }
+
+            // Commit transaction
+            connection.commit((commitErr) => {
+              if (commitErr) {
+                connection.rollback(() => connection.release());
+                console.error("Error committing transaction:", commitErr);
+                return res
+                  .status(500)
+                  .json({ error: "Transaction commit failed" });
+              }
+
+              connection.release();
+              res.status(201).json({
+                message: "Daily consumption recorded successfully",
+                DAILYCONSUMPTIONID,
+              });
+            });
+          });
+        }
+      );
+    });
+  });
+};

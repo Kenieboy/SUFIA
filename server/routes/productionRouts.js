@@ -3,6 +3,7 @@ import express from "express";
 import {
   getProduct,
   getSection,
+  insertDailyConsumptionData,
   insertSection,
   insertStandardConsumption,
   requestStandartConsumptionDetail,
@@ -16,14 +17,15 @@ const router = express.Router();
 
 router.get("/", getProduct);
 
-//production section
 router.get("/section", getSection);
-// router.get("/production/section/:Id", getSectionId);
+
 router.post("/section", insertSection);
-// router.put("/production/section", updateSection);
 
 router.post("/standard-consumption", insertStandardConsumption);
 
 router.get("/standard-consumption-detail", requestStandartConsumptionDetail);
+
+//daily consumption
+router.post("/daily-consumption", insertDailyConsumptionData);
 
 export default router;
