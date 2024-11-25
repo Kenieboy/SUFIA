@@ -58,10 +58,27 @@ const getProductStandardConsumptionDetail = async (value) => {
   }
 };
 
+const insertProductDailyConsumption = async (value) => {
+  try {
+    const res = await axios.post(
+      `${BASEURL}/production/daily-consumption`,
+      value
+    );
+    return res.data;
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error("An unexpected error occurred.");
+    }
+  }
+};
+
 export {
   getProductItem,
   getProductSection,
   getProductStandardConsumptionDetail,
   insertProductSection,
   insertProductStandardConsumption,
+  insertProductDailyConsumption,
 };

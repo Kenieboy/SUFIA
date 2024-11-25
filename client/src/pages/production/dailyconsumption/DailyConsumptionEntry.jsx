@@ -7,18 +7,22 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getProductSection,
   getProductStandardConsumptionDetail,
+  insertProductDailyConsumption,
 } from "@/query/productionRequest";
 import { CircleX } from "lucide-react";
 import {
   loadDailyConsumptionData,
+  resetDailyConsumptionBasket,
   updateDialyConsumptionItemQty,
 } from "@/redux/standardConsumptionSlice";
+import { useNavigate } from "react-router-dom";
 
 function DailyConsumptionEntry() {
   const { selectedProduct, dailyConsumption } = useSelector(
     (state) => state.scData
   );
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [selectedSection, setSelectedSection] = useState(null);
 
@@ -80,6 +84,26 @@ function DailyConsumptionEntry() {
   };
 
   console.log(anotherDetailData);
+
+  const handleInsertProductDailyConsumption = () => {
+    const extractedDailyConsumption = dailyConsumption.map(
+      ({ ITEMVARIATIONID, QTY }) => ({ ITEMVARIATIONID, QTY })
+    );
+
+    console.log({
+      PRODUCTID: selectedProduct.PRODUCTITEMID,
+      SECTIONID: selectedSection.sectionId,
+      ITEMS: extractedDailyConsumption,
+    });
+
+    insertProductDailyConsumption({
+      PRODUCTID: selectedProduct.PRODUCTITEMID,
+      SECTIONID: selectedSection.sectionId,
+      ITEMS: extractedDailyConsumption,
+    });
+    dispatch(resetDailyConsumptionBasket());
+    navigate("/production");
+  };
 
   return (
     <div>
@@ -225,17 +249,7 @@ function DailyConsumptionEntry() {
               type="button"
               className="bg-green-500 hover:bg-green-400 text-white px-4 py-1 rounded-full"
               disabled={dailyConsumption.length === 0}
-              onClick={() => {
-                const extractedDailyConsumption = dailyConsumption.map(
-                  ({ ITEMVARIATIONID, QTY }) => ({ ITEMVARIATIONID, QTY })
-                );
-
-                console.log({
-                  PRODUCTID: selectedProduct.PRODUCTITEMID,
-                  SECTIONID: selectedSection.sectionId,
-                  ITEMS: extractedDailyConsumption,
-                });
-              }}
+              onClick={handleInsertProductDailyConsumption}
             >
               Save
             </button>
@@ -244,7 +258,10 @@ function DailyConsumptionEntry() {
             <button
               type="button"
               className="bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-full"
-              onClick={() => {}}
+              onClick={() => {
+                dispatch(resetDailyConsumptionBasket());
+                navigate("/production");
+              }}
             >
               Close
             </button>

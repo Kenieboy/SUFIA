@@ -32,6 +32,10 @@ const scSlice = createSlice({
       state.dailyConsumption = newItem;
     },
 
+    resetDailyConsumptionBasket: (state, action) => {
+      state.dailyConsumption = [];
+    },
+
     setSelectedProduct: (state, action) => {
       state.selectedProduct = {
         ...state.selectedProduct,
@@ -97,6 +101,7 @@ const scSlice = createSlice({
 export const {
   loadDailyConsumptionData,
   setSelectedProduct,
+  resetDailyConsumptionBasket,
   clearSelectedProduct,
   setSelectedSection,
   addItemToSection,
