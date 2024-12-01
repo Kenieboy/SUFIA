@@ -28,6 +28,7 @@ import {
   getProductSection,
   insertProductSection,
   insertProductStandardConsumption,
+  updateProductStandardConsumptionData,
 } from "@/query/productionRequest";
 import { CircleX, FastForward, Plus } from "lucide-react";
 import { getItemData, getPurchaseDeliveryDetail } from "@/query/itemRequest";
@@ -51,7 +52,7 @@ function StandardConsumptionEntry() {
   const [currentSection, setCurrentSection] = useState(0);
 
   const selectedProduct = useSelector((state) => state.scData.selectedProduct);
-  const applicationStatae = useSelector((state) => state.scData);
+  const applicationState = useSelector((state) => state.scData);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -107,10 +108,23 @@ function StandardConsumptionEntry() {
         if (itemVariations.length === 0) {
           alert(`Please select variation unit for "${others.NAMEENG}" item. `);
         } else {
+          const item = { ID, ...others };
+
+          if (applicationState.isEditMode) {
+            item.MODE = 1;
+          }
+
+          // dispatch(
+          //   addItemToSection({
+          //     sectionActive: currentSection,
+          //     item: { ID, ...others },
+          //   })
+          // );
+
           dispatch(
             addItemToSection({
               sectionActive: currentSection,
-              item: { ID, ...others },
+              item,
             })
           );
         }
@@ -139,8 +153,7 @@ function StandardConsumptionEntry() {
     <div>
       <h1 className="text-xl font-bold">New Standard Consumption Product</h1>
       <h2>
-        Edit mode:{" "}
-        {applicationStatae.isEditMode ? "edit mode" : "off edit mode"}
+        Edit mode: {applicationState.isEditMode ? "edit mode" : "off edit mode"}
       </h2>
       <div className="mt-6">
         <h2 className="text-xl">Selected Product:</h2>
@@ -344,15 +357,28 @@ function StandardConsumptionEntry() {
                           index % 2 !== 0 ? "bg-gray-50" : ""
                         }`}
                         onClick={() => {
-                          dispatch(
-                            setSelectedSection({
-                              SECTIONID: pd.ID,
-                              DESCRIPTION: pd.DESCRIPTION,
-                              ITEMS: [],
-                            })
-                          );
+                          if (applicationState.isEditMode) {
+                            dispatch(
+                              setSelectedSection({
+                                MODE: 1,
+                                SECTIONID: pd.ID,
+                                DESCRIPTION: pd.DESCRIPTION,
+                                ITEMS: [],
+                              })
+                            );
 
-                          handleFrmSectionModal();
+                            handleFrmSectionModal();
+                          } else {
+                            dispatch(
+                              setSelectedSection({
+                                SECTIONID: pd.ID,
+                                DESCRIPTION: pd.DESCRIPTION,
+                                ITEMS: [],
+                              })
+                            );
+
+                            handleFrmSectionModal();
+                          }
                         }}
                       >
                         <td className="px-4 py-2 border border-gray-300 text-center">
@@ -503,9 +529,15 @@ function StandardConsumptionEntry() {
                 )
               }
               onClick={() => {
-                insertProductStandardConsumption(selectedProduct);
-                dispatch(clearSelectedProduct());
-                navigate("/production");
+                if (applicationState.isEditMode) {
+                  updateProductStandardConsumptionData(selectedProduct);
+                  dispatch(clearSelectedProduct());
+                  navigate("/production");
+                } else {
+                  insertProductStandardConsumption(selectedProduct);
+                  dispatch(clearSelectedProduct());
+                  navigate("/production");
+                }
               }}
             >
               Save

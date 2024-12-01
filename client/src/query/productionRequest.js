@@ -88,6 +88,15 @@ async function getProductStandardConsumptionById(value) {
   return data;
 }
 
+async function updateProductStandardConsumptionData(value) {
+  const res = await axios.post(
+    `${BASEURL}/production/update-standard-consumption-detail`,
+    value
+  );
+  const data = res.data;
+  return data;
+}
+
 export {
   getProductItem,
   getProductSection,
@@ -97,4 +106,5 @@ export {
   insertProductSection,
   insertProductStandardConsumption,
   insertProductDailyConsumption,
+  updateProductStandardConsumptionData,
 };

@@ -9,6 +9,7 @@ import {
   insertSection,
   insertStandardConsumption,
   requestStandartConsumptionDetail,
+  updateStandardConsumptionDetail,
 } from "../models/productionModel.js";
 
 // ==============================================
@@ -28,6 +29,11 @@ router.get("/standard-consumption", getStandardConsumptionData);
 router.get(
   "/standard-consumption-data/:productItemId",
   getStandardConsumptionDataForUpdate
+);
+
+router.post(
+  "/update-standard-consumption-detail",
+  updateStandardConsumptionDetail
 );
 
 router.get("/standard-consumption-detail", requestStandartConsumptionDetail);

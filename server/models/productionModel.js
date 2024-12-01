@@ -332,6 +332,52 @@ export const getStandardConsumptionDataForUpdate = (req, res) => {
   //     STANDARDCONSUMPTIONDETAIL.SECTIONID, SECTION.ID
   //   `;
 
+  //   const query = `SELECT
+  //     JSON_OBJECT(
+  //         'sections', JSON_ARRAYAGG(
+  //             JSON_OBJECT(
+  //                 'SECTIONID', SECTION.ID,
+  //                 'DESCRIPTION', SECTION.DESCRIPTION,
+  //                 'ITEMS', (
+  //                     SELECT JSON_ARRAYAGG(
+  //                         JSON_OBJECT(
+  //                            'SCDID', STANDARDCONSUMPTIONDETAIL.ID,
+  //                             'ID', IM.ID,
+  //                             'ITEMCODE', IM.CODE,
+  //                             'NAMEENG', IM.NAMEENG,
+  //                             'ITEMVARIATIONID', ITEMVARIATION.ID,
+  //                             'QTY', STANDARDCONSUMPTIONDETAIL.QTY,
+  //                             'CODE', ITEMUNIT.DESCRIPTIONEN
+  //                         )
+  //                     )
+  //                     FROM STANDARDCONSUMPTIONDETAIL
+  //                     LEFT JOIN ITEM ON ITEM.ID = STANDARDCONSUMPTIONDETAIL.PRODUCTITEMID
+  //                     LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = STANDARDCONSUMPTIONDETAIL.ITEMVARIATIONID
+  //                     LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+  // 					LEFT JOIN ITEM AS IM ON IM.ID = ITEMVARIATION.ITEMID
+  //                     WHERE STANDARDCONSUMPTIONDETAIL.SECTIONID = SECTION.ID
+  //                     GROUP BY STANDARDCONSUMPTIONDETAIL.SECTIONID
+  //                 )
+  //             )
+  //         ),
+  //         'PRODUCTITEMID', STANDARDCONSUMPTION.PRODUCTITEMID,
+  //         'PRODUCTNAME', PRODUCTITEM.NAMEENG
+  //     ) AS Result
+  // FROM
+  //     STANDARDCONSUMPTION
+  // LEFT JOIN
+  //     STANDARDCONSUMPTIONDETAIL ON STANDARDCONSUMPTION.ID = STANDARDCONSUMPTIONDETAIL.STANDARDCONSUMPTIONID
+  // LEFT JOIN
+  //     SECTION ON SECTION.ID = STANDARDCONSUMPTIONDETAIL.SECTIONID
+  // LEFT JOIN
+  //     ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = STANDARDCONSUMPTION.PRODUCTITEMID
+  // WHERE
+  //     STANDARDCONSUMPTION.PRODUCTITEMID = ?
+  // GROUP BY
+  //     STANDARDCONSUMPTION.PRODUCTITEMID
+
+  // `;
+
   const query = `SELECT 
     JSON_OBJECT(
         'sections', JSON_ARRAYAGG(
@@ -341,26 +387,27 @@ export const getStandardConsumptionDataForUpdate = (req, res) => {
                 'ITEMS', (
                     SELECT JSON_ARRAYAGG(
                         JSON_OBJECT(
-                            'ID', ITEMVARIATION.ID,
-                            'ITEMCODE', IM.CODE,
-                            'NAMEENG', IM.NAMEENG,
-                            'ITEMVARIATIONID', ITEMVARIATION.ID,
-                            'QTY', STANDARDCONSUMPTIONDETAIL.QTY,
-                            'CODE', ITEMUNIT.DESCRIPTIONEN
+                           'SCDID', STANDARDCONSUMPTIONDETAIL.ID,
+                           'ID', IM.ID,
+                           'ITEMCODE', IM.CODE,
+                           'NAMEENG', IM.NAMEENG,
+                           'ITEMVARIATIONID', ITEMVARIATION.ID,
+                           'QTY', STANDARDCONSUMPTIONDETAIL.QTY,
+                           'CODE', ITEMUNIT.DESCRIPTIONEN
                         )
                     )
                     FROM STANDARDCONSUMPTIONDETAIL
                     LEFT JOIN ITEM ON ITEM.ID = STANDARDCONSUMPTIONDETAIL.PRODUCTITEMID
                     LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = STANDARDCONSUMPTIONDETAIL.ITEMVARIATIONID
                     LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
-					LEFT JOIN ITEM AS IM ON IM.ID = ITEMVARIATION.ITEMID
+                    LEFT JOIN ITEM AS IM ON IM.ID = ITEMVARIATION.ITEMID
                     WHERE STANDARDCONSUMPTIONDETAIL.SECTIONID = SECTION.ID
-                    GROUP BY STANDARDCONSUMPTIONDETAIL.SECTIONID 
                 )
             )
         ),
         'PRODUCTITEMID', STANDARDCONSUMPTION.PRODUCTITEMID,
-        'PRODUCTNAME', PRODUCTITEM.NAMEENG
+        'PRODUCTNAME', PRODUCTITEM.NAMEENG,
+        'SCID', STANDARDCONSUMPTION.ID
     ) AS Result
 FROM 
     STANDARDCONSUMPTION
@@ -373,9 +420,9 @@ LEFT JOIN
 WHERE 
     STANDARDCONSUMPTION.PRODUCTITEMID = ?
 GROUP BY 
-    STANDARDCONSUMPTION.PRODUCTITEMID
-
-`;
+    STANDARDCONSUMPTION.PRODUCTITEMID, 
+    STANDARDCONSUMPTION.ID,
+    PRODUCTITEM.NAMEENG;`;
 
   dbConnection.query(query, [productItemId], (err, results) => {
     if (err) {
@@ -400,9 +447,96 @@ GROUP BY
       sections: data.sections,
       PRODUCTITEMID: data.PRODUCTITEMID,
       PRODUCTNAME: data.PRODUCTNAME,
+      SCID: data.SCID,
     });
 
     // "PRODUCTNAME": "PRODUCT 01",
     // "PRODUCTITEMID": 7255
   });
+};
+
+export const updateStandardConsumptionDetail = (req, res) => {
+  const data = req.body;
+
+  if (!data || !data.sections || !data.PRODUCTITEMID) {
+    return res.status(400).send({ message: "Invalid data structure." });
+  }
+
+  const { sections, SCID } = data;
+
+  sections.forEach((section) => {
+    const { SECTIONID, ITEMS } = section;
+
+    ITEMS.forEach((item) => {
+      const { SCDID, QTY, ITEMVARIATIONID, MODE } = item;
+
+      if (MODE === 1) {
+        // Insert if MODE is 1
+        dbConnection.query(
+          `INSERT INTO STANDARDCONSUMPTIONDETAIL 
+                  (STANDARDCONSUMPTIONID, SECTIONID, ITEMVARIATIONID, QTY) 
+                  VALUES (?, ?, ?, ?)`,
+          [SCID, SECTIONID, ITEMVARIATIONID, QTY],
+          (insertErr) => {
+            if (insertErr) {
+              console.error("Error inserting into database:", insertErr);
+              return res
+                .status(500)
+                .send({ message: "Database insert error." });
+            }
+          }
+        );
+      } else {
+        // Check if the item already exists in the database
+        dbConnection.query(
+          `SELECT * FROM STANDARDCONSUMPTIONDETAIL WHERE ID = ?`,
+          [SCDID],
+          (err, results) => {
+            if (err) {
+              console.error("Error querying database:", err);
+              return res.status(500).send({ message: "Database query error." });
+            }
+
+            if (results.length === 0) {
+              // Insert if the record doesn't exist
+              dbConnection.query(
+                `INSERT INTO STANDARDCONSUMPTIONDETAIL 
+                        (STANDARDCONSUMPTIONID, SECTIONID, ITEMVARIATIONID, QTY) 
+                        VALUES (?, ?, ?, ?)`,
+                [SCID, SECTIONID, ITEMVARIATIONID, QTY],
+                (insertErr) => {
+                  if (insertErr) {
+                    console.error("Error inserting into database:", insertErr);
+                    return res
+                      .status(500)
+                      .send({ message: "Database insert error." });
+                  }
+                }
+              );
+            } else {
+              // Update the existing record
+              dbConnection.query(
+                `UPDATE STANDARDCONSUMPTIONDETAIL 
+                        SET QTY = ? 
+                        WHERE ID = ?`,
+                [QTY, SCDID],
+                (updateErr) => {
+                  if (updateErr) {
+                    console.error("Error updating database:", updateErr);
+                    return res
+                      .status(500)
+                      .send({ message: "Database update error." });
+                  }
+                }
+              );
+            }
+          }
+        );
+      }
+    });
+  });
+
+  res
+    .status(200)
+    .send({ message: "Standard consumption details updated successfully." });
 };

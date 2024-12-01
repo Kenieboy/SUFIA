@@ -9,7 +9,7 @@ import {
   getProductStandardConsumptionById,
   getStandardConsumptionData,
 } from "@/query/productionRequest";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedProduct,
   updateIsEditMode,
@@ -26,6 +26,8 @@ function Production() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const applicationState = useSelector((state) => state.scData);
 
   // Query for product item data
   const {
@@ -50,7 +52,7 @@ function Production() {
 
   useEffect(() => {
     refetchStandardConsumptionData;
-  }, [navigate]);
+  }, [navigate, applicationState, path, dispatch]);
 
   const handleModalStateAction = () => {
     setModalState((prev) => !prev);
