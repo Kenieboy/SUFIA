@@ -74,10 +74,26 @@ const insertProductDailyConsumption = async (value) => {
   }
 };
 
+async function getStandardConsumptionData() {
+  const res = await axios.get(`${BASEURL}/production/standard-consumption`);
+  const data = res.data;
+  return data;
+}
+
+async function getProductStandardConsumptionById(value) {
+  const res = await axios.get(
+    `${BASEURL}/production/standard-consumption-data/${value}`
+  );
+  const data = res.data;
+  return data;
+}
+
 export {
   getProductItem,
   getProductSection,
   getProductStandardConsumptionDetail,
+  getProductStandardConsumptionById,
+  getStandardConsumptionData,
   insertProductSection,
   insertProductStandardConsumption,
   insertProductDailyConsumption,

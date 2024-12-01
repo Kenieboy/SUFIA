@@ -3,6 +3,7 @@ import {
   clearSelectedProduct,
   removeItemSection,
   setSelectedSection,
+  updateIsEditMode,
   updateItemQty,
 } from "@/redux/standardConsumptionSlice";
 import React from "react";
@@ -50,6 +51,7 @@ function StandardConsumptionEntry() {
   const [currentSection, setCurrentSection] = useState(0);
 
   const selectedProduct = useSelector((state) => state.scData.selectedProduct);
+  const applicationStatae = useSelector((state) => state.scData);
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -136,6 +138,10 @@ function StandardConsumptionEntry() {
   return (
     <div>
       <h1 className="text-xl font-bold">New Standard Consumption Product</h1>
+      <h2>
+        Edit mode:{" "}
+        {applicationStatae.isEditMode ? "edit mode" : "off edit mode"}
+      </h2>
       <div className="mt-6">
         <h2 className="text-xl">Selected Product:</h2>
         {selectedProduct.PRODUCTITEMID ? (
@@ -148,7 +154,7 @@ function StandardConsumptionEntry() {
             </p>
             <p>
               Product Name:{" "}
-              <span className="bg-green-400 px-4 py-1 rounded-full text-white">
+              <span className="font-bold underline">
                 {selectedProduct.PRODUCTNAME}
               </span>
             </p>
@@ -511,6 +517,7 @@ function StandardConsumptionEntry() {
               className="bg-red-500 hover:bg-red-400 text-white px-4 py-1 rounded-full"
               onClick={() => {
                 dispatch(clearSelectedProduct());
+                dispatch(updateIsEditMode(false));
                 navigate("/production");
               }}
             >

@@ -270,3 +270,139 @@ export const insertDailyConsumptionData = (req, res) => {
     });
   });
 };
+
+export const getStandardConsumptionData = (req, res) => {
+  dbConnection.query(
+    "SELECT ITEM.NAMEENG, STANDARDCONSUMPTION.* FROM STANDARDCONSUMPTION left join ITEM on ITEM.id = STANDARDCONSUMPTION.PRODUCTITEMID",
+    (err, results) => {
+      if (err) {
+        console.log("Database query error:", err);
+        return res.status(500).json({ error: "Database query error" });
+      }
+
+      res.json(results);
+    }
+  );
+};
+
+export const getStandardConsumptionDataForUpdate = (req, res) => {
+  const { productItemId } = req.params;
+
+  //   const query = `
+  //     SELECT
+  //     JSON_OBJECT(
+  //         'sections', JSON_ARRAYAGG(
+  //             JSON_OBJECT(
+  //                 'SECTIONID', SECTION.ID,
+  //                 'DESCRIPTION', SECTION.DESCRIPTION,
+  //                 'ITEMS', (
+  //                     SELECT JSON_ARRAYAGG(
+  //                         JSON_OBJECT(
+  //                             'ID', ITEMVARIATION.ID,
+  //                             'ITEMCODE', ITEM.CODE,
+  //                             'NAMEENG', ITEM.NAMEENG,
+  //                             'NAMEJP', ITEM.NAMEJP,
+  //                             'ITEMVARIATIONID', ITEMVARIATION.ID,
+  //                             'QTY', STANDARDCONSUMPTIONDETAIL.QTY,
+  //                             'CODE', ITEMUNIT.CODE
+  //                         )
+  //                     )
+  //                     FROM STANDARDCONSUMPTIONDETAIL
+  //                     LEFT JOIN ITEM ON ITEM.ID = STANDARDCONSUMPTIONDETAIL.PRODUCTITEMID
+  //                     LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = STANDARDCONSUMPTIONDETAIL.ITEMVARIATIONID
+  //                     LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+  //                     WHERE STANDARDCONSUMPTIONDETAIL.SECTIONID = SECTION.ID
+  //                 )
+  //             )
+  //         ),
+  //         'PRODUCTITEMID', STANDARDCONSUMPTION.PRODUCTITEMID,
+  //         'PRODUCTNAME', PRODUCTITEM.NAMEENG
+  //     ) AS Result
+  // FROM
+  //     STANDARDCONSUMPTION
+  // LEFT JOIN
+  //     STANDARDCONSUMPTIONDETAIL ON STANDARDCONSUMPTION.ID = STANDARDCONSUMPTIONDETAIL.STANDARDCONSUMPTIONID
+  // LEFT JOIN
+  //     SECTION ON SECTION.ID = STANDARDCONSUMPTIONDETAIL.SECTIONID
+  // LEFT JOIN
+  //     ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = STANDARDCONSUMPTION.PRODUCTITEMID
+  // WHERE
+  //     STANDARDCONSUMPTION.PRODUCTITEMID = ?
+  //     GROUP BY
+  //     STANDARDCONSUMPTIONDETAIL.SECTIONID, SECTION.ID
+  //   `;
+
+  const query = `SELECT 
+    JSON_OBJECT(
+        'sections', JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'SECTIONID', SECTION.ID,
+                'DESCRIPTION', SECTION.DESCRIPTION,
+                'ITEMS', (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'ID', ITEMVARIATION.ID,
+                            'ITEMCODE', IM.CODE,
+                            'NAMEENG', IM.NAMEENG,
+                            'ITEMVARIATIONID', ITEMVARIATION.ID,
+                            'QTY', STANDARDCONSUMPTIONDETAIL.QTY,
+                            'CODE', ITEMUNIT.DESCRIPTIONEN
+                        )
+                    )
+                    FROM STANDARDCONSUMPTIONDETAIL
+                    LEFT JOIN ITEM ON ITEM.ID = STANDARDCONSUMPTIONDETAIL.PRODUCTITEMID
+                    LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = STANDARDCONSUMPTIONDETAIL.ITEMVARIATIONID
+                    LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+					LEFT JOIN ITEM AS IM ON IM.ID = ITEMVARIATION.ITEMID
+                    WHERE STANDARDCONSUMPTIONDETAIL.SECTIONID = SECTION.ID
+                    GROUP BY STANDARDCONSUMPTIONDETAIL.SECTIONID 
+                )
+            )
+        ),
+        'PRODUCTITEMID', STANDARDCONSUMPTION.PRODUCTITEMID,
+        'PRODUCTNAME', PRODUCTITEM.NAMEENG
+    ) AS Result
+FROM 
+    STANDARDCONSUMPTION
+LEFT JOIN 
+    STANDARDCONSUMPTIONDETAIL ON STANDARDCONSUMPTION.ID = STANDARDCONSUMPTIONDETAIL.STANDARDCONSUMPTIONID
+LEFT JOIN 
+    SECTION ON SECTION.ID = STANDARDCONSUMPTIONDETAIL.SECTIONID
+LEFT JOIN 
+    ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = STANDARDCONSUMPTION.PRODUCTITEMID
+WHERE 
+    STANDARDCONSUMPTION.PRODUCTITEMID = ?
+GROUP BY 
+    STANDARDCONSUMPTION.PRODUCTITEMID
+
+`;
+
+  dbConnection.query(query, [productItemId], (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Database query error" });
+    }
+
+    const data = results[0].Result;
+
+    const seenSectionIDs = new Set();
+
+    data.sections = data.sections.filter((section) => {
+      if (seenSectionIDs.has(section.SECTIONID)) {
+        return false;
+      } else {
+        seenSectionIDs.add(section.SECTIONID);
+        return true;
+      }
+    });
+
+    res.json({
+      sections: data.sections,
+      PRODUCTITEMID: data.PRODUCTITEMID,
+      PRODUCTNAME: data.PRODUCTNAME,
+    });
+
+    // "PRODUCTNAME": "PRODUCT 01",
+    // "PRODUCTITEMID": 7255
+  });
+};

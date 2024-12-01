@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   lastUsedId: 0,
+  isEditMode: false,
   selectedProduct: {
     sections: [],
   },
@@ -12,6 +13,12 @@ const scSlice = createSlice({
   name: "sc",
   initialState,
   reducers: {
+    updateSelectedProduct: (state, action) => {
+      state.selectedProduct = { ...state.selectedProduct, ...action.payload };
+    },
+    updateIsEditMode: (state, action) => {
+      state.isEditMode = action.payload;
+    },
     loadDailyConsumptionData: (state, action) => {
       state.dailyConsumption = [];
 
@@ -99,6 +106,8 @@ const scSlice = createSlice({
 });
 
 export const {
+  updateSelectedProduct,
+  updateIsEditMode,
   loadDailyConsumptionData,
   setSelectedProduct,
   resetDailyConsumptionBasket,
