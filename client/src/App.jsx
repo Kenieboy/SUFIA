@@ -42,6 +42,7 @@ import { useSelector } from "react-redux";
 import Login from "./pages/login/Login";
 import StandardConsumptionEntry from "./pages/production/standardconsumption/StandardConsumptionEntry";
 import DailyConsumptionEntry from "./pages/production/dailyconsumption/DailyConsumptionEntry";
+import DailyConsumptionEditEntry from "./pages/production/dailyconsumption/DailyConsumptionEditEntry";
 
 function App() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -196,6 +197,10 @@ function App() {
         {
           path: "newdailyconsumption",
           element: <DailyConsumptionEntry />,
+        },
+        {
+          path: "editdailyconsumption",
+          element: <DailyConsumptionEditEntry />,
         },
         {
           path: "reports",

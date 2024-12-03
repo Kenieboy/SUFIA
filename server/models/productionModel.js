@@ -540,3 +540,215 @@ export const updateStandardConsumptionDetail = (req, res) => {
     .status(200)
     .send({ message: "Standard consumption details updated successfully." });
 };
+
+export const getDailyConsumptionData = (req, res) => {
+  dbConnection.query(
+    ` SELECT ITEM.NAMEENG, SECTION.DESCRIPTION, DAILYCONSUMPTION.* FROM DAILYCONSUMPTION 
+left join ITEM on ITEM.id = DAILYCONSUMPTION.PRODUCTITEMID
+left join SECTION ON SECTION.ID = DAILYCONSUMPTION.SECTIONID`,
+    (err, results) => {
+      if (err) {
+        console.log("Database query error:", err);
+        return res.status(500).json({ error: "Database query error" });
+      }
+
+      res.json(results);
+    }
+  );
+};
+
+export const getDailyConsumptionDataForUpdate = (req, res) => {
+  const { productItemId } = req.params;
+
+  //   const query = `SELECT
+  //     JSON_OBJECT(
+  //         'sections', JSON_ARRAYAGG(
+  //             JSON_OBJECT(
+  //                 'SECTIONID', SECTION.ID,
+  //                 'DESCRIPTION', SECTION.DESCRIPTION,
+  //                 'ITEMS', (
+  //                     SELECT JSON_ARRAYAGG(
+  //                         JSON_OBJECT(
+  // 							'ID', PRODUCTITEM.ID,
+  //                             'DCDID', dcd.ID,
+  //                             'DAILYCONSUMPTIONID', dcd.DAILYCONSUMPTIONID,
+  //                             'ITEMVARIATIONID', dcd.ITEMVARIATIONID,
+  //                             'ACTUALQTY', dcd.ACTUALQTY
+  //                         )
+  //                     )
+  //                     FROM (
+  //                         SELECT DISTINCT ID, DAILYCONSUMPTIONID, ITEMVARIATIONID, ACTUALQTY
+  //                         FROM DAILYCONSUMPTIONDETAIL
+  //                         WHERE DAILYCONSUMPTIONDETAIL.DAILYCONSUMPTIONID = DAILYCONSUMPTION.ID
+  //                           AND DAILYCONSUMPTIONDETAIL.DAILYCONSUMPTIONID IS NOT NULL
+  //                     ) AS dcd
+  //                 )
+  //             )
+  //         ),
+  //         'PRODUCTITEMID', DAILYCONSUMPTION.PRODUCTITEMID,
+  //         'PRODUCTNAME', PRODUCTITEM.NAMEENG,
+  //         'DCID', DAILYCONSUMPTION.ID
+  //     ) AS Result
+  // FROM
+  //     DAILYCONSUMPTION
+  // LEFT JOIN
+  //     SECTION ON SECTION.ID = DAILYCONSUMPTION.SECTIONID
+  // LEFT JOIN
+  //     ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = DAILYCONSUMPTION.PRODUCTITEMID
+  // WHERE
+  //     DAILYCONSUMPTION.PRODUCTITEMID = ?
+  // GROUP BY
+  //     DAILYCONSUMPTION.PRODUCTITEMID,
+  //     DAILYCONSUMPTION.ID,
+  //     PRODUCTITEM.NAMEENG;`;
+
+  const query = `SELECT 
+    JSON_OBJECT(
+        'sections', JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'SECTIONID', SECTION.ID,
+                'DESCRIPTION', SECTION.DESCRIPTION,
+                'ITEMS', (
+                    SELECT JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'ID', IM.ID,
+                            'ITEMCODE', IM.CODE,
+                            'NAMEENG', IM.NAMEENG,
+                            'DCDID', dcd.ID,
+                            'DAILYCONSUMPTIONID', dcd.DAILYCONSUMPTIONID,
+                            'ITEMVARIATIONID', dcd.ITEMVARIATIONID,
+                            'QTY', dcd.ACTUALQTY
+                        )
+                    )
+                    FROM (
+                        SELECT DISTINCT ID, DAILYCONSUMPTIONID, ITEMVARIATIONID, ACTUALQTY, SECTIONID
+                        FROM DAILYCONSUMPTIONDETAIL
+                        WHERE DAILYCONSUMPTIONDETAIL.DAILYCONSUMPTIONID = DAILYCONSUMPTION.ID
+                          AND DAILYCONSUMPTIONDETAIL.DAILYCONSUMPTIONID IS NOT NULL
+                    ) AS dcd
+                    LEFT JOIN ITEMVARIATION IV ON IV.ID = dcd.ITEMVARIATIONID
+                    LEFT JOIN ITEM IM ON IM.ID = IV.ITEMID
+                )
+            )
+        ),
+        'PRODUCTITEMID', DAILYCONSUMPTION.PRODUCTITEMID,
+        'PRODUCTNAME', PRODUCTITEM.NAMEENG,
+        'DCID', DAILYCONSUMPTION.ID
+    ) AS Result
+FROM 
+    DAILYCONSUMPTION
+LEFT JOIN 
+    SECTION ON SECTION.ID = DAILYCONSUMPTION.SECTIONID
+LEFT JOIN 
+    ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = DAILYCONSUMPTION.PRODUCTITEMID
+WHERE 
+    DAILYCONSUMPTION.PRODUCTITEMID = ?
+GROUP BY 
+    DAILYCONSUMPTION.PRODUCTITEMID, 
+    DAILYCONSUMPTION.ID,
+    PRODUCTITEM.NAMEENG;
+`;
+
+  dbConnection.query(query, [productItemId], (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).json({ error: "Database query error" });
+    }
+
+    const data = results[0].Result;
+
+    const seenSectionIDs = new Set();
+
+    data.sections = data.sections.filter((section) => {
+      if (seenSectionIDs.has(section.SECTIONID)) {
+        return false;
+      } else {
+        seenSectionIDs.add(section.SECTIONID);
+        return true;
+      }
+    });
+
+    res.json({
+      sections: data.sections,
+      PRODUCTITEMID: data.PRODUCTITEMID,
+      PRODUCTNAME: data.PRODUCTNAME,
+      DCID: data.DCID,
+    });
+
+    // "PRODUCTNAME": "PRODUCT 01",
+    // "PRODUCTITEMID": 7255
+  });
+};
+
+export const updateDailyConsumptionDetail = (req, res) => {
+  const data = req.body;
+
+  if (!data || !data.sections || !data.PRODUCTITEMID) {
+    return res.status(400).send({ message: "Invalid data structure." });
+  }
+
+  const { sections, DCID, PRODUCTITEMID } = data;
+
+  dbConnection.query(
+    `UPDATE DAILYCONSUMPTION SET PRODUCTITEMID = ? WHERE ID = ?`,
+    [PRODUCTITEMID, DCID],
+    (err) => {
+      if (err) {
+        console.error("Error updating DAILYCONSUMPTION:", err);
+        return res
+          .status(500)
+          .send({ message: "Error updating DAILYCONSUMPTION." });
+      }
+
+      sections.forEach((section) => {
+        const { SECTIONID, ITEMS } = section;
+
+        ITEMS.forEach((item) => {
+          const { DCDID, QTY, ITEMVARIATIONID, DAILYCONSUMPTIONID } = item;
+
+          if (!DCDID) {
+            dbConnection.query(
+              `INSERT INTO DAILYCONSUMPTIONDETAIL 
+                  (DAILYCONSUMPTIONID, SECTIONID, ITEMVARIATIONID, ACTUALQTY) 
+                  VALUES (?, ?, ?, ?)`,
+              [DAILYCONSUMPTIONID, SECTIONID, ITEMVARIATIONID, QTY],
+              (insertErr) => {
+                if (insertErr) {
+                  console.error(
+                    "Error inserting into DAILYCONSUMPTIONDETAIL:",
+                    insertErr
+                  );
+                  return res.status(500).send({
+                    message: "Error inserting DAILYCONSUMPTIONDETAIL.",
+                  });
+                }
+              }
+            );
+          } else {
+            dbConnection.query(
+              `UPDATE DAILYCONSUMPTIONDETAIL 
+                  SET ACTUALQTY = ?, ITEMVARIATIONID = ? 
+                  WHERE ID = ?`,
+              [QTY, ITEMVARIATIONID, DCDID],
+              (updateErr) => {
+                if (updateErr) {
+                  console.error(
+                    "Error updating DAILYCONSUMPTIONDETAIL:",
+                    updateErr
+                  );
+                  return res.status(500).send({
+                    message: "Error updating DAILYCONSUMPTIONDETAIL.",
+                  });
+                }
+              }
+            );
+          }
+        });
+      });
+
+      res
+        .status(200)
+        .send({ message: "Daily consumption details updated successfully." });
+    }
+  );
+};

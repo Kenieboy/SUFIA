@@ -5,6 +5,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 // data fetching tanstack component
 import { useQuery } from "@tanstack/react-query";
 import {
+  getDailyConsumptionData,
+  getProductDailyConsumptionById,
   getProductItem,
   getProductStandardConsumptionById,
   getStandardConsumptionData,
@@ -48,6 +50,16 @@ function Production() {
   } = useQuery({
     queryKey: ["standardconsumption"],
     queryFn: getStandardConsumptionData,
+  });
+
+  const {
+    isPending: isDailyConsumptionDataPending,
+    error: dailyConsumptionDataError,
+    data: dailyConsumptionData,
+    refetch: refetchDailyConsumptionData,
+  } = useQuery({
+    queryKey: ["dailyconsumption"],
+    queryFn: getDailyConsumptionData,
   });
 
   useEffect(() => {
@@ -170,6 +182,77 @@ function Production() {
             >
               Create Daily Consuption
             </button>
+          </div>
+
+          <div className="table-container mt-2">
+            <table className="min-w-full table-fixed-header text-[12px]">
+              <thead>
+                <tr>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    ID
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300">REFNO</th>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    PRODUCT
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    DATE
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    NOTE
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300 w-[200px]">
+                    INPUTBY
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300 w-[150px]">
+                    ACTION
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white text-[10px]">
+                {dailyConsumptionData &&
+                  dailyConsumptionData.map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-50 cursor-pointer ${
+                        index % 2 !== 0 ? "bg-gray-100" : ""
+                      }`}
+                      onClick={async () => {
+                        console.log(item.PRODUCTITEMID);
+
+                        const obj = await getProductDailyConsumptionById(
+                          item.PRODUCTITEMID
+                        );
+                        dispatch(updateSelectedProduct(obj));
+                        dispatch(updateIsEditMode(true));
+                        navigate("/editdailyconsumption");
+                      }}
+                    >
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.ID}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.REFNO}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.NAMEENG}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.DATE}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.NOTE}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.INPUTBY}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        ACTION
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </TabsContent>
       </Tabs>

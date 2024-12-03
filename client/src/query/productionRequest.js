@@ -97,14 +97,40 @@ async function updateProductStandardConsumptionData(value) {
   return data;
 }
 
+async function getDailyConsumptionData() {
+  const res = await axios.get(`${BASEURL}/production/daily-consumption`);
+  const data = res.data;
+  return data;
+}
+
+async function getProductDailyConsumptionById(value) {
+  const res = await axios.get(
+    `${BASEURL}/production/daily-consumption-data/${value}`
+  );
+  const data = res.data;
+  return data;
+}
+
+async function updateProductDailyConsumptionData(value) {
+  const res = await axios.post(
+    `${BASEURL}/production/update-daily-consumption-detail`,
+    value
+  );
+  const data = res.data;
+  return data;
+}
+
 export {
   getProductItem,
   getProductSection,
   getProductStandardConsumptionDetail,
   getProductStandardConsumptionById,
   getStandardConsumptionData,
+  getDailyConsumptionData,
+  getProductDailyConsumptionById,
   insertProductSection,
   insertProductStandardConsumption,
   insertProductDailyConsumption,
   updateProductStandardConsumptionData,
+  updateProductDailyConsumptionData,
 };

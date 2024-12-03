@@ -1,6 +1,8 @@
 import express from "express";
 
 import {
+  getDailyConsumptionData,
+  getDailyConsumptionDataForUpdate,
   getProduct,
   getSection,
   getStandardConsumptionData,
@@ -9,6 +11,7 @@ import {
   insertSection,
   insertStandardConsumption,
   requestStandartConsumptionDetail,
+  updateDailyConsumptionDetail,
   updateStandardConsumptionDetail,
 } from "../models/productionModel.js";
 
@@ -40,5 +43,13 @@ router.get("/standard-consumption-detail", requestStandartConsumptionDetail);
 
 //daily consumption
 router.post("/daily-consumption", insertDailyConsumptionData);
+
+router.get("/daily-consumption", getDailyConsumptionData);
+router.get(
+  "/daily-consumption-data/:productItemId",
+  getDailyConsumptionDataForUpdate
+);
+
+router.post("/update-daily-consumption-detail", updateDailyConsumptionDetail);
 
 export default router;
