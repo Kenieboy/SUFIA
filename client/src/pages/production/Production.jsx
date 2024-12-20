@@ -85,6 +85,9 @@ function Production() {
             Standard Consumption
           </TabsTrigger>
           <TabsTrigger value="daily-consumption">Daily Consumption</TabsTrigger>
+          <TabsTrigger value="monthly-product-entry">
+            Monthly Product Entry
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="standard-consumption">
           <div className="space-x-2">
@@ -254,6 +257,10 @@ function Production() {
               </tbody>
             </table>
           </div>
+        </TabsContent>
+
+        <TabsContent value="monthly-product-entry">
+          <p>Monthly Product Entry</p>
         </TabsContent>
       </Tabs>
 
