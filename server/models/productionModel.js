@@ -752,3 +752,91 @@ export const updateDailyConsumptionDetail = (req, res) => {
     }
   );
 };
+
+export const getItemDetailForMonthlyEntry = async (req, res) => {
+  const itemId = req.params.id;
+
+  const query = `
+    SELECT ITEM.ID, ITEM.CODE, 
+           ITEM.NAMEENG, 
+           ITEMVARIATION.ID AS ITEMVARIATIONID, 
+           ITEMVARIATION.ITEMUNITID, 
+           ITEMUNIT.DESCRIPTIONEN AS ITEMUNITCODE, 
+           ITEMVARIATION.FORPO, 
+           ITEMVARIATION.FORSO, 
+           1 AS QTY
+    FROM ITEM
+    LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ITEMID = ITEM.ID
+    LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+    WHERE ITEM.ID = ? AND ITEMVARIATION.FORPO = 1;
+  `;
+
+  try {
+    const [rows] = await dbConnection.promise().query(query, [itemId]);
+
+    const itemDetail = rows[0] || null;
+
+    if (itemDetail) {
+      res.json(itemDetail);
+    } else {
+      res.status(404).json({ error: "Item not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching item details:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const insertProductionDetails = async (req, res) => {
+  const { date, productMemTable } = req.body;
+
+  // Step 1: Insert into the PRODUCTION table
+  const insertProductionQuery = `
+    INSERT INTO PRODUCTION (DATEPRODUCTION, USERID)
+    VALUES (?, ?);
+  `;
+
+  try {
+    // Inserting into PRODUCTION table
+    const [productionResult] = await dbConnection
+      .promise()
+      .query(insertProductionQuery, [date, 1]);
+
+    // Step 2: Retrieve the inserted PRODUCTIONID
+    const productionId = productionResult.insertId;
+
+    // Step 3: Insert into the PRODUCTIONDETAIL table for each item in productMemTable
+    const insertDetailPromises = productMemTable.map(async (item, index) => {
+      const { SOID, ID, ITEMVARIATIONID, QTY } = item;
+
+      // Line number is calculated based on the index (index + 1 because LINENO starts at 1)
+      const lineNo = index + 1;
+
+      const insertDetailQuery = `
+        INSERT INTO PRODUCTIONDETAIL (PRODUCTIONID, SOID, LINENO, ITEMID, ITEMVARIATIONID, QTY)
+        VALUES (?, ?, ?, ?, ?, ?);
+      `;
+
+      await dbConnection
+        .promise()
+        .query(insertDetailQuery, [
+          productionId,
+          SOID,
+          lineNo,
+          ID,
+          ITEMVARIATIONID,
+          QTY,
+        ]);
+    });
+
+    // Wait for all the promises to complete
+    await Promise.all(insertDetailPromises);
+
+    res
+      .status(200)
+      .json({ message: "Production and details inserted successfully" });
+  } catch (err) {
+    console.error("Error inserting production and details:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

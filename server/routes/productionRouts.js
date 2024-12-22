@@ -3,11 +3,13 @@ import express from "express";
 import {
   getDailyConsumptionData,
   getDailyConsumptionDataForUpdate,
+  getItemDetailForMonthlyEntry,
   getProduct,
   getSection,
   getStandardConsumptionData,
   getStandardConsumptionDataForUpdate,
   insertDailyConsumptionData,
+  insertProductionDetails,
   insertSection,
   insertStandardConsumption,
   requestStandartConsumptionDetail,
@@ -51,5 +53,8 @@ router.get(
 );
 
 router.post("/update-daily-consumption-detail", updateDailyConsumptionDetail);
+
+router.get("/item-details/:id", getItemDetailForMonthlyEntry);
+router.post("/insertProductionWithDetails", insertProductionDetails);
 
 export default router;

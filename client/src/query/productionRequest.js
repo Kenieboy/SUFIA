@@ -120,6 +120,12 @@ async function updateProductDailyConsumptionData(value) {
   return data;
 }
 
+async function getItemDetail(value) {
+  const res = await axios.get(`${BASEURL}/production/item-details/${value}`);
+  const data = res.data;
+  return data;
+}
+
 export {
   getProductItem,
   getProductSection,
@@ -128,6 +134,7 @@ export {
   getStandardConsumptionData,
   getDailyConsumptionData,
   getProductDailyConsumptionById,
+  getItemDetail,
   insertProductSection,
   insertProductStandardConsumption,
   insertProductDailyConsumption,

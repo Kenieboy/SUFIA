@@ -260,7 +260,16 @@ function Production() {
         </TabsContent>
 
         <TabsContent value="monthly-product-entry">
-          <p>Monthly Product Entry</p>
+          <div className="space-x-2">
+            <button
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-400"
+              onClick={() => {
+                navigate("/monthly-product-entry");
+              }}
+            >
+              New Entry
+            </button>
+          </div>
         </TabsContent>
       </Tabs>
 

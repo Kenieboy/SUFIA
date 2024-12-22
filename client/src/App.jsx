@@ -43,6 +43,7 @@ import Login from "./pages/login/Login";
 import StandardConsumptionEntry from "./pages/production/standardconsumption/StandardConsumptionEntry";
 import DailyConsumptionEntry from "./pages/production/dailyconsumption/DailyConsumptionEntry";
 import DailyConsumptionEditEntry from "./pages/production/dailyconsumption/DailyConsumptionEditEntry";
+import MonthlyProductEntry from "./pages/production/monthlyproductentry/MonthlyProductEntry";
 
 function App() {
   const currentUser = useSelector((state) => state.auth.currentUser);
@@ -201,6 +202,10 @@ function App() {
         {
           path: "editdailyconsumption",
           element: <DailyConsumptionEditEntry />,
+        },
+        {
+          path: "monthly-product-entry",
+          element: <MonthlyProductEntry />,
         },
         {
           path: "reports",

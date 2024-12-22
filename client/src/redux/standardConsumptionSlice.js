@@ -7,12 +7,45 @@ const initialState = {
     sections: [],
   },
   dailyConsumption: [],
+  monthlyProductEntry: [],
 };
 
 const scSlice = createSlice({
   name: "sc",
   initialState,
   reducers: {
+    addMonthlyProductEntry: (state, action) => {
+      const productExists = state.monthlyProductEntry.some(
+        (entry) => entry.ID === action.payload.ID
+      );
+
+      if (productExists) {
+        alert("Product already exists");
+        return; // Exit the function without adding the product
+      }
+
+      state.monthlyProductEntry = [
+        ...state.monthlyProductEntry,
+        action.payload,
+      ];
+    },
+    updateQtyForMonthlyProductEntry: (state, action) => {
+      const { ID, QTY } = action.payload;
+
+      const product = state.monthlyProductEntry.find(
+        (entry) => entry.ID === ID
+      );
+
+      if (product) {
+        product.QTY = QTY; // Update the QTY field
+      } else {
+        alert("Product not found");
+      }
+    },
+
+    clearMonthlyProductEntryData: (state) => {
+      state.monthlyProductEntry = [];
+    },
     updateSelectedProduct: (state, action) => {
       state.selectedProduct = { ...state.selectedProduct, ...action.payload };
     },
@@ -117,6 +150,9 @@ export const {
   updateDialyConsumptionItemQty,
   updateItemQty,
   removeItemSection,
+  addMonthlyProductEntry,
+  updateQtyForMonthlyProductEntry,
+  clearMonthlyProductEntryData,
 } = scSlice.actions;
 
 export default scSlice.reducer;
