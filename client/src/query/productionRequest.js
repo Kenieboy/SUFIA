@@ -135,6 +135,20 @@ async function insertMonthlyProductEntry(value) {
   return data;
 }
 
+async function getMonthlyProductData() {
+  const res = await axios.get(
+    `${BASEURL}/production/monthly-product-entry-data`
+  );
+  const data = res.data;
+  return data;
+}
+
+async function getMonthlyProductDetail(value) {
+  const res = await axios.get(`${BASEURL}/production/${value}/details`);
+  const data = res.data;
+  return data;
+}
+
 export {
   getProductItem,
   getProductSection,
@@ -143,6 +157,8 @@ export {
   getStandardConsumptionData,
   getDailyConsumptionData,
   getProductDailyConsumptionById,
+  getMonthlyProductData,
+  getMonthlyProductDetail,
   getItemDetail,
   insertProductSection,
   insertProductStandardConsumption,

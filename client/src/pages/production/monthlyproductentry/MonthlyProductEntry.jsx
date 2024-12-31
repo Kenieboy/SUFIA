@@ -22,6 +22,7 @@ import {
 import {
   addMonthlyProductEntry,
   clearMonthlyProductEntryData,
+  updateIsEditMode,
   updateQtyForMonthlyProductEntry,
 } from "@/redux/standardConsumptionSlice";
 
@@ -31,6 +32,7 @@ function MonthlyProductEntry() {
   const productMemTable = useSelector(
     (state) => state.scData.monthlyProductEntry
   );
+  const applicationState = useSelector((state) => state.scData);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -65,6 +67,10 @@ function MonthlyProductEntry() {
     <div>
       <div>
         <h1 className="text-xl font-bold">New Monthly Product Entry</h1>
+        <h2>
+          Edit mode:{" "}
+          {applicationState.isEditMode ? "edit mode" : "off edit mode"}
+        </h2>
         <Separator />
 
         <div className="flex items-center gap-2 mt-2">
@@ -207,6 +213,7 @@ function MonthlyProductEntry() {
             onClick={() => {
               navigate("/production");
               dispatch(clearMonthlyProductEntryData());
+              dispatch(updateIsEditMode(false));
             }}
           >
             Close

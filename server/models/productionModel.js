@@ -897,3 +897,69 @@ export const insertProductionDetails = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const getMonthlyProductEntryData = (req, res) => {
+  const SQL = `SELECT * FROM PRODUCTION;`;
+
+  dbConnection.query(SQL, (err, result) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Error connecting to the database" });
+    }
+
+    return res.json(result);
+  });
+};
+
+export const getProductionDetails = async (req, res) => {
+  try {
+    const productionId = req.params.productionId;
+
+    // Validate input
+    if (!productionId || isNaN(productionId)) {
+      return res.status(400).json({ error: "Invalid production ID" });
+    }
+
+    const query = `
+      SELECT IFNULL(JSON_ARRAYAGG(
+        JSON_OBJECT(
+          'CODE', ITEM.CODE,
+          'NAMEENG', ITEM.NAMEENG,
+          'ITEMUNITID', ITEMVARIATION.ITEMUNITID,
+          'ITEMUNITCODE', ITEMUNIT.DESCRIPTIONEN,
+          'ID', PRODUCTIONDETAIL.ID,
+          'SOID', PRODUCTIONDETAIL.SOID,
+          'LINENO', PRODUCTIONDETAIL.LINENO,
+          'ITEMID', PRODUCTIONDETAIL.ITEMID,
+          'ITEMVARIATIONID', PRODUCTIONDETAIL.ITEMVARIATIONID,
+          'QTY', PRODUCTIONDETAIL.QTY
+        )
+      ), JSON_ARRAY()) AS result
+      FROM PRODUCTION
+      LEFT JOIN PRODUCTIONDETAIL ON PRODUCTIONDETAIL.PRODUCTIONID = PRODUCTION.ID
+      LEFT JOIN ITEM ON ITEM.ID = PRODUCTIONDETAIL.ITEMID
+      LEFT JOIN ITEMVARIATION ON ITEMVARIATION.ID = PRODUCTIONDETAIL.ITEMVARIATIONID
+      LEFT JOIN ITEMUNIT ON ITEMUNIT.ID = ITEMVARIATION.ITEMUNITID
+      WHERE PRODUCTION.ID = ?;
+    `;
+
+    const [rows] = await dbConnection.promise().query(query, [productionId]);
+
+    // Extract the result
+    const rawResult = rows[0]?.result;
+
+    if (!rawResult) {
+      return res.status(404).json({ error: "No production details found" });
+    }
+
+    // Ensure the result is a valid JSON string
+    const parsedResult =
+      typeof rawResult === "string" ? JSON.parse(rawResult) : rawResult;
+
+    res.status(200).json(parsedResult); // Send parsed result as response
+  } catch (err) {
+    console.error("Error fetching production details:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};

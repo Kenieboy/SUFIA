@@ -4,7 +4,9 @@ import {
   getDailyConsumptionData,
   getDailyConsumptionDataForUpdate,
   getItemDetailForMonthlyEntry,
+  getMonthlyProductEntryData,
   getProduct,
+  getProductionDetails,
   getSection,
   getStandardConsumptionData,
   getStandardConsumptionDataForUpdate,
@@ -56,5 +58,7 @@ router.post("/update-daily-consumption-detail", updateDailyConsumptionDetail);
 
 router.get("/item-details/:id", getItemDetailForMonthlyEntry);
 router.post("/insertProductionWithDetails", insertProductionDetails);
+router.get("/monthly-product-entry-data", getMonthlyProductEntryData);
+router.get("/:productionId/details", getProductionDetails);
 
 export default router;

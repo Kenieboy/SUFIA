@@ -6,6 +6,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
   getDailyConsumptionData,
+  getMonthlyProductData,
+  getMonthlyProductDetail,
   getProductDailyConsumptionById,
   getProductItem,
   getProductStandardConsumptionById,
@@ -13,6 +15,7 @@ import {
 } from "@/query/productionRequest";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  addMonthlyProductEntry,
   setSelectedProduct,
   updateIsEditMode,
   updateSelectedProduct,
@@ -25,6 +28,10 @@ import { useEffect } from "react";
 function Production() {
   const [modalState, setModalState] = useState(false);
   const [path, setPath] = useState(null);
+  const [defaultTab, setDefaultTab] = useState(() => {
+    const savedTab = localStorage.getItem("defaultTab");
+    return savedTab ? savedTab : "standard-consumption";
+  });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -62,6 +69,16 @@ function Production() {
     queryFn: getDailyConsumptionData,
   });
 
+  const {
+    isPending: isMonthlyProductDataPending,
+    error: monthlyProductDataError,
+    data: monthlyProductData,
+    refetch: refetchMonthlyProductData,
+  } = useQuery({
+    queryKey: ["monthlyproductdata"],
+    queryFn: getMonthlyProductData,
+  });
+
   useEffect(() => {
     refetchStandardConsumptionData;
   }, [navigate, applicationState, path, dispatch]);
@@ -69,6 +86,13 @@ function Production() {
   const handleModalStateAction = () => {
     setModalState((prev) => !prev);
   };
+
+  const handleTabChange = (newTab) => {
+    setDefaultTab(newTab);
+    localStorage.setItem("defaultTab", newTab); // Save the selected tab to localStorage
+  };
+
+  console.log(defaultTab);
 
   return (
     <div>
@@ -79,13 +103,24 @@ function Production() {
         <Link to="/newdailyconsumption">New PCS</Link> */}
       </div>
 
-      <Tabs defaultValue="standard-consumption" className="">
+      <Tabs defaultValue={defaultTab} className="">
         <TabsList>
-          <TabsTrigger value="standard-consumption">
+          <TabsTrigger
+            value="standard-consumption"
+            onClick={() => handleTabChange("standard-consumption")}
+          >
             Standard Consumption
           </TabsTrigger>
-          <TabsTrigger value="daily-consumption">Daily Consumption</TabsTrigger>
-          <TabsTrigger value="monthly-product-entry">
+          <TabsTrigger
+            value="daily-consumption"
+            onClick={() => handleTabChange("daily-consumption")}
+          >
+            Daily Consumption
+          </TabsTrigger>
+          <TabsTrigger
+            value="monthly-product-entry"
+            onClick={() => handleTabChange("monthly-product-entry")}
+          >
             Monthly Product Entry
           </TabsTrigger>
         </TabsList>
@@ -157,7 +192,9 @@ function Production() {
                         {item.NAMEENG}
                       </td>
                       <td className="px-4 py-1 border border-gray-300">
-                        {item.DATE}
+                        {item.DATE
+                          ? new Date(item.DATE).toLocaleDateString("en-US")
+                          : "N/A"}
                       </td>
                       <td className="px-4 py-1 border border-gray-300">
                         {item.NOTE}
@@ -241,7 +278,9 @@ function Production() {
                         {item.NAMEENG}
                       </td>
                       <td className="px-4 py-1 border border-gray-300">
-                        {item.DATE}
+                        {item.DATE
+                          ? new Date(item.DATE).toLocaleDateString("en-US")
+                          : "N/A"}
                       </td>
                       <td className="px-4 py-1 border border-gray-300">
                         {item.NOTE}
@@ -271,7 +310,77 @@ function Production() {
             </button>
           </div>
 
-          <div className="bg-green-300">test</div>
+          <div className="table-container mt-2">
+            <table className="min-w-full table-fixed-header text-[12px]">
+              <thead>
+                <tr>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    ID
+                  </th>
+                  <th className="px-4 py-1 border border-gray-300">DATE</th>
+                  <th className="px-4 py-1 border border-gray-300 w-[100px]">
+                    USER
+                  </th>
+
+                  <th className="px-4 py-1 border border-gray-300 w-[150px]">
+                    ACTION
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white text-[10px]">
+                {monthlyProductData &&
+                  monthlyProductData.map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-50 cursor-pointer ${
+                        index % 2 !== 0 ? "bg-gray-100" : ""
+                      }`}
+                      onClick={async () => {
+                        try {
+                          // Fetch data for the selected product
+                          const data = await getMonthlyProductDetail(item.ID);
+
+                          if (Array.isArray(data) && data.length > 0) {
+                            // Loop through each item and dispatch it individually
+                            data.forEach((product) => {
+                              dispatch(addMonthlyProductEntry(product)); // Dispatch each item as an array
+                            });
+
+                            console.log("Added monthly product entries:", data);
+                            dispatch(updateIsEditMode(true));
+                            navigate("/monthly-product-entry");
+                          } else {
+                            console.log("No data found for the product.");
+                          }
+                        } catch (error) {
+                          console.error(
+                            "Error fetching product details:",
+                            error
+                          );
+                        }
+                      }}
+                    >
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.ID}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.DATEPRODUCTION
+                          ? new Date(item.DATEPRODUCTION).toLocaleDateString(
+                              "en-US"
+                            )
+                          : "N/A"}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        {item.USER}
+                      </td>
+                      <td className="px-4 py-1 border border-gray-300">
+                        ACTION
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </TabsContent>
       </Tabs>
 
