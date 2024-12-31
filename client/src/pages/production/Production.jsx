@@ -79,7 +79,7 @@ function Production() {
         <Link to="/newdailyconsumption">New PCS</Link> */}
       </div>
 
-      <Tabs defaultValue="standard-consumption" className="w-[400px]">
+      <Tabs defaultValue="standard-consumption" className="">
         <TabsList>
           <TabsTrigger value="standard-consumption">
             Standard Consumption
@@ -270,6 +270,8 @@ function Production() {
               New Entry
             </button>
           </div>
+
+          <div className="bg-green-300">test</div>
         </TabsContent>
       </Tabs>
 

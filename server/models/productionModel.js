@@ -787,17 +787,78 @@ export const getItemDetailForMonthlyEntry = async (req, res) => {
   }
 };
 
+// export const insertProductionDetails = async (req, res) => {
+//   const { date, productMemTable } = req.body;
+
+//   // Step 1: Insert into the PRODUCTION table
+//   const insertProductionQuery = `
+//     INSERT INTO PRODUCTION (DATEPRODUCTION, USERID)
+//     VALUES (?, ?);
+//   `;
+
+//   try {
+//     // Inserting into PRODUCTION table
+//     const [productionResult] = await dbConnection
+//       .promise()
+//       .query(insertProductionQuery, [date, 1]);
+
+//     // Step 2: Retrieve the inserted PRODUCTIONID
+//     const productionId = productionResult.insertId;
+
+//     // Step 3: Insert into the PRODUCTIONDETAIL table for each item in productMemTable
+//     const insertDetailPromises = productMemTable.map(async (item, index) => {
+//       const { SOID, ID, ITEMVARIATIONID, QTY } = item;
+
+//       // Line number is calculated based on the index (index + 1 because LINENO starts at 1)
+//       const lineNo = index + 1;
+
+//       const insertDetailQuery = `
+//         INSERT INTO PRODUCTIONDETAIL (PRODUCTIONID, SOID, LINENO, ITEMID, ITEMVARIATIONID, QTY)
+//         VALUES (?, ?, ?, ?, ?, ?);
+//       `;
+
+//       await dbConnection
+//         .promise()
+//         .query(insertDetailQuery, [
+//           productionId,
+//           SOID,
+//           lineNo,
+//           ID,
+//           ITEMVARIATIONID,
+//           QTY,
+//         ]);
+//     });
+
+//     // Wait for all the promises to complete
+//     await Promise.all(insertDetailPromises);
+
+//     res
+//       .status(200)
+//       .json({ message: "Production and details inserted successfully" });
+//   } catch (err) {
+//     console.error("Error inserting production and details:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
 export const insertProductionDetails = async (req, res) => {
-  const { date, productMemTable } = req.body;
-
-  // Step 1: Insert into the PRODUCTION table
-  const insertProductionQuery = `
-    INSERT INTO PRODUCTION (DATEPRODUCTION, USERID)
-    VALUES (?, ?);
-  `;
-
   try {
-    // Inserting into PRODUCTION table
+    const { date, productMemTable } = req.body;
+
+    // Validate input
+    if (
+      !date ||
+      !Array.isArray(productMemTable) ||
+      productMemTable.length === 0
+    ) {
+      return res.status(400).json({ error: "Invalid input data" });
+    }
+
+    // Step 1: Insert into the PRODUCTION table
+    const insertProductionQuery = `
+      INSERT INTO PRODUCTION (DATEPRODUCTION, USERID)
+      VALUES (?, ?);
+    `;
     const [productionResult] = await dbConnection
       .promise()
       .query(insertProductionQuery, [date, 1]);
@@ -805,19 +866,16 @@ export const insertProductionDetails = async (req, res) => {
     // Step 2: Retrieve the inserted PRODUCTIONID
     const productionId = productionResult.insertId;
 
-    // Step 3: Insert into the PRODUCTIONDETAIL table for each item in productMemTable
-    const insertDetailPromises = productMemTable.map(async (item, index) => {
-      const { SOID, ID, ITEMVARIATIONID, QTY } = item;
-
-      // Line number is calculated based on the index (index + 1 because LINENO starts at 1)
+    // Step 3: Insert into the PRODUCTIONDETAIL table
+    const insertDetailPromises = productMemTable.map((item, index) => {
+      const { SOID = null, ID, ITEMVARIATIONID, QTY } = item;
       const lineNo = index + 1;
 
       const insertDetailQuery = `
         INSERT INTO PRODUCTIONDETAIL (PRODUCTIONID, SOID, LINENO, ITEMID, ITEMVARIATIONID, QTY)
         VALUES (?, ?, ?, ?, ?, ?);
       `;
-
-      await dbConnection
+      return dbConnection
         .promise()
         .query(insertDetailQuery, [
           productionId,
@@ -829,7 +887,6 @@ export const insertProductionDetails = async (req, res) => {
         ]);
     });
 
-    // Wait for all the promises to complete
     await Promise.all(insertDetailPromises);
 
     res

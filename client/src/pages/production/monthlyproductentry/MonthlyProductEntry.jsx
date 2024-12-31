@@ -14,7 +14,11 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { getItemDetail, getProductItem } from "@/query/productionRequest";
+import {
+  getItemDetail,
+  getProductItem,
+  insertMonthlyProductEntry,
+} from "@/query/productionRequest";
 import {
   addMonthlyProductEntry,
   clearMonthlyProductEntryData,
@@ -174,7 +178,22 @@ function MonthlyProductEntry() {
               if (date === "") {
                 alert("Please provide date!");
               } else {
-                console.log({ date, productMemTable });
+                //console.log({ date, productMemTable });
+
+                insertMonthlyProductEntry({
+                  date,
+                  productMemTable,
+                })
+                  .then(() => {
+                    dispatch(clearMonthlyProductEntryData());
+                    navigate("/production");
+                  })
+                  .catch((error) => {
+                    console.error(
+                      "Error:",
+                      error.response?.data || error.message
+                    );
+                  });
               }
             }}
           >
