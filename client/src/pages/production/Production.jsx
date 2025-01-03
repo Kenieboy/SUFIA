@@ -16,6 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMonthlyProductEntry,
+  setProductionData,
   setSelectedProduct,
   updateIsEditMode,
   updateSelectedProduct,
@@ -91,8 +92,6 @@ function Production() {
     setDefaultTab(newTab);
     localStorage.setItem("defaultTab", newTab); // Save the selected tab to localStorage
   };
-
-  console.log(defaultTab);
 
   return (
     <div>
@@ -346,7 +345,7 @@ function Production() {
                               dispatch(addMonthlyProductEntry(product)); // Dispatch each item as an array
                             });
 
-                            console.log("Added monthly product entries:", data);
+                            dispatch(setProductionData(item));
                             dispatch(updateIsEditMode(true));
                             navigate("/monthly-product-entry");
                           } else {

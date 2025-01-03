@@ -963,3 +963,70 @@ export const getProductionDetails = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const updateProductionDetail = (req, res) => {
+  const { productionID, date, productMemTable } = req.body;
+
+  // Update the PRODUCTION table
+  const updateProductionQuery =
+    "UPDATE PRODUCTION SET DATEPRODUCTION = ? WHERE ID = ?";
+  dbConnection.query(
+    updateProductionQuery,
+    [date, productionID],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Error updating production", error: err });
+      }
+
+      // Use a promise to ensure all product updates are completed before sending the response
+      const updatePromises = productMemTable.map((product) => {
+        const {
+          ID,
+          QTY,
+          CODE,
+          SOID,
+          ITEMID,
+          LINENO,
+          ITEMUNITID,
+          ITEMVARIATIONID,
+        } = product;
+
+        const updateDetailQuery = `
+          UPDATE PRODUCTIONDETAIL 
+          SET QTY = ?, SOID = ?, ITEMVARIATIONID = ? 
+          WHERE ID = ? AND PRODUCTIONID = ?
+        `;
+
+        return new Promise((resolve, reject) => {
+          dbConnection.query(
+            updateDetailQuery,
+            [QTY, SOID, ITEMVARIATIONID, ID, productionID],
+            (err, result) => {
+              if (err) {
+                reject({
+                  message: "Error updating production details",
+                  error: err,
+                });
+              } else {
+                resolve(result);
+              }
+            }
+          );
+        });
+      });
+
+      // Wait for all update queries to finish before sending a response
+      Promise.all(updatePromises)
+        .then(() => {
+          res.status(200).json({
+            message: "Production and production details updated successfully",
+          });
+        })
+        .catch((error) => {
+          res.status(500).json(error);
+        });
+    }
+  );
+};

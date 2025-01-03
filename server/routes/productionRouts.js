@@ -16,6 +16,7 @@ import {
   insertStandardConsumption,
   requestStandartConsumptionDetail,
   updateDailyConsumptionDetail,
+  updateProductionDetail,
   updateStandardConsumptionDetail,
 } from "../models/productionModel.js";
 
@@ -60,5 +61,6 @@ router.get("/item-details/:id", getItemDetailForMonthlyEntry);
 router.post("/insertProductionWithDetails", insertProductionDetails);
 router.get("/monthly-product-entry-data", getMonthlyProductEntryData);
 router.get("/:productionId/details", getProductionDetails);
+router.put("/update-production", updateProductionDetail);
 
 export default router;

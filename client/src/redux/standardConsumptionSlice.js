@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { format } from "date-fns";
 
 const initialState = {
   lastUsedId: 0,
@@ -8,6 +9,7 @@ const initialState = {
   },
   dailyConsumption: [],
   monthlyProductEntry: [],
+  productionData: {},
 };
 
 const scSlice = createSlice({
@@ -135,6 +137,19 @@ const scSlice = createSlice({
         sections: [],
       };
     },
+    setProductionData: (state, action) => {
+      const formattedPayload = {
+        ...action.payload,
+        DATEPRODUCTION: format(
+          new Date(action.payload.DATEPRODUCTION),
+          "yyyy-MM-dd"
+        ),
+      };
+      state.productionData = formattedPayload;
+    },
+    clearProductionData: (state) => {
+      state.productionData = {};
+    },
   },
 });
 
@@ -143,8 +158,10 @@ export const {
   updateIsEditMode,
   loadDailyConsumptionData,
   setSelectedProduct,
+  setProductionData,
   resetDailyConsumptionBasket,
   clearSelectedProduct,
+  clearProductionData,
   setSelectedSection,
   addItemToSection,
   updateDialyConsumptionItemQty,

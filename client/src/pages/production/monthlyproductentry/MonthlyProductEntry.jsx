@@ -18,10 +18,12 @@ import {
   getItemDetail,
   getProductItem,
   insertMonthlyProductEntry,
+  updateProductionDetail,
 } from "@/query/productionRequest";
 import {
   addMonthlyProductEntry,
   clearMonthlyProductEntryData,
+  clearProductionData,
   updateIsEditMode,
   updateQtyForMonthlyProductEntry,
 } from "@/redux/standardConsumptionSlice";
@@ -62,6 +64,12 @@ function MonthlyProductEntry() {
       maximumFractionDigits: 2,
     });
   };
+
+  useEffect(() => {
+    if (applicationState.isEditMode) {
+      setDate(applicationState.productionData.DATEPRODUCTION);
+    }
+  }, [applicationState.isEditMode]);
 
   return (
     <div>
@@ -184,22 +192,45 @@ function MonthlyProductEntry() {
               if (date === "") {
                 alert("Please provide date!");
               } else {
-                //console.log({ date, productMemTable });
-
-                insertMonthlyProductEntry({
-                  date,
-                  productMemTable,
-                })
-                  .then(() => {
-                    dispatch(clearMonthlyProductEntryData());
-                    navigate("/production");
+                if (applicationState.isEditMode) {
+                  const productionID = applicationState.productionData?.ID;
+                  if (productionID) {
+                    updateProductionDetail({
+                      productionID,
+                      date,
+                      productMemTable,
+                    })
+                      .then(() => {
+                        dispatch(clearMonthlyProductEntryData());
+                        dispatch(clearProductionData());
+                        navigate("/production");
+                      })
+                      .catch((error) => {
+                        console.error(
+                          "Error:",
+                          error.response?.data || error.message
+                        );
+                      });
+                  } else {
+                    console.error("Production data is missing or invalid!");
+                  }
+                } else {
+                  // Trigger insert function
+                  insertMonthlyProductEntry({
+                    date,
+                    productMemTable,
                   })
-                  .catch((error) => {
-                    console.error(
-                      "Error:",
-                      error.response?.data || error.message
-                    );
-                  });
+                    .then(() => {
+                      dispatch(clearMonthlyProductEntryData());
+                      navigate("/production");
+                    })
+                    .catch((error) => {
+                      console.error(
+                        "Error:",
+                        error.response?.data || error.message
+                      );
+                    });
+                }
               }
             }}
           >
@@ -213,6 +244,7 @@ function MonthlyProductEntry() {
             onClick={() => {
               navigate("/production");
               dispatch(clearMonthlyProductEntryData());
+              dispatch(clearProductionData());
               dispatch(updateIsEditMode(false));
             }}
           >
