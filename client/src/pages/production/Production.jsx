@@ -257,10 +257,11 @@ function Production() {
                         index % 2 !== 0 ? "bg-gray-100" : ""
                       }`}
                       onClick={async () => {
-                        console.log(item.PRODUCTITEMID);
+                        console.log(item.PRODUCTITEMID, item.SECTIONID);
 
                         const obj = await getProductDailyConsumptionById(
-                          item.PRODUCTITEMID
+                          item.PRODUCTITEMID,
+                          item.SECTIONID
                         );
                         dispatch(updateSelectedProduct(obj));
                         dispatch(updateIsEditMode(true));

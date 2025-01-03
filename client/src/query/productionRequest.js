@@ -103,9 +103,9 @@ async function getDailyConsumptionData() {
   return data;
 }
 
-async function getProductDailyConsumptionById(value) {
+async function getProductDailyConsumptionById(producItemId, sectionId) {
   const res = await axios.get(
-    `${BASEURL}/production/daily-consumption-data/${value}`
+    `${BASEURL}/production/daily-consumption-data/${producItemId}/${sectionId}`
   );
   const data = res.data;
   return data;

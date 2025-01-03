@@ -51,7 +51,7 @@ router.post("/daily-consumption", insertDailyConsumptionData);
 
 router.get("/daily-consumption", getDailyConsumptionData);
 router.get(
-  "/daily-consumption-data/:productItemId",
+  "/daily-consumption-data/:productItemId/:sectionId",
   getDailyConsumptionDataForUpdate
 );
 

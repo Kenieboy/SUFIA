@@ -558,7 +558,7 @@ left join SECTION ON SECTION.ID = DAILYCONSUMPTION.SECTIONID`,
 };
 
 export const getDailyConsumptionDataForUpdate = (req, res) => {
-  const { productItemId } = req.params;
+  const { productItemId, sectionId } = req.params;
 
   //   const query = `SELECT
   //     JSON_OBJECT(
@@ -642,14 +642,14 @@ LEFT JOIN
 LEFT JOIN 
     ITEM AS PRODUCTITEM ON PRODUCTITEM.ID = DAILYCONSUMPTION.PRODUCTITEMID
 WHERE 
-    DAILYCONSUMPTION.PRODUCTITEMID = ?
+    DAILYCONSUMPTION.PRODUCTITEMID = ? AND DAILYCONSUMPTION.SECTIONID = ?
 GROUP BY 
     DAILYCONSUMPTION.PRODUCTITEMID, 
     DAILYCONSUMPTION.ID,
     PRODUCTITEM.NAMEENG;
 `;
 
-  dbConnection.query(query, [productItemId], (err, results) => {
+  dbConnection.query(query, [productItemId, sectionId], (err, results) => {
     if (err) {
       console.error("Database query error:", err);
       return res.status(500).json({ error: "Database query error" });
