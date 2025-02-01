@@ -84,6 +84,10 @@ function Production() {
     refetchStandardConsumptionData;
   }, [navigate, applicationState, path, dispatch]);
 
+  useEffect(() => {
+    refetchDailyConsumptionData();
+  }, [navigate, applicationState, path, dispatch]);
+
   const handleModalStateAction = () => {
     setModalState((prev) => !prev);
   };
@@ -257,10 +261,12 @@ function Production() {
                         index % 2 !== 0 ? "bg-gray-100" : ""
                       }`}
                       onClick={async () => {
+                        console.log("Hello" + item.ID);
                         console.log(item.PRODUCTITEMID, item.SECTIONID);
 
+                        //updated this area not PRODUCTID but ID
                         const obj = await getProductDailyConsumptionById(
-                          item.PRODUCTITEMID,
+                          item.ID,
                           item.SECTIONID
                         );
                         dispatch(updateSelectedProduct(obj));
