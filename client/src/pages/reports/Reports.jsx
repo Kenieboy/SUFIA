@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReceivingReport from "./ReceivingReport";
 import WithdrawalReport from "./WithdrawalReport";
 import { FileText } from "lucide-react";
+import ProductConsumptionReport from "./ProductConsumptionReport";
 
 function Reports() {
   return (
@@ -12,8 +13,8 @@ function Reports() {
       </div>
 
       <div>
-        <Tabs defaultValue="receiving" className="w-[400px]">
-          <TabsList className="grid w-full grid-cols-2 ">
+        <Tabs defaultValue="receiving" className="w-[600px]">
+          <TabsList className="grid w-full grid-cols-3 ">
             <TabsTrigger
               value="receiving"
               className="text-xs flex gap-1 items-center"
@@ -30,12 +31,23 @@ function Reports() {
               <FileText width={20} height={20} />
               Withdrawal
             </TabsTrigger>
+            <TabsTrigger
+              value="pcr"
+              className="text-xs flex gap-1 items-center"
+            >
+              {/* <PackageMinus width={20} height={20} /> */}
+              <FileText width={20} height={20} />
+              Product Consumption
+            </TabsTrigger>
           </TabsList>
           <TabsContent className="w-[1380px]" value="receiving">
             <ReceivingReport />
           </TabsContent>
           <TabsContent className="w-[1380px]" value="withdrawal">
             <WithdrawalReport />
+          </TabsContent>
+          <TabsContent className="w-[1380px]" value="pcr">
+            <ProductConsumptionReport />
           </TabsContent>
         </Tabs>
       </div>

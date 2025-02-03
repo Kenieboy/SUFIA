@@ -87,4 +87,50 @@ router.get("/withdrawalReport", (req, res) => {
   });
 });
 
+router.get("/material-consumption", async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res
+        .status(400)
+        .json({ error: "Start date and end date are required" });
+    }
+
+    const query = `
+     SELECT 
+    dc.PRODUCTITEMID AS PRODUCTID,
+    i.NAMEENG AS PRODUCTNAME,
+    ic.ID AS ITEMCATEGORYID,
+    ic.DESCRIPTION AS ITEMCATEGORYDESCRIPTION,
+    iv.ID AS ITEMVARIATIONID,
+    i2.NAMEENG AS MATERIALNAME,
+    SUM(dcd.ACTUALQTY) AS QTY,  
+    iu.DESCRIPTIONEN AS UNIT,
+    iv.COST AS UNITCOST,
+    SUM(dcd.ACTUALQTY * iv.COST) AS TOTALCOST 
+FROM DAILYCONSUMPTION dc
+JOIN DAILYCONSUMPTIONDETAIL dcd ON dc.ID = dcd.DAILYCONSUMPTIONID
+JOIN ITEMVARIATION iv ON dcd.ITEMVARIATIONID = iv.ID
+JOIN ITEM i2 ON iv.ITEMID = i2.ID
+JOIN ITEM i ON dc.PRODUCTITEMID = i.ID
+JOIN ITEMUNIT iu ON iv.ITEMUNITID = iu.ID
+JOIN ITEMCATEGORY ic ON i2.ITEMCATEGORYID = ic.ID  
+WHERE dc.DATE BETWEEN ? AND ?
+GROUP BY dc.PRODUCTITEMID, ic.ID, ic.DESCRIPTION, iv.ID, i2.NAMEENG, iu.DESCRIPTIONEN, iv.COST
+ORDER BY dc.PRODUCTITEMID, ic.ID;
+
+
+    `;
+
+    const [rows] = await dbConnection
+      .promise()
+      .query(query, [startDate, endDate]);
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 export default router;

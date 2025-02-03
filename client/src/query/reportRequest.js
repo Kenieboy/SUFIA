@@ -12,4 +12,17 @@ async function getWithdrawalDetailReport() {
   const data = res.data;
   return data;
 }
-export { getPurchaseDeliveryDetailReport, getWithdrawalDetailReport };
+
+async function getProductConsumptionReport(startDate, endDate) {
+  const res = await axios.get(`${BASEURL}/report/material-consumption`, {
+    params: { startDate, endDate }, // Pass dates as query params
+  });
+  const data = res.data;
+  return data;
+}
+
+export {
+  getPurchaseDeliveryDetailReport,
+  getWithdrawalDetailReport,
+  getProductConsumptionReport,
+};
