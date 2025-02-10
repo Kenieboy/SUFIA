@@ -6,6 +6,9 @@ function ProductConsumptionReport() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // const uID = localStorage.getItem("user");
+  // const { ID } = uID ? JSON.parse(uID) : {};
+
   const {
     isPending: isProductionConsumptionPending,
     error: productionConsumptionError,
