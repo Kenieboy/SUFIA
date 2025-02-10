@@ -60,7 +60,7 @@ function ProductConsumptionReport() {
   return (
     <div>
       {/* Date Inputs */}
-      <div className="flex gap-4 mt-6">
+      <div className="flex items-center gap-4 mt-6">
         <label>
           Start Date:
           <input
@@ -79,19 +79,21 @@ function ProductConsumptionReport() {
             onChange={(e) => setEndDate(e.target.value)}
           />
         </label>
-        <button
-          onClick={handleFetchData}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-        >
-          Fetch Report
-        </button>
+        <div>
+          <button
+            onClick={handleFetchData}
+            className="px-4 py-2 bg-green-500 text-white rounded-full"
+          >
+            Fetch Report
+          </button>
+        </div>
       </div>
 
       {/* Loading and Error Handling */}
-      {isProductionConsumptionPending && <p>Loading...</p>}
+      {/* {isProductionConsumptionPending && <p>Loading...</p>}
       {productionConsumptionError && (
         <p>Error: {productionConsumptionError.message}</p>
-      )}
+      )} */}
 
       {/* Render Report */}
       {productionConsumptionData && (
